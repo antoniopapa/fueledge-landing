@@ -1,0 +1,58 @@
+import { useNavigate } from 'react-router-dom';
+import type { Customer, CustomerLocation } from '@/mocks/customers';
+
+export default function LocationHeader({
+  customer,
+  location,
+}: {
+  customer: Customer;
+  location: CustomerLocation;
+}) {
+  const navigate = useNavigate();
+
+  return (
+    <div className="rounded-lg border border-background-200 bg-background-50 p-4 md:p-5">
+      <button
+        type="button"
+        onClick={() => navigate('/customers/locations')}
+        className="inline-flex items-center gap-1.5 text-[12px] font-medium text-foreground-500 hover:text-foreground-900 mb-4 cursor-pointer transition-colors whitespace-nowrap"
+      >
+        <i className="ri-arrow-left-line text-[13px] leading-none" />
+        All locations
+      </button>
+
+      <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-4">
+        <div className="flex items-start gap-3.5">
+          <span className="w-14 h-14 rounded-md bg-primary-100 flex items-center justify-center shrink-0">
+            <i className="ri-map-pin-2-line text-primary-700 text-2xl leading-none" />
+          </span>
+          <div>
+            <h1 className="font-heading text-xl md:text-2xl font-bold text-foreground-950">{location.name}</h1>
+            <p className="mt-0.5 text-[13px] text-foreground-500">
+              {location.address}, {location.city}, {location.country}
+            </p>
+            <button
+              type="button"
+              onClick={() => navigate(`/customers/${customer.id}`)}
+              className="mt-1.5 inline-flex items-center gap-1.5 text-[12px] font-medium text-primary-700 hover:underline cursor-pointer whitespace-nowrap"
+            >
+              <i className="ri-team-line text-foreground-400 text-[13px]" />
+              {customer.name}
+            </button>
+          </div>
+        </div>
+
+        <div className="flex items-center gap-6">
+          <div className="text-right">
+            <p className="text-[10px] uppercase tracking-wide text-foreground-400 font-medium">Last Delivery</p>
+            <p className="text-[14px] font-semibold text-foreground-900">{location.lastDelivery}</p>
+          </div>
+          <div className="text-right">
+            <p className="text-[10px] uppercase tracking-wide text-foreground-400 font-medium">Next Delivery</p>
+            <p className="text-[14px] font-semibold text-primary-700">{location.nextDelivery}</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}

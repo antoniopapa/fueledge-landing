@@ -3,19 +3,15 @@ import type { RouteObject } from 'react-router-dom';
 import NotFound from '@/pages/NotFound';
 import Home from '@/pages/home/page';
 import OverviewPage from '@/pages/dashboard/overview/page';
-import ModuleShell from '@/pages/dashboard/components/ModuleShell';
 import DriversPage from '@/pages/dashboard/drivers/page';
 import DriverDetailPage from '@/pages/dashboard/drivers/detail/page';
 import FleetPage from '@/pages/dashboard/fleet/page';
 import TruckDetailPage from '@/pages/dashboard/fleet/detail/page';
 import OrdersPage from '@/pages/dashboard/orders/page';
 import OrderDetailPage from '@/pages/dashboard/orders/detail/page';
-import SourcingPage from '@/pages/dashboard/sourcing/page';
 import TerminalsPage from '@/pages/dashboard/sourcing/terminals/page';
 import TerminalDetailPage from '@/pages/dashboard/sourcing/terminals/detail/page';
 import SuppliersPage from '@/pages/dashboard/sourcing/suppliers/page';
-import PricingPage from '@/pages/dashboard/sourcing/pricing/page';
-import ContractsPage from '@/pages/dashboard/sourcing/contracts/page';
 import UnassignedPage from '@/pages/dashboard/dispatch/unassigned/page';
 import SchedulePage from '@/pages/dashboard/dispatch/schedule/page';
 import DispatchMapPage from '@/pages/dashboard/dispatch/map/page';
@@ -43,7 +39,6 @@ import CustomerLocationDetailPage from '@/pages/dashboard/customers/locations/de
 import ReconciliationPage from '@/pages/dashboard/billing/reconciliation/page';
 import ReadyToInvoicePage from '@/pages/dashboard/billing/ready-to-invoice/page';
 import InvoicesPage from '@/pages/dashboard/billing/invoices/page';
-import { sourcingNav } from '@/pages/dashboard/nav';
 import DriverAppLayout from '@/pages/driver/DriverAppLayout';
 import DriverLoginPage from '@/pages/driver/login/page';
 import DriverHomePage from '@/pages/driver/home/page';
@@ -55,6 +50,11 @@ import DriverProfilePage from '@/pages/driver/profile/page';
 function FleetToTrucksRedirect() {
   const { id } = useParams();
   return <Navigate to={id ? `/trucks/${id}` : '/trucks'} replace />;
+}
+
+function SourcingTerminalRedirect() {
+  const { id } = useParams();
+  return <Navigate to={id ? `/terminals/${id}` : '/terminals'} replace />;
 }
 
 const routes: RouteObject[] = [
@@ -82,15 +82,10 @@ const routes: RouteObject[] = [
   { path: '/orders', element: <OrdersPage /> },
   { path: '/orders/:id', element: <OrderDetailPage /> },
 
-  // Sourcing
-  { path: '/sourcing', element: <SourcingPage /> },
-  { path: '/sourcing/terminals', element: <TerminalsPage /> },
-  { path: '/sourcing/terminals/:id', element: <TerminalDetailPage /> },
-  { path: '/sourcing/suppliers', element: <SuppliersPage /> },
-  { path: '/sourcing/suppliers/:id', element: <ModuleShell title="Supplier Details" description="Supplier profile and agreements." icon="ri-store-2-line" subNav={sourcingNav} /> },
-  { path: '/sourcing/pricing', element: <PricingPage /> },
-  { path: '/sourcing/contracts', element: <ContractsPage /> },
-  { path: '/sourcing/contracts/:id', element: <ModuleShell title="Contract Details" description="Contract terms and commitments." icon="ri-file-text-line" subNav={sourcingNav} /> },
+  // Resources
+  { path: '/terminals', element: <TerminalsPage /> },
+  { path: '/terminals/:id', element: <TerminalDetailPage /> },
+  { path: '/suppliers', element: <SuppliersPage /> },
 
   // Dispatch
   { path: '/dispatch', element: <SchedulePage /> },
@@ -144,8 +139,10 @@ const routes: RouteObject[] = [
   // Legacy redirects
   { path: '/fleet', element: <Navigate to="/trucks" replace /> },
   { path: '/fleet/:id', element: <FleetToTrucksRedirect /> },
-  { path: '/fuel-sourcing', element: <Navigate to="/sourcing" replace /> },
-  { path: '/terminals', element: <Navigate to="/sourcing/terminals" replace /> },
+  { path: '/fuel-sourcing', element: <Navigate to="/terminals" replace /> },
+  { path: '/sourcing/terminals', element: <Navigate to="/terminals" replace /> },
+  { path: '/sourcing/terminals/:id', element: <SourcingTerminalRedirect /> },
+  { path: '/sourcing/suppliers', element: <Navigate to="/suppliers" replace /> },
 
   { path: '*', element: <NotFound /> },
 ];

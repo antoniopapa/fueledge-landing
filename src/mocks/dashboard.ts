@@ -16,13 +16,14 @@ export const dashboardNavGroups: DashboardNavGroup[] = [
       { label: 'Overview', icon: 'ri-dashboard-line', path: '/overview' },
       { label: 'Dispatch', icon: 'ri-send-plane-line', path: '/dispatch' },
       { label: 'Orders', icon: 'ri-file-list-3-line', path: '/orders' },
-      { label: 'Sourcing', icon: 'ri-flask-line', path: '/sourcing' },
       { label: 'Deliveries', icon: 'ri-truck-line', path: '/deliveries' },
     ],
   },
   {
     label: 'Resources',
     items: [
+      { label: 'Terminals', icon: 'ri-building-2-line', path: '/terminals' },
+      { label: 'Suppliers', icon: 'ri-store-2-line', path: '/suppliers' },
       { label: 'Trucks', icon: 'ri-car-line', path: '/trucks' },
       { label: 'Drivers', icon: 'ri-user-star-line', path: '/drivers' },
     ],

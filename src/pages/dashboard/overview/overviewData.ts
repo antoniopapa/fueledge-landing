@@ -174,7 +174,7 @@ export const attentionItems: AttentionItem[] = [
     count: awaitingSourcing,
     icon: 'ri-flask-line',
     tone: 'secondary',
-    link: '/sourcing',
+    link: '/orders',
     detail: `oldest since ${oldestSince(readyToSourceOrders)}`,
   },
   {
@@ -190,7 +190,7 @@ export const attentionItems: AttentionItem[] = [
     count: terminalIssues.length,
     icon: 'ri-building-4-line',
     tone: 'secondary',
-    link: '/sourcing/terminals',
+    link: '/terminals',
     detail: `${criticalTerminalIssues} critical`,
   },
   {
@@ -206,7 +206,7 @@ export const attentionItems: AttentionItem[] = [
     count: allocationWarnings.length,
     icon: 'ri-pie-chart-line',
     tone: 'accent',
-    link: '/sourcing',
+    link: '/terminals',
     detail: `${allocationWarnings.length} terminals`,
   },
   {
@@ -214,7 +214,7 @@ export const attentionItems: AttentionItem[] = [
     count: contractWarnings.length,
     icon: 'ri-file-text-line',
     tone: 'accent',
-    link: '/sourcing/contracts',
+    link: '/suppliers',
     detail: `${contractWarnings[0]?.supplier ?? ''} expiring`,
   },
 ];

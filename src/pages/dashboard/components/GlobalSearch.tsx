@@ -92,7 +92,7 @@ export default function GlobalSearch() {
           type: 'Terminal',
           title: t.name,
           subtitle: `${t.city}, ${t.country}`,
-          href: `/sourcing/terminals/${t.id}`,
+          href: `/terminals/${t.id}`,
           icon: typeIcon.Terminal,
         });
       }

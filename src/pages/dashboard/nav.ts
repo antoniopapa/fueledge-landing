@@ -4,14 +4,6 @@ export interface SubNavItem {
   end?: boolean;
 }
 
-export const sourcingNav: SubNavItem[] = [
-  { label: 'Overview', path: '/sourcing', end: true },
-  { label: 'Terminals', path: '/sourcing/terminals' },
-  { label: 'Suppliers', path: '/sourcing/suppliers' },
-  { label: 'Pricing', path: '/sourcing/pricing' },
-  { label: 'Contracts', path: '/sourcing/contracts' },
-];
-
 export const dispatchNav: SubNavItem[] = [
   { label: 'Schedule', path: '/dispatch', end: true },
   { label: 'Unassigned', path: '/dispatch/unassigned' },

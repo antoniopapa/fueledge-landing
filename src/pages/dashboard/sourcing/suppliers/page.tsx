@@ -1,5 +1,4 @@
 import ModuleShell from '@/pages/dashboard/components/ModuleShell';
-import { sourcingNav } from '@/pages/dashboard/nav';
 import { suppliers } from '@/mocks/sourcing';
 
 const contractStatusStyle: Record<string, string> = {
@@ -14,7 +13,6 @@ export default function SuppliersPage() {
       title="Suppliers"
       description="Manage fuel suppliers and their agreements."
       icon="ri-store-2-line"
-      subNav={sourcingNav}
     >
       <div className="rounded-lg border border-background-200 bg-background-50 overflow-hidden">
         <div className="overflow-x-auto">

@@ -29,7 +29,7 @@ export const notifications: NotificationItem[] = [
     detail: 'Lyon Terminal — loading bay 3 out of service.',
     time: '8 min ago',
     tone: 'danger',
-    link: '/sourcing/terminals/lyon',
+    link: '/terminals/lyon',
     read: false,
   },
   {
@@ -49,7 +49,7 @@ export const notifications: NotificationItem[] = [
     detail: 'Order #2869 can save €268 by sourcing at Arad terminal.',
     time: '31 min ago',
     tone: 'info',
-    link: '/sourcing',
+    link: '/terminals',
     read: false,
   },
   {
@@ -69,7 +69,7 @@ export const notifications: NotificationItem[] = [
     detail: 'OMV contract expires in 30 days — 0.6M L allocation remaining.',
     time: '1 hr ago',
     tone: 'warning',
-    link: '/sourcing/contracts',
+    link: '/suppliers',
     read: true,
   },
   {

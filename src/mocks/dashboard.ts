@@ -14,9 +14,9 @@ export const dashboardNavGroups: DashboardNavGroup[] = [
     label: 'Operations',
     items: [
       { label: 'Overview', icon: 'ri-dashboard-line', path: '/overview' },
+      { label: 'Dispatch', icon: 'ri-send-plane-line', path: '/dispatch' },
       { label: 'Orders', icon: 'ri-file-list-3-line', path: '/orders' },
       { label: 'Sourcing', icon: 'ri-flask-line', path: '/sourcing' },
-      { label: 'Dispatch', icon: 'ri-send-plane-line', path: '/dispatch' },
       { label: 'Deliveries', icon: 'ri-truck-line', path: '/deliveries' },
     ],
   },

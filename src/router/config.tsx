@@ -12,6 +12,7 @@ import OrderDetailPage from '@/pages/dashboard/orders/detail/page';
 import TerminalsPage from '@/pages/dashboard/sourcing/terminals/page';
 import TerminalDetailPage from '@/pages/dashboard/sourcing/terminals/detail/page';
 import SuppliersPage from '@/pages/dashboard/sourcing/suppliers/page';
+import ProductsPage from '@/pages/dashboard/products/page';
 import UnassignedPage from '@/pages/dashboard/dispatch/unassigned/page';
 import SchedulePage from '@/pages/dashboard/dispatch/schedule/page';
 import DispatchMapPage from '@/pages/dashboard/dispatch/map/page';
@@ -86,6 +87,7 @@ const routes: RouteObject[] = [
   { path: '/terminals', element: <TerminalsPage /> },
   { path: '/terminals/:id', element: <TerminalDetailPage /> },
   { path: '/suppliers', element: <SuppliersPage /> },
+  { path: '/products', element: <ProductsPage /> },
 
   // Dispatch
   { path: '/dispatch', element: <SchedulePage /> },

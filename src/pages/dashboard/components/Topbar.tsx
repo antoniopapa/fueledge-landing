@@ -6,9 +6,11 @@ import LanguageMenu from './LanguageMenu';
 
 type TopbarProps = {
   onMenu: () => void;
+  onAiToggle: () => void;
+  aiOpen: boolean;
 };
 
-export default function Topbar({ onMenu }: TopbarProps) {
+export default function Topbar({ onMenu, onAiToggle, aiOpen }: TopbarProps) {
   const [orderOpen, setOrderOpen] = useState(false);
   const [toast, setToast] = useState<string | null>(null);
 
@@ -34,6 +36,19 @@ export default function Topbar({ onMenu }: TopbarProps) {
       </div>
 
       <div className="flex items-center gap-2 ml-auto">
+        <button
+          type="button"
+          onClick={onAiToggle}
+          className={`flex h-9 w-9 items-center justify-center rounded-md text-sm transition-colors cursor-pointer ${
+            aiOpen
+              ? 'bg-primary-500 text-background-50'
+              : 'text-foreground-600 hover:bg-background-200/70 hover:text-foreground-900'
+          }`}
+          aria-label={aiOpen ? 'Close AI assistant' : 'Open AI assistant'}
+          aria-pressed={aiOpen}
+        >
+          <i className="ri-sparkling-2-line text-lg leading-none" />
+        </button>
         <NotificationsMenu />
         <LanguageMenu />
 

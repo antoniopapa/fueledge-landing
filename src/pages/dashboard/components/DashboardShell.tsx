@@ -1,4 +1,5 @@
 import { useState, type ReactNode } from 'react';
+import AIAssistantSidebar from './AIAssistantSidebar';
 import Sidebar from './Sidebar';
 import Topbar from './Topbar';
 
@@ -8,6 +9,7 @@ type DashboardShellProps = {
 
 export default function DashboardShell({ children }: DashboardShellProps) {
   const [open, setOpen] = useState(false);
+  const [aiOpen, setAiOpen] = useState(false);
 
   return (
     <div className="min-h-screen bg-background-100 text-foreground-900">
@@ -26,9 +28,15 @@ export default function DashboardShell({ children }: DashboardShellProps) {
       )}
 
       <div className="lg:pl-60">
-        <Topbar onMenu={() => setOpen(true)} />
+        <Topbar
+          onMenu={() => setOpen(true)}
+          onAiToggle={() => setAiOpen((current) => !current)}
+          aiOpen={aiOpen}
+        />
         <main className="p-4 md:p-6 lg:p-8">{children}</main>
       </div>
+
+      <AIAssistantSidebar open={aiOpen} onClose={() => setAiOpen(false)} />
     </div>
   );
 }

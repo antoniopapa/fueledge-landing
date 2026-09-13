@@ -24,6 +24,7 @@ export const dashboardNavGroups: DashboardNavGroup[] = [
     items: [
       { label: 'Terminals', icon: 'ri-building-2-line', path: '/terminals' },
       { label: 'Suppliers', icon: 'ri-store-2-line', path: '/suppliers' },
+      { label: 'Products', icon: 'ri-drop-line', path: '/products' },
       { label: 'Trucks', icon: 'ri-car-line', path: '/trucks' },
       { label: 'Drivers', icon: 'ri-user-star-line', path: '/drivers' },
     ],

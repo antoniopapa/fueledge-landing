@@ -73,6 +73,11 @@ export function replaceScheduleRuns(runs: ScheduleRun[]): void {
   emit();
 }
 
+export function addScheduleRun(run: ScheduleRun): void {
+  schedule = [...schedule, run];
+  emit();
+}
+
 export function useUnassignedRuns(): UnscheduledRun[] {
   return useSyncExternalStore(subscribe, getUnassigned);
 }

@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
+import { Link } from 'react-router-dom';
 import DashboardShell from '@/pages/dashboard/components/DashboardShell';
 import { fetchScheduleRuns } from '@/mocks/schedule';
 import {
@@ -103,6 +104,16 @@ export default function SchedulePage() {
   return (
     <DashboardShell>
       <div className="w-full">
+        <div className="mb-4 flex justify-end">
+          <Link
+            to="/dispatch/new"
+            className="inline-flex items-center gap-1.5 rounded-md bg-primary-500 px-4 py-2 text-sm font-semibold text-background-50 transition-colors hover:bg-primary-600"
+          >
+            <i className="ri-add-line text-sm leading-none" />
+            New Schedule
+          </Link>
+        </div>
+
       <ScheduleToolbar
         dateLabel={dateLabel}
         onToday={handleToday}

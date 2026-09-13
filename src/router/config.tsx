@@ -16,6 +16,7 @@ import ProductsPage from '@/pages/dashboard/products/page';
 import TrailersPage from '@/pages/dashboard/trailers/page';
 import UnassignedPage from '@/pages/dashboard/dispatch/unassigned/page';
 import SchedulePage from '@/pages/dashboard/dispatch/schedule/page';
+import NewSchedulePage from '@/pages/dashboard/dispatch/schedule/new/page';
 import DispatchMapPage from '@/pages/dashboard/dispatch/map/page';
 import DispatchIssuesPage from '@/pages/dashboard/dispatch/issues/page';
 import DispatchRunDetailPage from '@/pages/dashboard/dispatch/runs/detail/page';
@@ -93,6 +94,7 @@ const routes: RouteObject[] = [
 
   // Dispatch
   { path: '/dispatch', element: <SchedulePage /> },
+  { path: '/dispatch/new', element: <NewSchedulePage /> },
   { path: '/dispatch/schedule', element: <Navigate to="/dispatch" replace /> },
   { path: '/dispatch/unassigned', element: <UnassignedPage /> },
   { path: '/dispatch/map', element: <DispatchMapPage /> },

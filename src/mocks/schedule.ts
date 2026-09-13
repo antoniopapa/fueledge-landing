@@ -123,66 +123,6 @@ export async function fetchScheduleRuns(): Promise<ScheduleRun[]> {
     .filter((run): run is ScheduleRun => run !== null);
 }
 
-export const scheduleResources: ScheduleResource[] = [
-  { driverName: 'Thomas Müller', driverInitials: 'TM', truckPlate: 'DE-82-MN', availability: 'On Shift' },
-  { driverName: 'Markus Wagner', driverInitials: 'MW', truckPlate: 'TR-76-BX', availability: 'On Shift' },
-  { driverName: 'Sven de Vries', driverInitials: 'SV', truckPlate: 'NL-45-KL', availability: 'On Shift' },
-  { driverName: 'Pieter Jansen', driverInitials: 'PJ', truckPlate: 'NL-34-RT', availability: 'On Shift' },
-  { driverName: 'Jonas Fischer', driverInitials: 'JF', truckPlate: 'DE-55-FR', availability: 'On Shift' },
-  { driverName: 'Karel Novák', driverInitials: 'KN', truckPlate: 'CZ-20-PRG', availability: 'On Shift' },
-  { driverName: 'Mateusz Kowalski', driverInitials: 'MK', truckPlate: 'PL-88-WAW', availability: 'On Shift' },
-  { driverName: 'Erik Johansson', driverInitials: 'EJ', truckPlate: 'SE-23-STO', availability: 'On Shift' },
-  { driverName: 'Henrik Larsen', driverInitials: 'HL', truckPlate: 'DK-14-CPH', availability: 'On Shift' },
-  { driverName: 'Andrei Popescu', driverInitials: 'AP', truckPlate: 'RO-91-BUC', availability: 'Break' },
-  { driverName: 'Jan Vos', driverInitials: 'JV', truckPlate: 'NL-77-KVX', availability: 'On Shift' },
-  { driverName: 'Lars Petersen', driverInitials: 'LP', truckPlate: 'DE-12-HH', availability: 'Available' },
-  { driverName: 'Olivier Moreau', driverInitials: 'OM', truckPlate: 'FR-30-LYS', availability: 'Unavailable' },
-];
-
-export const scheduleRuns: ScheduleRun[] = [
-  // ---- Thu (day 0) · today ----
-  { id: '2850', driverName: 'Thomas Müller', truckPlate: 'DE-82-MN', route: 'Hamburg → Bremen', product: 'Diesel EN590', volume: '28,000 L', day: 0, startTime: '13:30', endTime: '16:00', status: 'Scheduled', pickup: 'Hamburg Terminal', delivery: 'Bremen' },
-  { id: '2841', driverName: 'Markus Wagner', truckPlate: 'TR-76-BX', route: 'Frankfurt → Mannheim', product: 'Diesel EN590', volume: '32,000 L', day: 0, startTime: '11:30', endTime: '16:00', status: 'Dispatched', pickup: 'Frankfurt Terminal', delivery: 'Mannheim' },
-  { id: '2844', driverName: 'Sven de Vries', truckPlate: 'NL-45-KL', route: 'Antwerp → Cologne', product: 'Diesel EN590', volume: '24,000 L', day: 0, startTime: '11:30', endTime: '16:05', status: 'Dispatched', pickup: 'Antwerp Terminal', delivery: 'Cologne' },
-  { id: '2839', driverName: 'Pieter Jansen', truckPlate: 'NL-34-RT', route: 'Rotterdam → Eindhoven', product: 'Diesel EN590', volume: '26,000 L', day: 0, startTime: '13:50', endTime: '14:20', status: 'Conflict', pickup: 'Rotterdam Terminal', delivery: 'Eindhoven', conflict: true, conflictNote: 'Previous run ends 14:20 · Next pickup begins 14:00' },
-  { id: '2859', driverName: 'Pieter Jansen', truckPlate: 'NL-34-RT', route: 'Eindhoven → Rotterdam', product: 'Diesel EN590', volume: '24,000 L', day: 0, startTime: '14:00', endTime: '16:30', status: 'Conflict', pickup: 'Eindhoven', delivery: 'Rotterdam', conflict: true, conflictNote: 'Previous run ends 14:20 · Next pickup begins 14:00' },
-  { id: '2852', driverName: 'Jonas Fischer', truckPlate: 'DE-55-FR', route: 'Basel → Strasbourg', product: 'Diesel EN590', volume: '27,000 L', day: 0, startTime: '10:20', endTime: '13:10', status: 'Dispatched', pickup: 'Basel Terminal', delivery: 'Strasbourg' },
-  { id: '2854', driverName: 'Karel Novák', truckPlate: 'CZ-20-PRG', route: 'Pardubice → Prague', product: 'Diesel EN590', volume: '25,000 L', day: 0, startTime: '11:30', endTime: '15:20', status: 'Delayed', pickup: 'Pardubice Terminal', delivery: 'Prague' },
-  { id: '2855', driverName: 'Mateusz Kowalski', truckPlate: 'PL-88-WAW', route: 'Gdańsk → Warsaw', product: 'Diesel EN590', volume: '29,000 L', day: 0, startTime: '11:00', endTime: '15:00', status: 'Dispatched', pickup: 'Gdańsk Terminal', delivery: 'Warsaw' },
-  { id: '2856', driverName: 'Erik Johansson', truckPlate: 'SE-23-STO', route: 'Stockholm → Uppsala', product: 'Diesel EN590', volume: '21,000 L', day: 0, startTime: '10:50', endTime: '14:00', status: 'Dispatched', pickup: 'Stockholm Terminal', delivery: 'Uppsala' },
-  { id: '2858', driverName: 'Henrik Larsen', truckPlate: 'DK-14-CPH', route: 'Aalborg → Aarhus', product: 'Diesel EN590', volume: '23,000 L', day: 0, startTime: '13:00', endTime: '15:00', status: 'Scheduled', pickup: 'Aalborg Terminal', delivery: 'Aarhus' },
-  { id: '2848', driverName: 'Andrei Popescu', truckPlate: 'RO-91-BUC', route: 'Arad → Budapest', product: 'Diesel EN590', volume: '30,000 L', day: 0, startTime: '13:20', endTime: '15:00', status: 'Scheduled', pickup: 'Arad Terminal', delivery: 'Budapest' },
-  { id: '2843', driverName: 'Jan Vos', truckPlate: 'NL-77-KVX', route: 'Rotterdam → Mannheim', product: 'Diesel EN590', volume: '30,000 L', day: 0, startTime: '10:40', endTime: '15:40', status: 'Dispatched', pickup: 'Rotterdam Terminal', delivery: 'Mannheim' },
-  { id: '2820', driverName: 'Lars Petersen', truckPlate: 'DE-12-HH', route: 'Hamburg → Kiel', product: 'Diesel EN590', volume: '20,000 L', day: 0, startTime: '06:00', endTime: '08:52', status: 'Completed', pickup: 'Hamburg Terminal', delivery: 'Kiel' },
-
-  // ---- Fri (day 1) ----
-  { id: '2857', driverName: 'Markus Wagner', truckPlate: 'TR-76-BX', route: 'Frankfurt → Mannheim', product: 'Diesel EN590', volume: '30,000 L', day: 1, startTime: '09:00', endTime: '12:00', status: 'Scheduled', pickup: 'Frankfurt', delivery: 'Mannheim' },
-  { id: '2860', driverName: 'Sven de Vries', truckPlate: 'NL-45-KL', route: 'Cologne → Düsseldorf', product: 'Diesel EN590', volume: '24,000 L', day: 1, startTime: '08:30', endTime: '11:30', status: 'Scheduled', pickup: 'Cologne', delivery: 'Düsseldorf' },
-  { id: '2861', driverName: 'Jonas Fischer', truckPlate: 'DE-55-FR', route: 'Strasbourg → Stuttgart', product: 'Diesel EN590', volume: '25,000 L', day: 1, startTime: '10:00', endTime: '13:00', status: 'Scheduled', pickup: 'Strasbourg', delivery: 'Stuttgart' },
-  { id: '2874', driverName: 'Jan Vos', truckPlate: 'NL-77-KVX', route: 'Mannheim → Karlsruhe', product: 'Diesel EN590', volume: '28,000 L', day: 1, startTime: '14:00', endTime: '16:30', status: 'Scheduled', pickup: 'Mannheim', delivery: 'Karlsruhe' },
-
-  // ---- Sat (day 2) ----
-  { id: '2862', driverName: 'Karel Novák', truckPlate: 'CZ-20-PRG', route: 'Prague → Brno', product: 'Diesel EN590', volume: '25,000 L', day: 2, startTime: '09:00', endTime: '12:00', status: 'Scheduled', pickup: 'Prague', delivery: 'Brno' },
-  { id: '2863', driverName: 'Mateusz Kowalski', truckPlate: 'PL-88-WAW', route: 'Warsaw → Łódź', product: 'Diesel EN590', volume: '22,000 L', day: 2, startTime: '08:00', endTime: '11:00', status: 'Scheduled', pickup: 'Warsaw', delivery: 'Łódź' },
-
-  // ---- Sun (day 3) ----
-  { id: '2866', driverName: 'Erik Johansson', truckPlate: 'SE-23-STO', route: 'Uppsala → Västerås', product: 'Diesel EN590', volume: '21,000 L', day: 3, startTime: '14:00', endTime: '16:30', status: 'Scheduled', pickup: 'Uppsala', delivery: 'Västerås' },
-
-  // ---- Mon (day 4) ----
-  { id: '2853', driverName: 'Thomas Müller', truckPlate: 'DE-82-MN', route: 'Bremen → Hamburg', product: 'Diesel EN590', volume: '28,000 L', day: 4, startTime: '08:00', endTime: '11:00', status: 'Scheduled', pickup: 'Bremen', delivery: 'Hamburg' },
-  { id: '2867', driverName: 'Henrik Larsen', truckPlate: 'DK-14-CPH', route: 'Aarhus → Randers', product: 'Diesel EN590', volume: '23,000 L', day: 4, startTime: '09:00', endTime: '11:30', status: 'Scheduled', pickup: 'Aarhus', delivery: 'Randers' },
-  { id: '2849', driverName: 'Andrei Popescu', truckPlate: 'RO-91-BUC', route: 'Budapest → Győr', product: 'Diesel EN590', volume: '26,000 L', day: 4, startTime: '10:00', endTime: '13:00', status: 'Scheduled', pickup: 'Budapest', delivery: 'Győr' },
-
-  // ---- Tue (day 5) ----
-  { id: '2840', driverName: 'Pieter Jansen', truckPlate: 'NL-34-RT', route: 'Rotterdam → Breda', product: 'Diesel EN590', volume: '24,000 L', day: 5, startTime: '08:30', endTime: '11:00', status: 'Scheduled', pickup: 'Rotterdam', delivery: 'Breda' },
-  { id: '2868', driverName: 'Mateusz Kowalski', truckPlate: 'PL-88-WAW', route: 'Warsaw → Radom', product: 'Diesel EN590', volume: '19,000 L', day: 5, startTime: '09:30', endTime: '12:00', status: 'Scheduled', pickup: 'Warsaw', delivery: 'Radom' },
-  { id: '2870', driverName: 'Sven de Vries', truckPlate: 'NL-45-KL', route: 'Düsseldorf → Cologne', product: 'Diesel EN590', volume: '20,000 L', day: 5, startTime: '13:00', endTime: '15:30', status: 'Scheduled', pickup: 'Düsseldorf', delivery: 'Cologne' },
-
-  // ---- Wed (day 6) ----
-  { id: '2869', driverName: 'Karel Novák', truckPlate: 'CZ-20-PRG', route: 'Brno → Prague', product: 'Diesel EN590', volume: '25,000 L', day: 6, startTime: '08:00', endTime: '11:00', status: 'Scheduled', pickup: 'Brno', delivery: 'Prague' },
-  { id: '2871', driverName: 'Markus Wagner', truckPlate: 'TR-76-BX', route: 'Frankfurt → Cologne', product: 'Diesel EN590', volume: '30,000 L', day: 6, startTime: '10:00', endTime: '13:00', status: 'Scheduled', pickup: 'Frankfurt', delivery: 'Cologne' },
-];
-
 export const unassignedRuns: UnscheduledRun[] = [
   {
     id: '2865',

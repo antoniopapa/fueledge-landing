@@ -1,11 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 
-type ViewMode = 'week' | 'day';
-
 interface ToolbarProps {
   dateLabel: string;
-  view: ViewMode;
-  onViewChange: (view: ViewMode) => void;
   onToday: () => void;
   onPrev: () => void;
   onNext: () => void;
@@ -87,8 +83,6 @@ function FilterMenu({
 
 export default function ScheduleToolbar({
   dateLabel,
-  view,
-  onViewChange,
   onToday,
   onPrev,
   onNext,
@@ -108,7 +102,7 @@ export default function ScheduleToolbar({
 
   return (
     <div className="mb-4 flex items-center gap-3 flex-wrap">
-      {/* left: today / prev-next / date / view */}
+      {/* left: today / prev-next / date */}
       <div className="flex items-center gap-2">
         <button
           type="button"
@@ -136,20 +130,6 @@ export default function ScheduleToolbar({
           </button>
         </div>
         <span className="text-[13px] font-semibold text-foreground-900 tabular whitespace-nowrap">{dateLabel}</span>
-        <div className="inline-flex items-center rounded-full bg-background-200 p-1">
-          {(['week', 'day'] as ViewMode[]).map((v) => (
-            <button
-              key={v}
-              type="button"
-              onClick={() => onViewChange(v)}
-              className={`px-3 py-1.5 rounded-full text-[12px] font-medium capitalize whitespace-nowrap cursor-pointer transition-colors ${
-                view === v ? 'bg-background-50 text-foreground-900' : 'text-foreground-500 hover:text-foreground-800'
-              }`}
-            >
-              {v}
-            </button>
-          ))}
-        </div>
       </div>
 
       {/* right: search + filters */}

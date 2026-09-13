@@ -1,16 +1,14 @@
-import { useEffect, useSyncExternalStore } from 'react';
+import { useSyncExternalStore } from 'react';
 import {
-  fetchScheduleRuns,
-  scheduleRuns as initialScheduleRuns,
   unassignedRuns as initialUnassignedRuns,
+  type ResourceAvailability,
+  type ScheduleResource,
   type ScheduleRun,
   type UnscheduledRun,
 } from '@/mocks/schedule';
 
-let schedule: ScheduleRun[] = [...initialScheduleRuns];
+let schedule: ScheduleRun[] = [];
 let unassigned: UnscheduledRun[] = [...initialUnassignedRuns];
-let scheduleLoading = false;
-let scheduleLoaded = false;
 const listeners = new Set<() => void>();
 
 function emit(): void {
@@ -28,24 +26,34 @@ function getSchedule(): ScheduleRun[] {
   return schedule;
 }
 
-function loadScheduleRuns(): void {
-  if (scheduleLoading || scheduleLoaded) return;
+function buildScheduleResources(runs: ScheduleRun[]): ScheduleResource[] {
+  const resources = new Map<string, ScheduleResource>();
 
-  scheduleLoading = true;
-  fetchScheduleRuns()
-    .then((runs) => {
-      if (runs.length > 0) {
-        schedule = runs;
-        emit();
-      }
-    })
-    .catch(() => {
-      // Keep the bundled schedule as a fallback when the API is unavailable.
-    })
-    .finally(() => {
-      scheduleLoading = false;
-      scheduleLoaded = true;
-    });
+  runs.forEach((run) => {
+    const key = `${run.driverName}-${run.truckPlate}`;
+    const availability: ResourceAvailability =
+      run.status === 'Completed'
+        ? 'Available'
+        : run.status === 'Delayed' || run.status === 'Conflict'
+          ? 'Break'
+          : 'On Shift';
+
+    if (!resources.has(key)) {
+      resources.set(key, {
+        driverName: run.driverName,
+        driverInitials: run.driverName
+          .split(' ')
+          .map((part) => part[0])
+          .join('')
+          .slice(0, 2)
+          .toUpperCase(),
+        truckPlate: run.truckPlate,
+        availability,
+      });
+    }
+  });
+
+  return Array.from(resources.values());
 }
 
 function getUnassigned(): UnscheduledRun[] {
@@ -53,11 +61,16 @@ function getUnassigned(): UnscheduledRun[] {
 }
 
 export function useScheduleRuns(): ScheduleRun[] {
-  useEffect(() => {
-    loadScheduleRuns();
-  }, []);
-
   return useSyncExternalStore(subscribe, getSchedule);
+}
+
+export function scheduleResourcesFromRuns(runs: ScheduleRun[]): ScheduleResource[] {
+  return buildScheduleResources(runs);
+}
+
+export function replaceScheduleRuns(runs: ScheduleRun[]): void {
+  schedule = runs;
+  emit();
 }
 
 export function useUnassignedRuns(): UnscheduledRun[] {

@@ -1,21 +1,21 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import DashboardShell from '@/pages/dashboard/components/DashboardShell';
-import type { ResourceAvailability, ScheduleResource } from '@/mocks/schedule';
-import { useScheduleRuns, updateScheduleRun } from '@/pages/dashboard/dispatch/dispatchStore';
-import { buildDays, weekRangeLabel, singleDayLabel } from './scheduleUtils';
+import { fetchScheduleRuns } from '@/mocks/schedule';
+import {
+  useScheduleRuns,
+  scheduleResourcesFromRuns,
+  replaceScheduleRuns,
+  updateScheduleRun,
+} from '@/pages/dashboard/dispatch/dispatchStore';
+import { buildDays, weekRangeLabel } from './scheduleUtils';
 import ScheduleToolbar from './components/ScheduleToolbar';
 import Legend from './components/Legend';
 import WeekBoard from './components/WeekBoard';
-import DayBoard from './components/DayBoard';
 import RunDetailDrawer from './components/RunDetailDrawer';
 
-type ViewMode = 'week' | 'day';
-
 export default function SchedulePage() {
-  const [view, setView] = useState<ViewMode>('week');
   const [weekOffset, setWeekOffset] = useState(0);
-  const [selectedDay, setSelectedDay] = useState(0);
-  const runs = useScheduleRuns();
+  const scheduleRuns = useScheduleRuns();
   const [driverFilter, setDriverFilter] = useState('All Drivers');
   const [truckFilter, setTruckFilter] = useState('All Trucks');
   const [statusFilter, setStatusFilter] = useState('All Statuses');
@@ -23,38 +23,29 @@ export default function SchedulePage() {
   const [selectedRunId, setSelectedRunId] = useState<string | null>(null);
   const [toast, setToast] = useState<string | null>(null);
 
+  useEffect(() => {
+    let active = true;
+
+    fetchScheduleRuns()
+      .then((apiRuns) => {
+        if (active) replaceScheduleRuns(apiRuns);
+      })
+      .catch(() => {
+        if (active) {
+          replaceScheduleRuns([]);
+          setToast('Unable to load scheduled runs');
+          window.setTimeout(() => setToast(null), 2600);
+        }
+      });
+
+    return () => {
+      active = false;
+    };
+  }, []);
+
   const days = useMemo(() => buildDays(weekOffset), [weekOffset]);
-  const dateLabel = view === 'week' ? weekRangeLabel(days) : singleDayLabel(days[selectedDay]);
-
-  const scheduleResources = useMemo<ScheduleResource[]>(() => {
-    const resources = new Map<string, ScheduleResource>();
-
-    runs.forEach((run) => {
-      const key = `${run.driverName}-${run.truckPlate}`;
-      const availability: ResourceAvailability =
-        run.status === 'Completed'
-          ? 'Available'
-          : run.status === 'Delayed' || run.status === 'Conflict'
-            ? 'Break'
-            : 'On Shift';
-
-      if (!resources.has(key)) {
-        resources.set(key, {
-          driverName: run.driverName,
-          driverInitials: run.driverName
-            .split(' ')
-            .map((part) => part[0])
-            .join('')
-            .slice(0, 2)
-            .toUpperCase(),
-          truckPlate: run.truckPlate,
-          availability,
-        });
-      }
-    });
-
-    return Array.from(resources.values());
-  }, [runs]);
+  const dateLabel = weekRangeLabel(days);
+  const scheduleResources = useMemo(() => scheduleResourcesFromRuns(scheduleRuns), [scheduleRuns]);
 
   const drivers = useMemo(() => scheduleResources.map((r) => r.driverName), [scheduleResources]);
   const trucks = useMemo(() => Array.from(new Set(scheduleResources.map((r) => r.truckPlate))), [scheduleResources]);
@@ -67,30 +58,10 @@ export default function SchedulePage() {
           (driverFilter === 'All Drivers' || r.driverName === driverFilter) &&
           (truckFilter === 'All Trucks' || r.truckPlate === truckFilter),
       ),
-    [driverFilter, truckFilter],
+    [scheduleResources, driverFilter, truckFilter],
   );
 
-  const visibleRuns = useMemo(
-    () =>
-      runs.filter((l) => {
-        if (!visibleResources.some((r) => r.driverName === l.driverName)) return false;
-        if (statusFilter === 'Completed') {
-          if (l.status !== 'Completed') return false;
-        } else {
-          if (l.status === 'Completed') return false;
-          if (statusFilter !== 'All Statuses' && l.status !== statusFilter) return false;
-        }
-        if (searchQuery.trim()) {
-          const q = searchQuery.toLowerCase();
-          const hay = `${l.id} ${l.route} ${l.driverName} ${l.truckPlate}`.toLowerCase();
-          if (!hay.includes(q)) return false;
-        }
-        return true;
-      }),
-    [runs, visibleResources, statusFilter, searchQuery],
-  );
-
-  const selectedRun = runs.find((l) => l.id === selectedRunId) ?? null;
+  const selectedRun = scheduleRuns.find((l) => l.id === selectedRunId) ?? null;
 
   function showToast(msg: string) {
     setToast(msg);
@@ -118,18 +89,15 @@ export default function SchedulePage() {
   }
 
   function handlePrev() {
-    if (view === 'week') setWeekOffset((o) => o - 1);
-    else setSelectedDay((d) => (d + 6) % 7);
+    setWeekOffset((o) => o - 1);
   }
 
   function handleNext() {
-    if (view === 'week') setWeekOffset((o) => o + 1);
-    else setSelectedDay((d) => (d + 1) % 7);
+    setWeekOffset((o) => o + 1);
   }
 
   function handleToday() {
     setWeekOffset(0);
-    setSelectedDay(0);
   }
 
   return (
@@ -137,8 +105,6 @@ export default function SchedulePage() {
       <div className="w-full">
       <ScheduleToolbar
         dateLabel={dateLabel}
-        view={view}
-        onViewChange={setView}
         onToday={handleToday}
         onPrev={handlePrev}
         onNext={handleNext}
@@ -157,24 +123,13 @@ export default function SchedulePage() {
 
       <Legend />
 
-      {view === 'week' ? (
         <WeekBoard
           days={days}
           resources={visibleResources}
-          runs={visibleRuns}
+          runs={scheduleRuns}
           onRunClick={(l) => setSelectedRunId(l.id)}
           onDropRun={handleDropRun}
         />
-      ) : (
-        <DayBoard
-          day={days[selectedDay]}
-          dayIndex={selectedDay}
-          resources={visibleResources}
-          runs={visibleRuns}
-          onRunClick={(l) => setSelectedRunId(l.id)}
-          onDropRun={(runId, driverName, truckPlate) => handleDropRun(runId, driverName, truckPlate, null)}
-        />
-      )}
 
       <RunDetailDrawer
         run={selectedRun}

@@ -2,18 +2,20 @@ import { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import ModuleShell from '@/pages/dashboard/components/ModuleShell';
 import { dispatchNav } from '@/pages/dashboard/nav';
-import { scheduleResources, assignmentOptions, type UnscheduledRun } from '@/mocks/schedule';
-import { useUnassignedRuns, assignRun } from '@/pages/dashboard/dispatch/dispatchStore';
+import { assignmentOptions, type UnscheduledRun } from '@/mocks/schedule';
+import { useScheduleRuns, scheduleResourcesFromRuns, useUnassignedRuns, assignRun } from '@/pages/dashboard/dispatch/dispatchStore';
 import AssignmentModal from './components/AssignmentModal';
 
 export default function UnassignedPage() {
   const navigate = useNavigate();
   const unassigned = useUnassignedRuns();
+  const runs = useScheduleRuns();
+  const scheduleResources = useMemo(() => scheduleResourcesFromRuns(runs), [runs]);
   const [assignTarget, setAssignTarget] = useState<UnscheduledRun | null>(null);
   const [toast, setToast] = useState<string | null>(null);
 
-  const drivers = useMemo(() => scheduleResources.map((r) => r.driverName), []);
-  const trucks = useMemo(() => Array.from(new Set(scheduleResources.map((r) => r.truckPlate))), []);
+  const drivers = useMemo(() => scheduleResources.map((r) => r.driverName), [scheduleResources]);
+  const trucks = useMemo(() => Array.from(new Set(scheduleResources.map((r) => r.truckPlate))), [scheduleResources]);
 
   function showToast(msg: string) {
     setToast(msg);

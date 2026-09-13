@@ -1,5 +1,6 @@
-import { useSyncExternalStore } from 'react';
+import { useEffect, useSyncExternalStore } from 'react';
 import {
+  fetchScheduleRuns,
   scheduleRuns as initialScheduleRuns,
   unassignedRuns as initialUnassignedRuns,
   type ScheduleRun,
@@ -8,6 +9,8 @@ import {
 
 let schedule: ScheduleRun[] = [...initialScheduleRuns];
 let unassigned: UnscheduledRun[] = [...initialUnassignedRuns];
+let scheduleLoading = false;
+let scheduleLoaded = false;
 const listeners = new Set<() => void>();
 
 function emit(): void {
@@ -25,11 +28,35 @@ function getSchedule(): ScheduleRun[] {
   return schedule;
 }
 
+function loadScheduleRuns(): void {
+  if (scheduleLoading || scheduleLoaded) return;
+
+  scheduleLoading = true;
+  fetchScheduleRuns()
+    .then((runs) => {
+      if (runs.length > 0) {
+        schedule = runs;
+        emit();
+      }
+    })
+    .catch(() => {
+      // Keep the bundled schedule as a fallback when the API is unavailable.
+    })
+    .finally(() => {
+      scheduleLoading = false;
+      scheduleLoaded = true;
+    });
+}
+
 function getUnassigned(): UnscheduledRun[] {
   return unassigned;
 }
 
 export function useScheduleRuns(): ScheduleRun[] {
+  useEffect(() => {
+    loadScheduleRuns();
+  }, []);
+
   return useSyncExternalStore(subscribe, getSchedule);
 }
 

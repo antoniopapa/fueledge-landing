@@ -1,5 +1,6 @@
 import { useParams, Link } from 'react-router-dom';
 import ModuleShell from '@/pages/dashboard/components/ModuleShell';
+import { useScheduleRuns } from '@/pages/dashboard/dispatch/dispatchStore';
 import { useDriverRuns, useTruckInventory } from '@/pages/driver/driverStore';
 import {
   driverProfile,
@@ -8,7 +9,6 @@ import {
   type PickupProduct,
   type DeliveryProduct,
 } from '@/mocks/driver';
-import { scheduleRuns } from '@/mocks/schedule';
 import { trucks, trailers } from '@/mocks/fleet';
 import { formatLiters, formatTimeOfDay } from '@/pages/driver/driverUtils';
 
@@ -50,6 +50,7 @@ function deviationLabel(reason: string | null | undefined): string {
 export default function DispatchRunDetailPage() {
   const { id } = useParams();
   const runs = useDriverRuns();
+  const scheduleRuns = useScheduleRuns();
   const inventory = useTruckInventory();
 
   const numeric = id?.replace(/^RN-/, '') ?? '';

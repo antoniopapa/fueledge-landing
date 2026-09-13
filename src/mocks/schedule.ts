@@ -64,6 +64,65 @@ export interface AssignmentOption {
   checks: AssignmentCheck[];
 }
 
+const scheduleLoadsUrl = 'https://fueledge-api.vercel.app/api/loads';
+
+function isScheduleStatus(status: string): status is ScheduleStatus {
+  return ['Scheduled', 'Dispatched', 'Completed', 'Delayed', 'Conflict'].includes(status);
+}
+
+function normalizeScheduleRun(run: Partial<ScheduleRun>): ScheduleRun | null {
+  if (
+    !run.id ||
+    !run.driverName ||
+    !run.truckPlate ||
+    !run.route ||
+    !run.product ||
+    !run.volume ||
+    typeof run.day !== 'number' ||
+    !run.startTime ||
+    !run.endTime ||
+    !run.status ||
+    !isScheduleStatus(run.status) ||
+    !run.pickup ||
+    !run.delivery
+  ) {
+    return null;
+  }
+
+  return {
+    id: String(run.id),
+    driverName: run.driverName,
+    truckPlate: run.truckPlate,
+    route: run.route,
+    product: run.product,
+    volume: run.volume,
+    day: run.day,
+    startTime: run.startTime,
+    endTime: run.endTime,
+    status: run.status,
+    pickup: run.pickup,
+    delivery: run.delivery,
+    ...(run.conflict !== undefined ? { conflict: run.conflict } : {}),
+    ...(run.conflictNote ? { conflictNote: run.conflictNote } : {}),
+  };
+}
+
+export async function fetchScheduleRuns(): Promise<ScheduleRun[]> {
+  const response = await fetch(scheduleLoadsUrl);
+  if (!response.ok) {
+    throw new Error(`Unable to retrieve scheduled runs: ${response.status}`);
+  }
+
+  const payload = await response.json();
+  if (!Array.isArray(payload)) {
+    throw new Error('Scheduled runs response must be an array');
+  }
+
+  return payload
+    .map((run) => normalizeScheduleRun(run))
+    .filter((run): run is ScheduleRun => run !== null);
+}
+
 export const scheduleResources: ScheduleResource[] = [
   { driverName: 'Thomas Müller', driverInitials: 'TM', truckPlate: 'DE-82-MN', availability: 'On Shift' },
   { driverName: 'Markus Wagner', driverInitials: 'MW', truckPlate: 'TR-76-BX', availability: 'On Shift' },

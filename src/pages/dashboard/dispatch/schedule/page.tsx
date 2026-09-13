@@ -1,7 +1,6 @@
 import { useMemo, useState } from 'react';
-import ModuleShell from '@/pages/dashboard/components/ModuleShell';
-import { dispatchNav } from '@/pages/dashboard/nav';
-import { scheduleResources } from '@/mocks/schedule';
+import DashboardShell from '@/pages/dashboard/components/DashboardShell';
+import type { ResourceAvailability, ScheduleResource } from '@/mocks/schedule';
 import { useScheduleRuns, updateScheduleRun } from '@/pages/dashboard/dispatch/dispatchStore';
 import { buildDays, weekRangeLabel, singleDayLabel } from './scheduleUtils';
 import ScheduleToolbar from './components/ScheduleToolbar';
@@ -27,8 +26,38 @@ export default function SchedulePage() {
   const days = useMemo(() => buildDays(weekOffset), [weekOffset]);
   const dateLabel = view === 'week' ? weekRangeLabel(days) : singleDayLabel(days[selectedDay]);
 
-  const drivers = useMemo(() => scheduleResources.map((r) => r.driverName), []);
-  const trucks = useMemo(() => Array.from(new Set(scheduleResources.map((r) => r.truckPlate))), []);
+  const scheduleResources = useMemo<ScheduleResource[]>(() => {
+    const resources = new Map<string, ScheduleResource>();
+
+    runs.forEach((run) => {
+      const key = `${run.driverName}-${run.truckPlate}`;
+      const availability: ResourceAvailability =
+        run.status === 'Completed'
+          ? 'Available'
+          : run.status === 'Delayed' || run.status === 'Conflict'
+            ? 'Break'
+            : 'On Shift';
+
+      if (!resources.has(key)) {
+        resources.set(key, {
+          driverName: run.driverName,
+          driverInitials: run.driverName
+            .split(' ')
+            .map((part) => part[0])
+            .join('')
+            .slice(0, 2)
+            .toUpperCase(),
+          truckPlate: run.truckPlate,
+          availability,
+        });
+      }
+    });
+
+    return Array.from(resources.values());
+  }, [runs]);
+
+  const drivers = useMemo(() => scheduleResources.map((r) => r.driverName), [scheduleResources]);
+  const trucks = useMemo(() => Array.from(new Set(scheduleResources.map((r) => r.truckPlate))), [scheduleResources]);
   const statuses = ['Scheduled', 'Dispatched', 'Delayed', 'Conflict', 'Completed'];
 
   const visibleResources = useMemo(
@@ -104,12 +133,8 @@ export default function SchedulePage() {
   }
 
   return (
-    <ModuleShell
-      title="Schedule"
-      description="Plan driver and truck assignments across upcoming runs."
-      icon="ri-calendar-line"
-      subNav={dispatchNav}
-    >
+    <DashboardShell>
+      <div className="w-full">
       <ScheduleToolbar
         dateLabel={dateLabel}
         view={view}
@@ -169,6 +194,7 @@ export default function SchedulePage() {
           {toast}
         </div>
       )}
-    </ModuleShell>
+      </div>
+    </DashboardShell>
   );
 }

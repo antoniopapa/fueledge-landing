@@ -6,7 +6,7 @@ import DriverLogo from '@/pages/driver/components/DriverLogo';
 export default function DriverLoginPage() {
   const navigate = useNavigate();
   const { driver } = useDriverApp();
-  const [email, setEmail] = useState(driver.email);
+  const [email, setEmail] = useState("ivan@fueledge.eu");
   const [password, setPassword] = useState('fueledge-demo');
   const [showPassword, setShowPassword] = useState(false);
 

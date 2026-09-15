@@ -11,38 +11,20 @@ export default function DriverHomePage() {
   const [lastActiveId, setLastActiveId] = useState<string | null>(null);
 
   const activeRun = runs.find((run) => run.status === 'In Progress');
-  const completed = activeRun
-    ? null
-    : runs.find((run) => run.id === lastActiveId && run.status === 'Completed');
 
   useEffect(() => {
     if (activeRun) setLastActiveId(activeRun.id);
   }, [activeRun]);
 
-  const displayRun = activeRun ?? completed ?? null;
-
-  const firstName = driver.name.split(' ')[0];
   const greeting = (
-    <p className="pt-4 text-center text-sm font-bold text-foreground-600">Hi, {firstName}</p>
+    <p className="pt-4 text-center text-sm font-bold text-foreground-600">Hi, Ivan</p>
   );
-
-  if (displayRun) {
-    return (
-      <DriverAppShell>
-        {greeting}
-        <div className="mt-4">
-          <ActiveRunScreen run={displayRun} onBackHome={() => setLastActiveId(null)} />
-        </div>
-      </DriverAppShell>
-    );
-  }
 
   const scheduledToday = runs.filter(
     (run) => run.status === 'Scheduled' && windowDay(run) === 'Today',
   );
 
   const heroRun = scheduledToday[0] ?? null;
-  const upNext = scheduledToday.slice(1);
   const noWork = scheduledToday.length === 0;
 
   return (
@@ -53,17 +35,6 @@ export default function DriverHomePage() {
         <div className="mt-4">
           <PrimaryRunCard run={heroRun} />
         </div>
-      )}
-
-      {upNext.length > 0 && (
-        <section className="mt-6">
-          <h2 className="font-heading text-lg font-bold text-foreground-950">Next runs</h2>
-          <div className="mt-3 space-y-3">
-            {upNext.map((run) => (
-              <UpNextCard key={run.id} run={run} blocked={false} />
-            ))}
-          </div>
-        </section>
       )}
 
       {noWork && (

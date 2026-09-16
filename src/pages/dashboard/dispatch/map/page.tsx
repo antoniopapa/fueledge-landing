@@ -5,13 +5,13 @@ import { drivers } from '@/mocks/drivers';
 import { terminals } from '@/mocks/sourcing';
 
 const legend = [
-  { label: 'Trucks', color: 'bg-primary-500', count: trucks.filter((t) => t.status === 'On Route' || t.status === 'Loading').length },
-  { label: 'Drivers', color: 'bg-accent-500', count: drivers.filter((d) => d.status === 'In Transit' || d.status === 'Delivering').length },
-  { label: 'Terminals', color: 'bg-secondary-500', count: terminals.length },
-  { label: 'Pickups', color: 'bg-primary-300', count: 8 },
-  { label: 'Destinations', color: 'bg-accent-300', count: 9 },
-  { label: 'Routes', color: 'bg-primary-700', count: 9 },
-  { label: 'Exceptions', color: 'bg-red-500', count: 3 },
+  { label: 'Камиони', color: 'bg-primary-500', count: trucks.filter((t) => t.status === 'On Route' || t.status === 'Loading').length },
+  { label: 'Шофьори', color: 'bg-accent-500', count: drivers.filter((d) => d.status === 'In Transit' || d.status === 'Delivering').length },
+  { label: 'Терминали', color: 'bg-secondary-500', count: terminals.length },
+  { label: 'Товарения', color: 'bg-primary-300', count: 8 },
+  { label: 'Дестинации', color: 'bg-accent-300', count: 9 },
+  { label: 'Маршрути', color: 'bg-primary-700', count: 9 },
+  { label: 'Изключения', color: 'bg-red-500', count: 3 },
 ];
 
 const markers = [
@@ -32,15 +32,15 @@ const markers = [
 export default function DispatchMapPage() {
   return (
     <ModuleShell
-      title="Dispatch Map"
-      description="Live map of active dispatches, trucks, and exceptions."
+      title="Диспечерска карта"
+      description="Карта на живо с активни диспечирания, камиони и изключения."
       icon="ri-map-pin-line"
       subNav={dispatchNav}
     >
       <div className="grid grid-cols-1 xl:grid-cols-4 gap-4">
         {/* legend */}
         <div className="xl:col-span-1 rounded-lg border border-background-200 bg-background-50 p-4 h-fit">
-          <h2 className="text-sm font-semibold text-foreground-950 mb-3">Legend</h2>
+          <h2 className="text-sm font-semibold text-foreground-950 mb-3">Легенда</h2>
           <div className="space-y-2.5">
             {legend.map((l) => (
               <div key={l.label} className="flex items-center justify-between">
@@ -57,11 +57,11 @@ export default function DispatchMapPage() {
         {/* map */}
         <div className="xl:col-span-3 relative h-[560px] rounded-lg border border-background-200 overflow-hidden bg-background-100">
           <iframe
-            title="Dispatch map"
+            title="Диспечерска карта"
             src="https://maps.google.com/maps?q=Europe&z=5&output=embed"
             className="absolute inset-0 w-full h-full border-0 [filter:saturate(0.72)_contrast(1.02)]"
             loading="lazy"
-            aria-label="Live dispatch map of Europe"
+            aria-label="Диспечерска карта на Европа на живо"
           />
           <div className="absolute inset-0 pointer-events-none">
             <div className="absolute h-[2px] rounded-full bg-primary-700 opacity-60 origin-left" style={{ left: '22%', top: '38%', width: '20%', transform: 'rotate(12deg)' }} />

@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+﻿import { useEffect, useRef, useState } from 'react';
 
 interface ToolbarProps {
   dateLabel: string;
@@ -17,6 +17,17 @@ interface ToolbarProps {
   trucks: string[];
   statuses: string[];
 }
+
+const filterLabels: Record<string, string> = {
+  'All Drivers': 'Всички драйвери',
+  'All Trucks': 'Всички камиони',
+  'All Statuses': 'Всички състояния',
+  Scheduled: 'Планиран',
+  Dispatched: 'Изпратено',
+  Delayed: 'Забавен',
+  Conflict: 'Конфликт',
+  Completed: 'Завършено',
+};
 
 function FilterMenu({
   label,
@@ -47,7 +58,7 @@ function FilterMenu({
           open ? 'text-foreground-900' : 'text-foreground-600 hover:text-foreground-900'
         }`}
       >
-        {label}
+        {filterLabels[label] ?? label}
         <span className="w-3 h-3 flex items-center justify-center">
           {open ? (
             <i className="ri-arrow-up-s-line text-[12px] leading-none" />
@@ -72,7 +83,7 @@ function FilterMenu({
                   : 'text-foreground-700 hover:bg-background-100'
               }`}
             >
-              {o}
+              {filterLabels[o] ?? o}
             </button>
           ))}
         </div>
@@ -109,13 +120,13 @@ export default function ScheduleToolbar({
           onClick={onToday}
           className="rounded-md border border-background-200 bg-background-50 px-3 py-1.5 text-[12px] font-semibold text-foreground-700 hover:bg-background-100 whitespace-nowrap cursor-pointer transition-colors"
         >
-          Today
+          Днес
         </button>
         <div className="flex items-center gap-0.5">
           <button
             type="button"
             onClick={onPrev}
-            aria-label="Previous"
+            aria-label="Предишен"
             className="w-7 h-7 flex items-center justify-center rounded-md border border-background-200 bg-background-50 text-foreground-600 hover:bg-background-100 cursor-pointer transition-colors"
           >
             <i className="ri-arrow-left-s-line text-base leading-none" />
@@ -123,7 +134,7 @@ export default function ScheduleToolbar({
           <button
             type="button"
             onClick={onNext}
-            aria-label="Next"
+            aria-label="Следващ"
             className="w-7 h-7 flex items-center justify-center rounded-md border border-background-200 bg-background-50 text-foreground-600 hover:bg-background-100 cursor-pointer transition-colors"
           >
             <i className="ri-arrow-right-s-line text-base leading-none" />
@@ -139,14 +150,14 @@ export default function ScheduleToolbar({
             type="text"
             value={searchQuery}
             onChange={(e) => onSearchQuery(e.target.value)}
-            placeholder="Search run, route, driver…"
+            placeholder="Търсене на курс, маршрут, шофьор…"
             className="w-52 rounded-md border border-background-200 bg-background-50 px-2.5 py-1.5 text-[12px] text-foreground-900 placeholder:text-foreground-400 focus:outline-none focus:ring-2 focus:ring-primary-300"
           />
         )}
         <button
           type="button"
           onClick={() => setSearchOpen((o) => !o)}
-          aria-label="Search / filter"
+          aria-label="Търсене / филтриране"
           className={`w-7 h-7 flex items-center justify-center rounded-md border border-background-200 bg-background-50 cursor-pointer transition-colors ${
             searchOpen ? 'text-primary-600' : 'text-foreground-600 hover:bg-background-100'
           }`}

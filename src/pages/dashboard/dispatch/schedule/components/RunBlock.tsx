@@ -10,7 +10,7 @@ interface RunBlockProps {
 export default function RunBlock({ run, variant = 'week', onClick }: RunBlockProps) {
   const meta = statusMeta[run.status];
   const title = run.conflict
-    ? `Scheduling conflict\nPrevious run ends 14:20\nNext pickup begins 14:00`
+    ? `Конфликт в графика\nПредишният курс приключва 14:20\nСледващото товарене започва 14:00`
     : `#${run.id} · ${run.route} · ${run.volume} · ${run.product}`;
 
   return (

@@ -25,7 +25,7 @@ export default function WeekBoard({ days, resources, runs, onRunClick, onDropRun
           {/* header */}
           <div className="grid border-b border-background-200" style={{ gridTemplateColumns: GRID }}>
             <div className="sticky left-0 z-10 bg-background-50 px-4 py-3 border-r border-background-200">
-              <span className="text-[10px] font-semibold uppercase tracking-wide text-foreground-400">Driver</span>
+              <span className="text-[10px] font-semibold uppercase tracking-wide text-foreground-400">Шофьор</span>
             </div>
             {days.map((d) => (
               <div

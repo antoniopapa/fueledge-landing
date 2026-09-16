@@ -34,7 +34,7 @@ export default function SchedulePage() {
       .catch(() => {
         if (active) {
           replaceScheduleRuns([]);
-          setToast('Unable to load scheduled runs');
+          setToast('Неуспешно зареждане на планираните курсове');
           window.setTimeout(() => setToast(null), 2600);
         }
       });
@@ -71,22 +71,22 @@ export default function SchedulePage() {
 
   function handleDropRun(runId: string, driverName: string, truckPlate: string, day: number | null) {
     updateScheduleRun(runId, { driverName, truckPlate, ...(day !== null ? { day } : {}) });
-    showToast(`Run #${runId} reassigned to ${driverName}`);
+    showToast(`Курс #${runId} е преназначен към ${driverName}`);
   }
 
   function handleReassignDriver(runId: string, driverName: string) {
     updateScheduleRun(runId, { driverName });
-    showToast(`Run #${runId} driver changed to ${driverName}`);
+    showToast(`Шофьорът на курс #${runId} е сменен на ${driverName}`);
   }
 
   function handleReassignTruck(runId: string, truckPlate: string) {
     updateScheduleRun(runId, { truckPlate });
-    showToast(`Run #${runId} truck changed to ${truckPlate}`);
+    showToast(`Камионът на курс #${runId} е сменен на ${truckPlate}`);
   }
 
   function handleChangeTime(runId: string, startTime: string, endTime: string) {
     updateScheduleRun(runId, { startTime, endTime });
-    showToast(`Run #${runId} rescheduled to ${startTime}–${endTime}`);
+    showToast(`Курс #${runId} е пренасрочен за ${startTime}-${endTime}`);
   }
 
   function handlePrev() {
@@ -110,7 +110,7 @@ export default function SchedulePage() {
             className="inline-flex items-center gap-1.5 rounded-md bg-primary-500 px-4 py-2 text-sm font-semibold text-background-50 transition-colors hover:bg-primary-600"
           >
             <i className="ri-add-line text-sm leading-none" />
-            New Schedule
+            Нов график
           </Link>
         </div>
 

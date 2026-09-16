@@ -72,28 +72,28 @@ export default function DispatchIssuesPage() {
   function handleResolve(row: OpenIssueRow) {
     resolveIssue(row.runId, row.issueId);
     setToast(
-      `${row.kind === 'unable_to_complete' ? 'Retry delivery enabled' : 'Issue resolved'} · ${row.stopLabel}`,
+      `${row.kind === 'unable_to_complete' ? 'Повторната доставка е активирана' : 'Проблемът е разрешен'} · ${row.stopLabel}`,
     );
     window.setTimeout(() => setToast(null), 2600);
   }
 
   function handleAcknowledge(row: OpenIssueRow) {
     acknowledgeIssue(row.runId, row.issueId);
-    setToast(`Acknowledged · ${row.stopLabel}`);
+    setToast(`Потвърдено · ${row.stopLabel}`);
     window.setTimeout(() => setToast(null), 2600);
   }
 
   return (
     <ModuleShell
-      title="Open Issues"
-      description="Review and resolve issues reported by drivers in the field."
+      title="Отворени проблеми"
+      description="Преглед и разрешаване на проблеми, докладвани от шофьорите на терен."
       icon="ri-alert-line"
       subNav={dispatchNav}
     >
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-        <StatCard label="Blocked stops" value={blockedCount} icon="ri-lock-line" accent />
-        <StatCard label="Reported issues" value={reportedCount} icon="ri-alert-line" />
-        <StatCard label="Total open" value={rows.length} icon="ri-list-unordered" />
+        <StatCard label="Блокирани спирки" value={blockedCount} icon="ri-lock-line" accent />
+        <StatCard label="Докладвани проблеми" value={reportedCount} icon="ri-alert-line" />
+        <StatCard label="Общо отворени" value={rows.length} icon="ri-list-unordered" />
       </div>
 
       {rows.length === 0 ? (
@@ -101,9 +101,9 @@ export default function DispatchIssuesPage() {
           <span className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-background-100">
             <i className="ri-check-double-line text-foreground-400 text-2xl leading-none" />
           </span>
-          <p className="mt-4 font-heading text-[16px] font-bold text-foreground-950">No open issues</p>
+          <p className="mt-4 font-heading text-[16px] font-bold text-foreground-950">Няма отворени проблеми</p>
           <p className="mt-1 text-[13px] text-foreground-500">
-            When a driver reports an issue or can&apos;t complete a stop, it appears here for review.
+            Когато шофьор докладва проблем или не може да завърши спирка, той ще се появи тук за преглед.
           </p>
         </div>
       ) : (
@@ -135,16 +135,16 @@ export default function DispatchIssuesPage() {
                             : 'bg-secondary-100 text-secondary-800'
                         }`}
                       >
-                        {row.kind === 'unable_to_complete' ? 'Blocked' : row.status}
+                        {row.kind === 'unable_to_complete' ? 'Блокиран' : row.status === 'Reported' ? 'Докладван' : 'Потвърден'}
                       </span>
                       {row.kind === 'unable_to_complete' && row.status === 'Acknowledged' && (
                         <span className="inline-flex items-center gap-1 rounded-full bg-background-200 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-foreground-600">
-                          Acknowledged
+                          Потвърден
                         </span>
                       )}
                       {row.severity === 'urgent' && (
                         <span className="inline-flex items-center gap-1 rounded-full bg-red-100 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-red-700">
-                          Urgent
+                          Спешен
                         </span>
                       )}
                     </div>
@@ -152,7 +152,7 @@ export default function DispatchIssuesPage() {
                     <p className="text-[12px] text-foreground-500">
                       {row.route} · {row.stopLabel}
                     </p>
-                    <p className="mt-0.5 text-[11px] text-foreground-400">Reported {row.time}</p>
+                    <p className="mt-0.5 text-[11px] text-foreground-400">Докладвано {row.time}</p>
                   </div>
                 </div>
                 {row.status === 'Reported' ? (
@@ -162,7 +162,7 @@ export default function DispatchIssuesPage() {
                     className="inline-flex shrink-0 items-center justify-center gap-1.5 rounded-md border border-background-300 bg-background-50 text-foreground-700 hover:bg-background-100 text-[13px] font-semibold px-3 py-2.5 whitespace-nowrap cursor-pointer transition-colors"
                   >
                     <i className="ri-mail-check-line text-sm leading-none" />
-                    Acknowledge
+                    Потвърди
                   </button>
                 ) : (
                   <button
@@ -173,7 +173,7 @@ export default function DispatchIssuesPage() {
                     <i
                       className={`${row.kind === 'unable_to_complete' ? 'ri-refresh-line' : 'ri-check-line'} text-sm leading-none`}
                     />
-                    {row.kind === 'unable_to_complete' ? 'Resolve · Retry delivery' : 'Resolve'}
+                    {row.kind === 'unable_to_complete' ? 'Разреши · повтори доставката' : 'Разреши'}
                   </button>
                 )}
               </div>

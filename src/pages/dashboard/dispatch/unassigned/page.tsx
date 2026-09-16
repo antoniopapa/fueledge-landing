@@ -27,13 +27,13 @@ export default function UnassignedPage() {
     assignRun(assignTarget, driverName, truckPlate);
     const id = assignTarget.id;
     setAssignTarget(null);
-    showToast(`Run #${id} assigned to ${driverName} · ${truckPlate} and added to Schedule`);
+    showToast(`Курс #${id} е назначен на ${driverName} · ${truckPlate} и добавен в графика`);
   }
 
   return (
     <ModuleShell
-      title="Unassigned Runs"
-      description="Sourced runs ready for dispatch that still need a truck and driver."
+      title="Неназначени курсове"
+      description="Снабдени курсове, готови за диспечиране, които още се нуждаят от камион и шофьор."
       icon="ri-inbox-line"
       subNav={dispatchNav}
     >
@@ -47,7 +47,7 @@ export default function UnassignedPage() {
             <p className="font-heading text-2xl font-bold text-foreground-950 tabular leading-none">
               {unassigned.length}
             </p>
-            <p className="text-[11px] text-foreground-500 mt-1">Unassigned Runs</p>
+            <p className="text-[11px] text-foreground-500 mt-1">Неназначени курсове</p>
           </div>
         </div>
       </div>
@@ -58,15 +58,15 @@ export default function UnassignedPage() {
           <table className="w-full text-left min-w-[1120px]">
             <thead>
               <tr className="border-b border-background-200 bg-background-100/40">
-                <th className="px-4 py-2.5 text-[10px] font-semibold uppercase tracking-wide text-foreground-400">Run</th>
-                <th className="px-4 py-2.5 text-[10px] font-semibold uppercase tracking-wide text-foreground-400">Source terminal</th>
-                <th className="px-4 py-2.5 text-[10px] font-semibold uppercase tracking-wide text-foreground-400">Destination</th>
-                <th className="px-4 py-2.5 text-[10px] font-semibold uppercase tracking-wide text-foreground-400">Product</th>
-                <th className="px-4 py-2.5 text-[10px] font-semibold uppercase tracking-wide text-foreground-400">Volume</th>
-                <th className="px-4 py-2.5 text-[10px] font-semibold uppercase tracking-wide text-foreground-400">Pickup</th>
-                <th className="px-4 py-2.5 text-[10px] font-semibold uppercase tracking-wide text-foreground-400">Delivery</th>
-                <th className="px-4 py-2.5 text-[10px] font-semibold uppercase tracking-wide text-foreground-400">Recommended</th>
-                <th className="px-4 py-2.5 text-[10px] font-semibold uppercase tracking-wide text-foreground-400">Reason</th>
+                <th className="px-4 py-2.5 text-[10px] font-semibold uppercase tracking-wide text-foreground-400">Курс</th>
+                <th className="px-4 py-2.5 text-[10px] font-semibold uppercase tracking-wide text-foreground-400">Изходен терминал</th>
+                <th className="px-4 py-2.5 text-[10px] font-semibold uppercase tracking-wide text-foreground-400">Дестинация</th>
+                <th className="px-4 py-2.5 text-[10px] font-semibold uppercase tracking-wide text-foreground-400">Продукт</th>
+                <th className="px-4 py-2.5 text-[10px] font-semibold uppercase tracking-wide text-foreground-400">Обем</th>
+                <th className="px-4 py-2.5 text-[10px] font-semibold uppercase tracking-wide text-foreground-400">Товарене</th>
+                <th className="px-4 py-2.5 text-[10px] font-semibold uppercase tracking-wide text-foreground-400">Доставка</th>
+                <th className="px-4 py-2.5 text-[10px] font-semibold uppercase tracking-wide text-foreground-400">Препоръчано</th>
+                <th className="px-4 py-2.5 text-[10px] font-semibold uppercase tracking-wide text-foreground-400">Причина</th>
                 <th className="px-4 py-2.5 text-[10px] font-semibold uppercase tracking-wide text-foreground-400"></th>
               </tr>
             </thead>
@@ -77,8 +77,8 @@ export default function UnassignedPage() {
                     <span className="w-10 h-10 mx-auto rounded-full bg-accent-100 flex items-center justify-center">
                       <i className="ri-checkbox-circle-line text-accent-600 text-lg leading-none" />
                     </span>
-                    <p className="mt-3 text-sm font-medium text-foreground-700">All runs assigned</p>
-                    <p className="text-xs text-foreground-400 mt-1">New sourced runs will appear here.</p>
+                    <p className="mt-3 text-sm font-medium text-foreground-700">Всички курсове са назначени</p>
+                    <p className="text-xs text-foreground-400 mt-1">Новите снабдени курсове ще се появят тук.</p>
                   </td>
                 </tr>
               ) : (
@@ -111,7 +111,7 @@ export default function UnassignedPage() {
                           <span className="w-3.5 h-3.5 flex items-center justify-center">
                             <i className="ri-truck-line text-accent-600 text-[13px] leading-none" />
                           </span>
-                          Delivery-first
+                          Първо доставка
                         </span>
                       ) : (
                         <span className="inline-flex items-center gap-1.5 text-[11px] text-secondary-700 whitespace-nowrap">
@@ -131,7 +131,7 @@ export default function UnassignedPage() {
                         <span className="w-3 h-3 flex items-center justify-center">
                           <i className="ri-user-add-line text-[12px] leading-none" />
                         </span>
-                        Assign
+                        Назначи
                       </button>
                     </td>
                   </tr>

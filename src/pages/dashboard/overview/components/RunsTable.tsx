@@ -12,13 +12,13 @@ const statusStyle: Record<OrderStatus, string> = {
 };
 
 const statusLabel: Record<OrderStatus, string> = {
-  New: 'ÐÐ¾Ð²Ð°',
-  'Ready to Source': 'Ð“Ð¾Ñ‚Ð¾Ð²Ð° Ð·Ð° ÑÐ½Ð°Ð±Ð´ÑÐ²Ð°Ð½Ðµ',
-  Sourced: 'Ð¡Ð½Ð°Ð±Ð´ÐµÐ½Ð°',
-  Scheduled: 'ÐŸÐ»Ð°Ð½Ð¸Ñ€Ð°Ð½Ð°',
-  'In Progress': 'Ð’ Ñ…Ð¾Ð´',
-  Completed: 'Ð—Ð°Ð²ÑŠÑ€ÑˆÐµÐ½Ð°',
-  Cancelled: 'ÐžÑ‚ÐºÐ°Ð·Ð°Ð½Ð°',
+  New: 'Нова',
+  'Ready to Source': 'Готова за снабдяване',
+  Sourced: 'Снабдена',
+  Scheduled: 'Планирана',
+  'In Progress': 'В ход',
+  Completed: 'Завършена',
+  Cancelled: 'Отказана',
 };
 
 type RunsTableProps = {
@@ -26,9 +26,9 @@ type RunsTableProps = {
 };
 
 const headingByPeriod: Record<'today' | 'week' | 'month', string> = {
-  today: 'Ð”Ð½ÐµÑˆÐ½Ð¸ ÐºÑƒÑ€ÑÐ¾Ð²Ðµ',
-  week: 'ÐšÑƒÑ€ÑÐ¾Ð²Ðµ Ñ‚Ð°Ð·Ð¸ ÑÐµÐ´Ð¼Ð¸Ñ†Ð°',
-  month: 'ÐšÑƒÑ€ÑÐ¾Ð²Ðµ Ñ‚Ð¾Ð·Ð¸ Ð¼ÐµÑÐµÑ†',
+  today: 'Днешни курсове',
+  week: 'Курсове тази седмица',
+  month: 'Курсове този месец',
 };
 
 export default function RunsTable({ period = 'today' }: RunsTableProps) {
@@ -42,7 +42,7 @@ export default function RunsTable({ period = 'today' }: RunsTableProps) {
           </p>
         </div>
         <span className="inline-flex items-center gap-1.5 text-[11px] font-medium text-primary-700 cursor-pointer whitespace-nowrap">
-          Ð’Ð¸Ð¶ Ð²ÑÐ¸Ñ‡ÐºÐ¸ ÐºÑƒÑ€ÑÐ¾Ð²Ðµ
+          Виж всички курсове
           <span className="w-4 h-4 flex items-center justify-center">
             <i className="ri-arrow-right-line text-xs leading-none" />
           </span>
@@ -53,14 +53,14 @@ export default function RunsTable({ period = 'today' }: RunsTableProps) {
         <table className="w-full text-left min-w-[720px]">
           <thead>
             <tr className="border-b border-background-200 bg-background-100/40">
-              <th className="px-4 py-2.5 text-[10px] font-semibold uppercase tracking-wide text-foreground-400">ÐŸÐ¾Ñ€ÑŠÑ‡ÐºÐ°</th>
-              <th className="px-4 py-2.5 text-[10px] font-semibold uppercase tracking-wide text-foreground-400">ÐœÐ°Ñ€ÑˆÑ€ÑƒÑ‚</th>
-              <th className="px-4 py-2.5 text-[10px] font-semibold uppercase tracking-wide text-foreground-400">ÐŸÑ€Ð¾Ð´ÑƒÐºÑ‚</th>
-              <th className="px-4 py-2.5 text-[10px] font-semibold uppercase tracking-wide text-foreground-400">Ð¨Ð¾Ñ„ÑŒÐ¾Ñ€</th>
-              <th className="px-4 py-2.5 text-[10px] font-semibold uppercase tracking-wide text-foreground-400">Ð˜Ð·Ñ‚Ð¾Ñ‡Ð½Ð¸Ðº</th>
-              <th className="px-4 py-2.5 text-[10px] font-semibold uppercase tracking-wide text-foreground-400">Ð¡Ñ‚Ð°Ñ‚ÑƒÑ</th>
-              <th className="px-4 py-2.5 text-[10px] font-semibold uppercase tracking-wide text-foreground-400">ÐžÑ‡Ð°ÐºÐ²Ð°Ð½Ð¾</th>
-              <th className="px-4 py-2.5 text-[10px] font-semibold uppercase tracking-wide text-foreground-400 text-right">Ð”Ð¾ÑÑ‚Ð°Ð²Ð½Ð° Ñ†ÐµÐ½Ð°</th>
+              <th className="px-4 py-2.5 text-[10px] font-semibold uppercase tracking-wide text-foreground-400">Поръчка</th>
+              <th className="px-4 py-2.5 text-[10px] font-semibold uppercase tracking-wide text-foreground-400">Маршрут</th>
+              <th className="px-4 py-2.5 text-[10px] font-semibold uppercase tracking-wide text-foreground-400">Продукт</th>
+              <th className="px-4 py-2.5 text-[10px] font-semibold uppercase tracking-wide text-foreground-400">Шофьор</th>
+              <th className="px-4 py-2.5 text-[10px] font-semibold uppercase tracking-wide text-foreground-400">Източник</th>
+              <th className="px-4 py-2.5 text-[10px] font-semibold uppercase tracking-wide text-foreground-400">Статус</th>
+              <th className="px-4 py-2.5 text-[10px] font-semibold uppercase tracking-wide text-foreground-400">Очаквано</th>
+              <th className="px-4 py-2.5 text-[10px] font-semibold uppercase tracking-wide text-foreground-400 text-right">Доставна цена</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-background-200">

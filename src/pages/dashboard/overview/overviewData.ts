@@ -19,7 +19,7 @@ const parseNumber = (value: string): number => parseInt(value.replace(/[^\d]/g, 
 const formatLitres = (n: number): string =>
   n >= 1_000_000 ? `${(n / 1_000_000).toFixed(1).replace('.0', '')}M L` : `${Math.round(n / 1000)}k L`;
 
-const formatEuro = (n: number): string => `â‚¬${n.toLocaleString('en-US')}`;
+const formatEuro = (n: number): string => `€${n.toLocaleString('en-US')}`;
 
 const PRODUCT_LABELS: Record<string, string> = {
   'Diesel EN590': 'Дизел EN590',
@@ -113,41 +113,41 @@ export interface OverviewKpi {
 
 export const overviewKpis: OverviewKpi[] = [
   {
-    label: 'ÐžÑ‚Ð²Ð¾Ñ€ÐµÐ½Ð¸ Ð¿Ð¾Ñ€ÑŠÑ‡ÐºÐ¸',
+    label: 'Отворени поръчки',
     value: String(openOrders),
-    delta: `${awaitingSourcing + awaitingDispatch} Ð¸Ð·Ð¸ÑÐºÐ²Ð°Ñ‚ Ð´ÐµÐ¹ÑÑ‚Ð²Ð¸Ðµ`,
+    delta: `${awaitingSourcing + awaitingDispatch} изискват действие`,
     icon: 'ri-file-list-3-line',
     tone: 'neutral',
     spark: [17, 20, 18, 22, openOrders],
   },
   {
-    label: 'ÐÐºÑ‚Ð¸Ð²Ð½Ð¸ Ð´Ð¾ÑÑ‚Ð°Ð²ÐºÐ¸',
+    label: 'Активни доставки',
     value: String(activeDeliveries.length),
-    delta: `${inTransitDeliveries} Ð² Ð´Ð²Ð¸Ð¶ÐµÐ½Ð¸Ðµ Â· ${loadingDeliveries} ÑÐµ Ñ‚Ð¾Ð²Ð°Ñ€ÑÑ‚`,
+    delta: `${inTransitDeliveries} в движение · ${loadingDeliveries} се товарят`,
     icon: 'ri-truck-line',
     tone: 'neutral',
     spark: [13, 11, 12, 10, activeDeliveries.length],
   },
   {
-    label: 'ÐÐ°Ð²Ñ€ÐµÐ¼ÐµÐ½Ð½Ð¸ Ð´Ð¾ÑÑ‚Ð°Ð²ÐºÐ¸',
+    label: 'Навременни доставки',
     value: `${onTimePct}%`,
-    delta: `${atRiskDeliveries.length} Ñ Ð¸Ð·ÐºÐ»ÑŽÑ‡ÐµÐ½Ð¸Ñ`,
+    delta: `${atRiskDeliveries.length} с изключения`,
     icon: 'ri-timer-flash-line',
     tone: 'accent',
     spark: [82, 80, 76, 72, onTimePct],
   },
   {
-    label: 'Ð¡Ð¿ÐµÑÑ‚ÑÐ²Ð°Ð½Ð¸Ñ Ð¾Ñ‚ ÑÐ½Ð°Ð±Ð´ÑÐ²Ð°Ð½Ðµ',
+    label: 'Спестявания от снабдяване',
     value: formatEuro(sourcingSavings),
-    delta: `${sourcingOpportunities.length} Ð¾Ñ‚Ð²Ð¾Ñ€ÐµÐ½Ð¸ Ð²ÑŠÐ·Ð¼Ð¾Ð¶Ð½Ð¾ÑÑ‚Ð¸`,
+    delta: `${sourcingOpportunities.length} отворени възможности`,
     icon: 'ri-funds-line',
     tone: 'secondary',
     spark: [430, 540, 610, 690, sourcingSavings],
   },
   {
-    label: 'ÐœÐ°Ñ€Ð¶ Ð¾Ñ‚ Ð´Ð¾ÑÑ‚Ð°Ð²ÐºÐ¸',
+    label: 'Марж от доставки',
     value: formatEuro(deliveredMargin),
-    delta: `${completed} Ð·Ð°Ð²ÑŠÑ€ÑˆÐµÐ½Ð¸ ÐºÑƒÑ€ÑÐ°`,
+    delta: `${completed} завършени курса`,
     icon: 'ri-line-chart-line',
     tone: 'primary',
     spark: [980, 1120, 1290, 1340, deliveredMargin],
@@ -171,9 +171,9 @@ export interface AttentionItem {
 // oldest waiting time across a set of orders (derived from createdAt time-of-day)
 const oldestSince = (list: { createdAt: string }[]): string => {
   const times = list
-    .map((o) => o.createdAt.split('Ã‚Â·')[1]?.trim())
+    .map((o) => o.createdAt.split('·')[1]?.trim())
     .filter((t): t is string => Boolean(t));
-  if (!times.length) return 'Ã¢â‚¬â€';
+  if (!times.length) return '—';
   return times.sort()[0];
 };
 
@@ -183,52 +183,52 @@ const criticalTerminalIssues = terminalIssues.filter((i) => i.severity === 'crit
 
 export const attentionItems: AttentionItem[] = [
   {
-    label: 'ÐšÑƒÑ€ÑÐ¾Ð²Ðµ Ð·Ð° ÑÐ½Ð°Ð±Ð´ÑÐ²Ð°Ð½Ðµ',
+    label: 'Курсове за снабдяване',
     count: awaitingSourcing,
     icon: 'ri-flask-line',
     tone: 'secondary',
     link: '/orders',
-    detail: `Ð½Ð°Ð¹-ÑÑ‚Ð°Ñ€Ð¸ÑÑ‚ Ñ‡Ð°ÐºÐ° Ð¾Ñ‚ ${oldestSince(readyToSourceOrders)}`,
+    detail: `най-старият чака от ${oldestSince(readyToSourceOrders)}`,
   },
   {
-    label: 'ÐšÑƒÑ€ÑÐ¾Ð²Ðµ Ð·Ð° Ð´Ð¸ÑÐ¿ÐµÑ‡Ð¸Ñ€Ð°Ð½Ðµ',
+    label: 'Курсове за диспечиране',
     count: awaitingDispatch,
     icon: 'ri-send-plane-line',
     tone: 'primary',
     link: '/dispatch',
-    detail: `Ð½Ð°Ð¹-ÑÑ‚Ð°Ñ€Ð¸ÑÑ‚ Ñ‡Ð°ÐºÐ° Ð¾Ñ‚ ${oldestSince(sourcedOrders)}`,
+    detail: `най-старият чака от ${oldestSince(sourcedOrders)}`,
   },
   {
-    label: 'ÐŸÑ€Ð¾Ð±Ð»ÐµÐ¼Ð¸ Ð² Ñ‚ÐµÑ€Ð¼Ð¸Ð½Ð°Ð»Ð¸',
+    label: 'Проблеми в терминали',
     count: terminalIssues.length,
     icon: 'ri-building-4-line',
     tone: 'secondary',
     link: '/terminals',
-    detail: `${criticalTerminalIssues} ÐºÑ€Ð¸Ñ‚Ð¸Ñ‡Ð½Ð¸`,
+    detail: `${criticalTerminalIssues} критични`,
   },
   {
-    label: 'Ð Ð¸ÑÐºÐ¾Ð²Ð¸ Ð´Ð¾ÑÑ‚Ð°Ð²ÐºÐ¸',
+    label: 'Рискови доставки',
     count: atRiskDeliveries.length,
     icon: 'ri-alarm-warning-line',
     tone: 'danger',
     link: '/deliveries/exceptions',
-    detail: `${atRiskDeliveries.length} Ñ Ð¸Ð·ÐºÐ»ÑŽÑ‡ÐµÐ½Ð¸Ñ`,
+    detail: `${atRiskDeliveries.length} с изключения`,
   },
   {
-    label: 'ÐŸÑ€ÐµÐ´ÑƒÐ¿Ñ€ÐµÐ¶Ð´ÐµÐ½Ð¸Ñ Ð·Ð° ÐºÐ²Ð¾Ñ‚Ð¸',
+    label: 'Предупреждения за квоти',
     count: allocationWarnings.length,
     icon: 'ri-pie-chart-line',
     tone: 'accent',
     link: '/terminals',
-    detail: `${allocationWarnings.length} Ñ‚ÐµÑ€Ð¼Ð¸Ð½Ð°Ð»Ð°`,
+    detail: `${allocationWarnings.length} терминала`,
   },
   {
-    label: 'ÐŸÑ€ÐµÐ´ÑƒÐ¿Ñ€ÐµÐ¶Ð´ÐµÐ½Ð¸Ñ Ð·Ð° Ð´Ð¾Ð³Ð¾Ð²Ð¾Ñ€Ð¸',
+    label: 'Предупреждения за договори',
     count: contractWarnings.length,
     icon: 'ri-file-text-line',
     tone: 'accent',
     link: '/suppliers',
-    detail: `${contractWarnings[0]?.supplier ?? ''} Ð¸Ð·Ñ‚Ð¸Ñ‡Ð°`,
+    detail: `${contractWarnings[0]?.supplier ?? ''} изтича`,
   },
 ];
 
@@ -276,7 +276,7 @@ const CITY_COORDS: Record<string, { lat: number; lng: number }> = {
   Hamburg: { lat: 53.55, lng: 9.99 },
   Lyon: { lat: 45.76, lng: 4.84 },
   Basel: { lat: 47.56, lng: 7.59 },
-  'GdaÃ…â€žsk': { lat: 54.35, lng: 18.65 },
+  'Gdańsk': { lat: 54.35, lng: 18.65 },
   Pardubice: { lat: 50.04, lng: 15.78 },
   Arad: { lat: 46.19, lng: 21.31 },
   Stockholm: { lat: 59.33, lng: 18.07 },
@@ -285,8 +285,8 @@ const CITY_COORDS: Record<string, { lat: number; lng: number }> = {
   Cologne: { lat: 50.94, lng: 6.96 },
   Eindhoven: { lat: 51.44, lng: 5.47 },
   Karlsruhe: { lat: 49.01, lng: 8.4 },
-  'ToruÃ…â€ž': { lat: 53.01, lng: 18.6 },
-  'GyÃ…â€˜r': { lat: 47.68, lng: 17.63 },
+  'Toruń': { lat: 53.01, lng: 18.6 },
+  'Győr': { lat: 47.68, lng: 17.63 },
   Koblenz: { lat: 50.36, lng: 7.6 },
   Frankfurt: { lat: 50.11, lng: 8.68 },
   Prague: { lat: 50.08, lng: 14.44 },
@@ -376,7 +376,7 @@ export const mapDestinations: MapDestination[] = (() => {
 })();
 
 // ---------------------------------------------------------------------------
-// unified map deliveries (terminal Ã¢â€ â€™ truck Ã¢â€ â€™ customer)
+// unified map deliveries (terminal to truck to customer)
 // ---------------------------------------------------------------------------
 export interface MapLocation {
   city: string;

@@ -65,7 +65,7 @@ export default function Sidebar({ className = '', onNavigate }: SidebarProps) {
             </span>
             <div className="min-w-0">
               <p className="text-[12px] font-semibold text-background-50 leading-tight">Markus Keller</p>
-              <p className="text-[10px] text-foreground-400 truncate">Operations Manager</p>
+              <p className="text-[10px] text-foreground-400 truncate">Оперативен мениджър</p>
             </div>
           </div>
           <button
@@ -75,7 +75,7 @@ export default function Sidebar({ className = '', onNavigate }: SidebarProps) {
             <span className="w-5 h-5 flex items-center justify-center">
               <i className="ri-question-line text-[15px] leading-none" />
             </span>
-            Help &amp; Support
+            Помощ и поддръжка
           </button>
         </div>
       </div>

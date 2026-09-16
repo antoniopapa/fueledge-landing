@@ -9,17 +9,17 @@ import {
 type Filter = 'all' | 'ontime' | 'warning' | 'risk';
 
 const HEALTH_META: Record<RouteHealth, { stroke: string; fill: string; label: string }> = {
-  ontime: { stroke: 'stroke-green-500', fill: 'bg-green-500', label: 'On Time' },
-  warning: { stroke: 'stroke-amber-500', fill: 'bg-amber-500', label: 'Warning' },
-  risk: { stroke: 'stroke-red-500', fill: 'bg-red-500', label: 'At Risk' },
-  scheduled: { stroke: 'stroke-gray-400', fill: 'bg-gray-400', label: 'Scheduled' },
+  ontime: { stroke: 'stroke-green-500', fill: 'bg-green-500', label: 'Навреме' },
+  warning: { stroke: 'stroke-amber-500', fill: 'bg-amber-500', label: 'Предупреждение' },
+  risk: { stroke: 'stroke-red-500', fill: 'bg-red-500', label: 'В риск' },
+  scheduled: { stroke: 'stroke-gray-400', fill: 'bg-gray-400', label: 'Планиран' },
 };
 
 const FILTERS: { key: Filter; label: string }[] = [
-  { key: 'all', label: 'All Active' },
-  { key: 'ontime', label: 'On Time' },
-  { key: 'warning', label: 'Warnings' },
-  { key: 'risk', label: 'At Risk' },
+  { key: 'all', label: 'Всички активни' },
+  { key: 'ontime', label: 'Навреме' },
+  { key: 'warning', label: 'Предупреждения' },
+  { key: 'risk', label: 'В риск' },
 ];
 
 // --- mock GPS tick -------------------------------------------------------
@@ -92,25 +92,25 @@ function RunDetails({ d }: { d: MapDelivery }) {
   const meta = HEALTH_META[d.health];
   return (
     <div className="min-w-0">
-      <div className="text-[11px] font-semibold text-foreground-900">Run {d.order}</div>
+      <div className="text-[11px] font-semibold text-foreground-900">Курс {d.order}</div>
       <div className="mt-0.5 text-[10px] text-foreground-600">
         {d.origin.city} → {d.destination.city}
       </div>
       <div className="mt-1.5 flex flex-col gap-1 text-[10px] text-foreground-600">
         <span className="flex items-center gap-1.5">
-          <i className="ri-user-line text-foreground-400" /> Driver: {d.driver}
+          <i className="ri-user-line text-foreground-400" /> Шофьор: {d.driver}
         </span>
         <span className="flex items-center gap-1.5">
-          <i className="ri-truck-line text-foreground-400" /> Truck: {d.truck}
+          <i className="ri-truck-line text-foreground-400" /> Камион: {d.truck}
         </span>
         <span className="flex items-center gap-1.5">
           <i className="ri-drop-line text-foreground-400" /> {d.volume} {d.product}
         </span>
         <span className="flex items-center gap-1.5">
-          <i className="ri-time-line text-foreground-400" /> ETA: {d.eta}
+          <i className="ri-time-line text-foreground-400" /> Очаквано: {d.eta}
         </span>
         <span className="flex items-center gap-1.5">
-          <i className="ri-flag-line text-foreground-400" /> Status: {d.status}
+          <i className="ri-flag-line text-foreground-400" /> Статус: {d.status}
         </span>
       </div>
       <span
@@ -167,7 +167,7 @@ export default function OperationsMap() {
 
   const selected = selectedId ? mapDeliveries.find((d) => d.id === selectedId) ?? null : null;
   const hovered = hoverId && !selected ? mapDeliveries.find((d) => d.id === hoverId) ?? null : null;
-  const activeFilterLabel = FILTERS.find((f) => f.key === filter)?.label ?? 'All Active';
+  const activeFilterLabel = FILTERS.find((f) => f.key === filter)?.label ?? 'Всички активни';
   const flipY = mouse.y < 160;
 
   const handleMouseMove = (e: MouseEvent<HTMLDivElement>) => {
@@ -179,11 +179,11 @@ export default function OperationsMap() {
     <div className="rounded-lg border border-background-200 overflow-hidden relative bg-background-100 h-full">
       <div className="relative h-[440px] md:h-[520px]" onMouseMove={handleMouseMove}>
         <iframe
-          title="FuelEdge European operations map"
+          title="Карта на европейските операции на FuelEdge"
           src="https://maps.google.com/maps?q=Europe&z=5&output=embed"
           className="absolute inset-0 w-full h-full border-0 [filter:grayscale(1)_brightness(1.12)_contrast(0.82)]"
           loading="lazy"
-          aria-label="European fuel operations map showing terminals, tanker trucks and delivery routes"
+          aria-label="Карта на европейските горивни операции с терминали, цистерни и маршрути за доставка"
         />
         <div className="absolute inset-0 bg-background-50/25 pointer-events-none" />
 
@@ -355,7 +355,7 @@ export default function OperationsMap() {
                 }`}
               />
             </span>
-            <span className="text-[10px] text-foreground-600 whitespace-nowrap">Scheduled</span>
+            <span className="text-[10px] text-foreground-600 whitespace-nowrap">Планирани</span>
           </button>
         </div>
 
@@ -367,7 +367,7 @@ export default function OperationsMap() {
               <button
                 onClick={() => setSelectedId(null)}
                 className="cursor-pointer text-foreground-500 hover:text-foreground-700 ml-2 shrink-0"
-                aria-label="Show all"
+                aria-label="Покажи всички"
               >
                 <i className="ri-close-line text-sm leading-none" />
               </button>
@@ -381,7 +381,7 @@ export default function OperationsMap() {
               onClick={() => setSelectedId(null)}
               className="mt-2 w-full flex items-center justify-center gap-1 text-[10px] font-medium text-primary-600 hover:text-primary-700 cursor-pointer whitespace-nowrap"
             >
-              <i className="ri-arrow-go-back-line text-xs" /> Show all
+              <i className="ri-arrow-go-back-line text-xs" /> Покажи всички
             </button>
           </div>
         )}
@@ -403,33 +403,33 @@ export default function OperationsMap() {
         {/* Legend */}
         <div className="absolute left-3 bottom-3 bg-background-50/95 rounded-md px-2.5 py-2 flex flex-col gap-1.5 border border-background-200">
           <span className="flex items-center gap-1.5 text-[9px] text-foreground-600">
-            <i className="ri-building-4-line text-primary-500 text-[10px] leading-none" /> Terminal
+            <i className="ri-building-4-line text-primary-500 text-[10px] leading-none" /> Терминал
           </span>
           <span className="flex items-center gap-1.5 text-[9px] text-foreground-600">
-            <i className="ri-truck-line text-foreground-500 text-[10px] leading-none" /> Truck
+            <i className="ri-truck-line text-foreground-500 text-[10px] leading-none" /> Камион
           </span>
           <span className="flex items-center gap-1.5 text-[9px] text-foreground-600">
-            <i className="ri-map-pin-2-line text-accent-500 text-[10px] leading-none" /> Destination
+            <i className="ri-map-pin-2-line text-accent-500 text-[10px] leading-none" /> Дестинация
           </span>
           <span className="h-px bg-background-200 my-0.5" />
           <span className="flex items-center gap-1.5 text-[9px] text-foreground-600">
-            <span className="w-2 h-0.5 bg-green-500 rounded" /> On Time
+            <span className="w-2 h-0.5 bg-green-500 rounded" /> Навреме
           </span>
           <span className="flex items-center gap-1.5 text-[9px] text-foreground-600">
-            <span className="w-2 h-0.5 bg-amber-500 rounded" /> Warning
+            <span className="w-2 h-0.5 bg-amber-500 rounded" /> Предупреждение
           </span>
           <span className="flex items-center gap-1.5 text-[9px] text-foreground-600">
-            <span className="w-2 h-0.5 bg-red-500 rounded" /> At Risk
+            <span className="w-2 h-0.5 bg-red-500 rounded" /> В риск
           </span>
           <span className="flex items-center gap-1.5 text-[9px] text-foreground-600">
-            <span className="w-2 h-0.5 bg-gray-400 rounded" /> Scheduled
+            <span className="w-2 h-0.5 bg-gray-400 rounded" /> Планиран
           </span>
           <span className="h-px bg-background-200 my-0.5" />
           <span className="flex items-center gap-1.5 text-[9px] text-foreground-500">
-            <span className="w-3 h-0.5 bg-foreground-400 rounded" /> Travelled
+            <span className="w-3 h-0.5 bg-foreground-400 rounded" /> Изминато
           </span>
           <span className="flex items-center gap-1.5 text-[9px] text-foreground-500">
-            <span className="w-3 border-t border-dashed border-foreground-400" /> Remaining
+            <span className="w-3 border-t border-dashed border-foreground-400" /> Оставащо
           </span>
         </div>
 

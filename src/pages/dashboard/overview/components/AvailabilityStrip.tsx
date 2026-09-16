@@ -10,43 +10,43 @@ const chipTone: Record<ChipTone, string> = {
 
 const segments: { label: string; value: string; icon: string; tone: ChipTone }[] = [
   {
-    label: 'Available trucks',
+    label: 'Налични камиони',
     value: `${fleetAvailability.available}/${fleetAvailability.total}`,
     icon: 'ri-truck-line',
     tone: 'accent',
   },
   {
-    label: 'Available drivers',
+    label: 'Налични шофьори',
     value: `${driverAvailability.available}/${driverAvailability.total}`,
     icon: 'ri-user-line',
     tone: 'accent',
   },
   {
-    label: 'In transit',
+    label: 'В движение',
     value: String(fleetAvailability.inTransit),
     icon: 'ri-roadster-line',
     tone: 'neutral',
   },
   {
-    label: 'Loading',
+    label: 'Товарене',
     value: String(fleetAvailability.loading),
     icon: 'ri-loader-4-line',
     tone: 'neutral',
   },
   {
-    label: 'At customer',
+    label: 'При клиент',
     value: String(fleetAvailability.atCustomer),
     icon: 'ri-home-4-line',
     tone: 'neutral',
   },
   {
-    label: 'Maintenance',
+    label: 'Поддръжка',
     value: String(fleetAvailability.maintenance),
     icon: 'ri-tools-line',
     tone: 'secondary',
   },
   {
-    label: 'Drivers on shift',
+    label: 'Шофьори на смяна',
     value: `${driverAvailability.onShift}/${driverAvailability.total}`,
     icon: 'ri-team-line',
     tone: 'neutral',
@@ -58,7 +58,7 @@ export default function AvailabilityStrip() {
     <div className="rounded-lg border border-background-200 bg-background-50 px-4 py-3">
       <div className="flex items-center gap-x-6 gap-y-3 flex-wrap">
         <span className="text-[11px] font-semibold uppercase tracking-wide text-foreground-400 whitespace-nowrap">
-          Fleet &amp; Drivers
+          Флот и шофьори
         </span>
         {segments.map((s) => (
           <div key={s.label} className="flex items-center gap-2">

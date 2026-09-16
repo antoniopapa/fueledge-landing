@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
+﻿import { useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { drivers } from '@/mocks/drivers';
 import { orders } from '@/mocks/orders';
@@ -15,10 +15,10 @@ interface SearchResult {
 }
 
 const typeIcon: Record<string, string> = {
-  Driver: 'ri-user-line',
-  Order: 'ri-file-list-3-line',
-  Truck: 'ri-truck-line',
-  Terminal: 'ri-building-4-line',
+  driver: 'ri-user-line',
+  order: 'ri-file-list-3-line',
+  truck: 'ri-truck-line',
+  terminal: 'ri-building-4-line',
 };
 
 export default function GlobalSearch() {
@@ -47,11 +47,11 @@ export default function GlobalSearch() {
       if (hay.includes(q)) {
         out.push({
           key: `driver-${d.id}`,
-          type: 'Driver',
+          type: 'Ð¨Ð¾Ñ„ÑŒÐ¾Ñ€',
           title: d.name,
           subtitle: d.location,
           href: `/drivers/${d.id}`,
-          icon: typeIcon.Driver,
+          icon: typeIcon.driver,
         });
       }
     });
@@ -61,11 +61,11 @@ export default function GlobalSearch() {
       if (hay.includes(q)) {
         out.push({
           key: `order-${o.id}`,
-          type: 'Order',
-          title: `#${o.id} · ${o.route}`,
-          subtitle: `${o.customer} · ${o.driver}`,
+          type: 'ÐŸÐ¾Ñ€ÑŠÑ‡ÐºÐ°',
+          title: `#${o.id} Â· ${o.route}`,
+          subtitle: `${o.customer} Â· ${o.driver}`,
           href: `/orders/${o.id}`,
-          icon: typeIcon.Order,
+          icon: typeIcon.order,
         });
       }
     });
@@ -75,11 +75,11 @@ export default function GlobalSearch() {
       if (hay.includes(q)) {
         out.push({
           key: `truck-${t.id}`,
-          type: 'Truck',
+          type: 'ÐšÐ°Ð¼Ð¸Ð¾Ð½',
           title: t.plate,
-          subtitle: `${t.make} ${t.model} · ${t.location}`,
+          subtitle: `${t.make} ${t.model} Â· ${t.location}`,
           href: `/trucks/${t.id}`,
-          icon: typeIcon.Truck,
+          icon: typeIcon.truck,
         });
       }
     });
@@ -89,11 +89,11 @@ export default function GlobalSearch() {
       if (hay.includes(q)) {
         out.push({
           key: `terminal-${t.id}`,
-          type: 'Terminal',
+          type: 'Ð¢ÐµÑ€Ð¼Ð¸Ð½Ð°Ð»',
           title: t.name,
           subtitle: `${t.city}, ${t.country}`,
           href: `/terminals/${t.id}`,
-          icon: typeIcon.Terminal,
+          icon: typeIcon.terminal,
         });
       }
     });
@@ -120,7 +120,7 @@ export default function GlobalSearch() {
           setOpen(true);
         }}
         onFocus={() => setOpen(true)}
-        placeholder="Search orders, terminals, drivers…"
+        placeholder="Търси поръчки, терминали, шофьори..."
         className="w-full rounded-md border border-background-200 bg-background-100 pl-9 pr-3 py-2 text-sm text-foreground-900 placeholder:text-foreground-400 focus:outline-none focus:ring-2 focus:ring-primary-300 focus:border-primary-300"
       />
 
@@ -150,7 +150,7 @@ export default function GlobalSearch() {
             </div>
           ) : (
             <div className="px-4 py-6 text-center">
-              <p className="text-[12px] text-foreground-500">No results for “{query}”</p>
+              <p className="text-[12px] text-foreground-500">Няма резултати за „{query}“</p>
             </div>
           )}
         </div>

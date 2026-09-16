@@ -39,16 +39,16 @@ export default function ActionQueue() {
             <i className="ri-flashlight-line text-[15px] leading-none" />
           </span>
           <div>
-            <h2 className="text-sm font-semibold text-foreground-950 leading-none">Action Queue</h2>
-            <p className="text-[11px] text-foreground-400 mt-0.5">Everything that needs you, in priority order</p>
+            <h2 className="text-sm font-semibold text-foreground-950 leading-none">Опашка за действия</h2>
+            <p className="text-[11px] text-foreground-400 mt-0.5">Всичко, което изисква внимание, по приоритет</p>
           </div>
         </div>
         <span className="inline-flex items-center gap-1.5 text-[10px] font-semibold text-foreground-600 bg-background-100 px-2 py-0.5 rounded-full whitespace-nowrap">
-          {items.length} open
+          {items.length} отворени
           {criticalCount > 0 && (
             <span className="inline-flex items-center gap-1 text-red-600">
               <span className="w-1 h-1 rounded-full bg-red-500" />
-              {criticalCount} critical
+              {criticalCount} критични
             </span>
           )}
         </span>
@@ -59,9 +59,9 @@ export default function ActionQueue() {
           <span className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-accent-100">
             <i className="ri-check-double-line text-accent-700 text-2xl leading-none" />
           </span>
-          <p className="mt-3 text-sm font-semibold text-foreground-800">All clear</p>
+          <p className="mt-3 text-sm font-semibold text-foreground-800">Всичко е наред</p>
           <p className="text-[12px] text-foreground-400 mt-0.5">
-            No blocked stops, deviations, unassigned runs or conflicts right now.
+            В момента няма блокирани спирки, отклонения, неназначени курсове или конфликти.
           </p>
         </div>
       ) : (
@@ -99,14 +99,14 @@ export default function ActionQueue() {
                   }`}
                 >
                   <i className={`${item.actionKind === 'resolve' ? 'ri-check-line' : 'ri-mail-check-line'} text-[12px] leading-none`} />
-                  {item.actionKind === 'resolve' ? 'Resolve' : 'Acknowledge'}
+                  {item.actionKind === 'resolve' ? 'Разреши' : 'Потвърди'}
                 </button>
               )}
 
               <Link
                 to={item.link}
                 className="w-7 h-7 flex items-center justify-center rounded-md text-foreground-300 group-hover:text-foreground-600 group-hover:bg-background-100 shrink-0 cursor-pointer transition-colors"
-                aria-label="Open"
+                aria-label="Отвори"
               >
                 <i className="ri-arrow-right-s-line text-base leading-none" />
               </Link>

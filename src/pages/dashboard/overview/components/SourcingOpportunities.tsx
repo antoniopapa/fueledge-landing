@@ -5,12 +5,12 @@ export default function SourcingOpportunities() {
   return (
     <div className="rounded-lg border border-background-200 bg-background-50 overflow-hidden flex flex-col">
       <div className="flex items-center justify-between px-4 py-2.5 border-b border-background-200 bg-background-100/40">
-        <span className="text-[12px] font-semibold text-foreground-900">Sourcing Opportunities</span>
+        <span className="text-[12px] font-semibold text-foreground-900">Възможности за снабдяване</span>
         <Link
           to="/terminals"
           className="text-[11px] font-medium text-primary-700 whitespace-nowrap hover:text-primary-800"
         >
-          Open Terminals
+          Отвори терминали
         </Link>
       </div>
 

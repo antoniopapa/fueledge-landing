@@ -1,13 +1,16 @@
 import { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { LANGUAGES, LANGUAGE_STORAGE_KEY } from '@/i18n/languages';
+import { DEFAULT_LANGUAGE_CODE, LANGUAGES, LANGUAGE_STORAGE_KEY } from '@/i18n/languages';
 
 export default function LanguageSwitcher() {
   const { i18n } = useTranslation();
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
 
-  const current = LANGUAGES.find((l) => l.code === i18n.language) ?? LANGUAGES[0];
+  const current =
+    LANGUAGES.find((l) => l.code === i18n.language) ??
+    LANGUAGES.find((l) => l.code === DEFAULT_LANGUAGE_CODE) ??
+    LANGUAGES[0];
 
   useEffect(() => {
     function handleClick(e: MouseEvent) {

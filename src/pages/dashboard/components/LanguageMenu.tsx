@@ -1,13 +1,16 @@
 import { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { LANGUAGES, LANGUAGE_STORAGE_KEY } from '@/i18n/languages';
+import { DEFAULT_LANGUAGE_CODE, LANGUAGES, LANGUAGE_STORAGE_KEY } from '@/i18n/languages';
 
 export default function LanguageMenu() {
   const { i18n } = useTranslation();
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
 
-  const current = LANGUAGES.find((l) => l.code === i18n.language) ?? LANGUAGES[0];
+  const current =
+    LANGUAGES.find((l) => l.code === i18n.language) ??
+    LANGUAGES.find((l) => l.code === DEFAULT_LANGUAGE_CODE) ??
+    LANGUAGES[0];
 
   useEffect(() => {
     function handleClick(e: MouseEvent) {
@@ -31,7 +34,7 @@ export default function LanguageMenu() {
         type="button"
         onClick={() => setOpen((o) => !o)}
         className="inline-flex items-center gap-1.5 rounded-md border border-background-200 px-2.5 py-1.5 text-[12px] font-medium text-foreground-700 hover:bg-background-100 transition-colors cursor-pointer whitespace-nowrap"
-        aria-label="Language"
+        aria-label="Език"
       >
         <span className="text-sm leading-none">{current.flag}</span>
         <span>{current.code.toUpperCase()}</span>

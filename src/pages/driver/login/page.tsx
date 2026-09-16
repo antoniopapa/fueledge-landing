@@ -1,7 +1,7 @@
 import { useState, type FormEvent } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
-import { LANGUAGES, LANGUAGE_STORAGE_KEY } from '@/i18n/languages';
+import { DEFAULT_LANGUAGE_CODE, LANGUAGES, LANGUAGE_STORAGE_KEY } from '@/i18n/languages';
 import { useDriverApp } from '@/pages/driver/DriverAppContext';
 import DriverLogo from '@/pages/driver/components/DriverLogo';
 
@@ -12,7 +12,10 @@ export default function DriverLoginPage() {
   const [email, setEmail] = useState("ivan@fueledge.eu");
   const [password, setPassword] = useState('fueledge-demo');
   const [showPassword, setShowPassword] = useState(false);
-  const currentLanguage = LANGUAGES.find((language) => language.code === i18n.language) ?? LANGUAGES[0];
+  const currentLanguage =
+    LANGUAGES.find((language) => language.code === i18n.language) ??
+    LANGUAGES.find((language) => language.code === DEFAULT_LANGUAGE_CODE) ??
+    LANGUAGES[0];
 
   function handleSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();

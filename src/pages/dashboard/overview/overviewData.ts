@@ -1,4 +1,4 @@
-import { orders, type OrderStatus } from '@/mocks/orders';
+﻿import { orders, type OrderStatus } from '@/mocks/orders';
 import { deliveries, type Delivery, type DeliveryStatus } from '@/mocks/deliveries';
 import { trucks, type TruckStatus } from '@/mocks/fleet';
 import { drivers } from '@/mocks/drivers';
@@ -19,7 +19,20 @@ const parseNumber = (value: string): number => parseInt(value.replace(/[^\d]/g, 
 const formatLitres = (n: number): string =>
   n >= 1_000_000 ? `${(n / 1_000_000).toFixed(1).replace('.0', '')}M L` : `${Math.round(n / 1000)}k L`;
 
-const formatEuro = (n: number): string => `€${n.toLocaleString('en-US')}`;
+const formatEuro = (n: number): string => `â‚¬${n.toLocaleString('en-US')}`;
+
+const PRODUCT_LABELS: Record<string, string> = {
+  'Diesel EN590': 'Дизел EN590',
+  'Petrol 95': 'Бензин 95',
+  Gasoil: 'Газьол',
+  'Heating Oil': 'Отоплително гориво',
+  AdBlue: 'AdBlue',
+};
+
+const splitRoute = (route?: string): [string, string] => {
+  const [from = '', to = ''] = (route ?? '').split('→').map((s) => s.trim());
+  return [from, to];
+};
 
 // ---------------------------------------------------------------------------
 // order lifecycle
@@ -100,41 +113,41 @@ export interface OverviewKpi {
 
 export const overviewKpis: OverviewKpi[] = [
   {
-    label: 'Open Orders',
+    label: 'ÐžÑ‚Ð²Ð¾Ñ€ÐµÐ½Ð¸ Ð¿Ð¾Ñ€ÑŠÑ‡ÐºÐ¸',
     value: String(openOrders),
-    delta: `${awaitingSourcing + awaitingDispatch} need action`,
+    delta: `${awaitingSourcing + awaitingDispatch} Ð¸Ð·Ð¸ÑÐºÐ²Ð°Ñ‚ Ð´ÐµÐ¹ÑÑ‚Ð²Ð¸Ðµ`,
     icon: 'ri-file-list-3-line',
     tone: 'neutral',
     spark: [17, 20, 18, 22, openOrders],
   },
   {
-    label: 'Active Deliveries',
+    label: 'ÐÐºÑ‚Ð¸Ð²Ð½Ð¸ Ð´Ð¾ÑÑ‚Ð°Ð²ÐºÐ¸',
     value: String(activeDeliveries.length),
-    delta: `${inTransitDeliveries} in transit · ${loadingDeliveries} loading`,
+    delta: `${inTransitDeliveries} Ð² Ð´Ð²Ð¸Ð¶ÐµÐ½Ð¸Ðµ Â· ${loadingDeliveries} ÑÐµ Ñ‚Ð¾Ð²Ð°Ñ€ÑÑ‚`,
     icon: 'ri-truck-line',
     tone: 'neutral',
     spark: [13, 11, 12, 10, activeDeliveries.length],
   },
   {
-    label: 'On-Time Delivery',
+    label: 'ÐÐ°Ð²Ñ€ÐµÐ¼ÐµÐ½Ð½Ð¸ Ð´Ð¾ÑÑ‚Ð°Ð²ÐºÐ¸',
     value: `${onTimePct}%`,
-    delta: `${atRiskDeliveries.length} with exceptions`,
+    delta: `${atRiskDeliveries.length} Ñ Ð¸Ð·ÐºÐ»ÑŽÑ‡ÐµÐ½Ð¸Ñ`,
     icon: 'ri-timer-flash-line',
     tone: 'accent',
     spark: [82, 80, 76, 72, onTimePct],
   },
   {
-    label: 'Sourcing Savings',
+    label: 'Ð¡Ð¿ÐµÑÑ‚ÑÐ²Ð°Ð½Ð¸Ñ Ð¾Ñ‚ ÑÐ½Ð°Ð±Ð´ÑÐ²Ð°Ð½Ðµ',
     value: formatEuro(sourcingSavings),
-    delta: `${sourcingOpportunities.length} open opportunities`,
+    delta: `${sourcingOpportunities.length} Ð¾Ñ‚Ð²Ð¾Ñ€ÐµÐ½Ð¸ Ð²ÑŠÐ·Ð¼Ð¾Ð¶Ð½Ð¾ÑÑ‚Ð¸`,
     icon: 'ri-funds-line',
     tone: 'secondary',
     spark: [430, 540, 610, 690, sourcingSavings],
   },
   {
-    label: 'Delivered Margin',
+    label: 'ÐœÐ°Ñ€Ð¶ Ð¾Ñ‚ Ð´Ð¾ÑÑ‚Ð°Ð²ÐºÐ¸',
     value: formatEuro(deliveredMargin),
-    delta: `${completed} completed runs`,
+    delta: `${completed} Ð·Ð°Ð²ÑŠÑ€ÑˆÐµÐ½Ð¸ ÐºÑƒÑ€ÑÐ°`,
     icon: 'ri-line-chart-line',
     tone: 'primary',
     spark: [980, 1120, 1290, 1340, deliveredMargin],
@@ -158,9 +171,9 @@ export interface AttentionItem {
 // oldest waiting time across a set of orders (derived from createdAt time-of-day)
 const oldestSince = (list: { createdAt: string }[]): string => {
   const times = list
-    .map((o) => o.createdAt.split('·')[1]?.trim())
+    .map((o) => o.createdAt.split('Ã‚Â·')[1]?.trim())
     .filter((t): t is string => Boolean(t));
-  if (!times.length) return '—';
+  if (!times.length) return 'Ã¢â‚¬â€';
   return times.sort()[0];
 };
 
@@ -170,52 +183,52 @@ const criticalTerminalIssues = terminalIssues.filter((i) => i.severity === 'crit
 
 export const attentionItems: AttentionItem[] = [
   {
-    label: 'Runs need sourcing',
+    label: 'ÐšÑƒÑ€ÑÐ¾Ð²Ðµ Ð·Ð° ÑÐ½Ð°Ð±Ð´ÑÐ²Ð°Ð½Ðµ',
     count: awaitingSourcing,
     icon: 'ri-flask-line',
     tone: 'secondary',
     link: '/orders',
-    detail: `oldest since ${oldestSince(readyToSourceOrders)}`,
+    detail: `Ð½Ð°Ð¹-ÑÑ‚Ð°Ñ€Ð¸ÑÑ‚ Ñ‡Ð°ÐºÐ° Ð¾Ñ‚ ${oldestSince(readyToSourceOrders)}`,
   },
   {
-    label: 'Runs need dispatch',
+    label: 'ÐšÑƒÑ€ÑÐ¾Ð²Ðµ Ð·Ð° Ð´Ð¸ÑÐ¿ÐµÑ‡Ð¸Ñ€Ð°Ð½Ðµ',
     count: awaitingDispatch,
     icon: 'ri-send-plane-line',
     tone: 'primary',
     link: '/dispatch',
-    detail: `oldest since ${oldestSince(sourcedOrders)}`,
+    detail: `Ð½Ð°Ð¹-ÑÑ‚Ð°Ñ€Ð¸ÑÑ‚ Ñ‡Ð°ÐºÐ° Ð¾Ñ‚ ${oldestSince(sourcedOrders)}`,
   },
   {
-    label: 'Terminal issues',
+    label: 'ÐŸÑ€Ð¾Ð±Ð»ÐµÐ¼Ð¸ Ð² Ñ‚ÐµÑ€Ð¼Ð¸Ð½Ð°Ð»Ð¸',
     count: terminalIssues.length,
     icon: 'ri-building-4-line',
     tone: 'secondary',
     link: '/terminals',
-    detail: `${criticalTerminalIssues} critical`,
+    detail: `${criticalTerminalIssues} ÐºÑ€Ð¸Ñ‚Ð¸Ñ‡Ð½Ð¸`,
   },
   {
-    label: 'Deliveries at risk',
+    label: 'Ð Ð¸ÑÐºÐ¾Ð²Ð¸ Ð´Ð¾ÑÑ‚Ð°Ð²ÐºÐ¸',
     count: atRiskDeliveries.length,
     icon: 'ri-alarm-warning-line',
     tone: 'danger',
     link: '/deliveries/exceptions',
-    detail: `${atRiskDeliveries.length} with exceptions`,
+    detail: `${atRiskDeliveries.length} Ñ Ð¸Ð·ÐºÐ»ÑŽÑ‡ÐµÐ½Ð¸Ñ`,
   },
   {
-    label: 'Allocation warnings',
+    label: 'ÐŸÑ€ÐµÐ´ÑƒÐ¿Ñ€ÐµÐ¶Ð´ÐµÐ½Ð¸Ñ Ð·Ð° ÐºÐ²Ð¾Ñ‚Ð¸',
     count: allocationWarnings.length,
     icon: 'ri-pie-chart-line',
     tone: 'accent',
     link: '/terminals',
-    detail: `${allocationWarnings.length} terminals`,
+    detail: `${allocationWarnings.length} Ñ‚ÐµÑ€Ð¼Ð¸Ð½Ð°Ð»Ð°`,
   },
   {
-    label: 'Contract warnings',
+    label: 'ÐŸÑ€ÐµÐ´ÑƒÐ¿Ñ€ÐµÐ¶Ð´ÐµÐ½Ð¸Ñ Ð·Ð° Ð´Ð¾Ð³Ð¾Ð²Ð¾Ñ€Ð¸',
     count: contractWarnings.length,
     icon: 'ri-file-text-line',
     tone: 'accent',
     link: '/suppliers',
-    detail: `${contractWarnings[0]?.supplier ?? ''} expiring`,
+    detail: `${contractWarnings[0]?.supplier ?? ''} Ð¸Ð·Ñ‚Ð¸Ñ‡Ð°`,
   },
 ];
 
@@ -263,7 +276,7 @@ const CITY_COORDS: Record<string, { lat: number; lng: number }> = {
   Hamburg: { lat: 53.55, lng: 9.99 },
   Lyon: { lat: 45.76, lng: 4.84 },
   Basel: { lat: 47.56, lng: 7.59 },
-  'Gdańsk': { lat: 54.35, lng: 18.65 },
+  'GdaÃ…â€žsk': { lat: 54.35, lng: 18.65 },
   Pardubice: { lat: 50.04, lng: 15.78 },
   Arad: { lat: 46.19, lng: 21.31 },
   Stockholm: { lat: 59.33, lng: 18.07 },
@@ -272,8 +285,8 @@ const CITY_COORDS: Record<string, { lat: number; lng: number }> = {
   Cologne: { lat: 50.94, lng: 6.96 },
   Eindhoven: { lat: 51.44, lng: 5.47 },
   Karlsruhe: { lat: 49.01, lng: 8.4 },
-  'Toruń': { lat: 53.01, lng: 18.6 },
-  'Győr': { lat: 47.68, lng: 17.63 },
+  'ToruÃ…â€ž': { lat: 53.01, lng: 18.6 },
+  'GyÃ…â€˜r': { lat: 47.68, lng: 17.63 },
   Koblenz: { lat: 50.36, lng: 7.6 },
   Frankfurt: { lat: 50.11, lng: 8.68 },
   Prague: { lat: 50.08, lng: 14.44 },
@@ -307,14 +320,19 @@ const project = (lat: number, lng: number): MapPoint => ({
   y: clamp(((mercY(lat) - Y_MIN) / (Y_MAX - Y_MIN)) * 100, 2, 98),
 });
 
-const resolveCity = (label: string): string =>
-  label
-    .replace(/\s*Terminal$/i, '')
-    .replace(/\s*Depot$/i, '')
-    .replace(/^Customer site ·\s*/i, '')
-    .trim();
+const resolveCity = (label?: string): string => {
+  const customerPrefix = 'Customer site · ';
+  const sourceLabel = label ?? '';
+  let city = sourceLabel.trim();
 
-const cityPoint = (label: string): MapPoint => {
+  if (city.startsWith(customerPrefix)) city = city.slice(customerPrefix.length);
+  if (city.endsWith(' Terminal')) city = city.slice(0, -' Terminal'.length);
+  if (city.endsWith(' Depot')) city = city.slice(0, -' Depot'.length);
+
+  return city.trim();
+};
+
+const cityPoint = (label?: string): MapPoint => {
   const coord = CITY_COORDS[resolveCity(label)];
   return coord ? project(coord.lat, coord.lng) : { x: 50, y: 50 };
 };
@@ -334,7 +352,7 @@ export const mapTrucks: MapTruck[] = trucks
   });
 
 export const mapRoutes: MapRoute[] = activeDeliveries.map((d) => {
-  const [fromCity, toCity] = d.route.split('→').map((s) => s.trim());
+  const [fromCity, toCity] = splitRoute(d.route);
   const kind: MapRoute['kind'] = d.exception
     ? 'risk'
     : d.status === 'Loading'
@@ -347,7 +365,8 @@ export const mapDestinations: MapDestination[] = (() => {
   const seen = new Set<string>();
   const result: MapDestination[] = [];
   activeDeliveries.forEach((d) => {
-    const city = d.route.split('→')[1].trim();
+    const [, city] = splitRoute(d.route);
+    if (!city) return;
     if (seen.has(city)) return;
     seen.add(city);
     const p = cityPoint(city);
@@ -357,7 +376,7 @@ export const mapDestinations: MapDestination[] = (() => {
 })();
 
 // ---------------------------------------------------------------------------
-// unified map deliveries (terminal → truck → customer)
+// unified map deliveries (terminal Ã¢â€ â€™ truck Ã¢â€ â€™ customer)
 // ---------------------------------------------------------------------------
 export interface MapLocation {
   city: string;
@@ -424,7 +443,9 @@ const ROUTE_PATHS: Record<string, [number, number][]> = {
 };
 
 export const mapDeliveries: MapDelivery[] = activeDeliveries.map((d) => {
-  const [originCity, destCity] = d.route.split('→').map((s) => s.trim());
+  const [originCity, destCity] = splitRoute(d.route);
+  const sourceRoute = d.route ?? '';
+  const productLabel = PRODUCT_LABELS[d.product] ?? d.product ?? '';
   const fallback: [number, number][] = [
     [locationOf(originCity).lat, locationOf(originCity).lng],
     [locationOf(d.location).lat, locationOf(d.location).lng],
@@ -434,8 +455,8 @@ export const mapDeliveries: MapDelivery[] = activeDeliveries.map((d) => {
     id: d.id,
     order: d.order,
     customer: d.customer,
-    route: d.route,
-    product: d.product,
+    route: sourceRoute,
+    product: productLabel,
     volume: d.volume,
     driver: d.driver,
     truck: d.truck,
@@ -461,13 +482,16 @@ export interface ActiveDeliveryRow {
   eta: string;
 }
 
-export const activeDeliveriesList: ActiveDeliveryRow[] = activeDeliveries.map((d) => ({
-  route: d.route,
-  status: d.status,
-  driver: d.driver,
-  plate: d.truck,
-  eta: d.eta,
-}));
+export const activeDeliveriesList: ActiveDeliveryRow[] = activeDeliveries.map((d) => {
+  const sourceRoute = d.route ?? '';
+  return {
+    route: sourceRoute,
+    status: d.status,
+    driver: d.driver,
+    plate: d.truck,
+    eta: d.eta,
+  };
+});
 
 export interface UpcomingDispatchRow {
   time: string;
@@ -479,13 +503,17 @@ export interface UpcomingDispatchRow {
 
 export const upcomingDispatches: UpcomingDispatchRow[] = orders
   .filter((o) => o.status === 'Scheduled' || o.status === 'Sourced')
-  .map((o) => ({
-    time: o.eta,
-    route: o.route,
-    product: `${o.volume} ${o.product}`,
-    driver: o.driver,
-    plate: o.truck ?? '—',
-  }));
+  .map((o) => {
+    const sourceRoute = o.route ?? '';
+    const productLabel = PRODUCT_LABELS[o.product] ?? o.product ?? '';
+    return {
+      time: o.eta,
+      route: sourceRoute,
+      product: [o.volume, productLabel].filter(Boolean).join(' '),
+      driver: o.driver,
+      plate: o.truck ?? '—',
+    };
+  });
 
 export interface SourcingOpportunityRow {
   order: string;
@@ -494,12 +522,15 @@ export interface SourcingOpportunityRow {
   saving: string;
 }
 
-export const sourcingOpportunitiesList: SourcingOpportunityRow[] = sourcingOpportunities.map((s) => ({
-  order: s.order,
-  route: s.route,
-  volume: s.volume,
-  saving: s.saving,
-}));
+export const sourcingOpportunitiesList: SourcingOpportunityRow[] = sourcingOpportunities.map((s) => {
+  const sourceRoute = s.route ?? '';
+  return {
+    order: s.order,
+    route: sourceRoute,
+    volume: s.volume,
+    saving: s.saving,
+  };
+});
 
 export interface RunRow {
   id: string;
@@ -514,15 +545,19 @@ export interface RunRow {
 
 export const runRows: RunRow[] = orders
   .filter((o) => o.status === 'In Progress' || o.status === 'Scheduled')
-  .map((o) => ({
-    id: `#${o.id}`,
-    route: o.route,
-    product: `${o.volume} ${o.product}`,
-    driver: o.driver,
-    source: o.source,
-    status: o.status,
-    eta: o.eta,
-    cost: o.deliveredCost,
-  }));
+  .map((o) => {
+    const sourceRoute = o.route ?? '';
+    const productLabel = PRODUCT_LABELS[o.product] ?? o.product ?? '';
+    return {
+      id: `#${o.id}`,
+      route: sourceRoute,
+      product: [o.volume, productLabel].filter(Boolean).join(' '),
+      driver: o.driver,
+      source: o.source,
+      status: o.status,
+      eta: o.eta,
+      cost: o.deliveredCost,
+    };
+  });
 
 export const runSummary = { open: openOrders, awaitingSource: awaitingSourcing };

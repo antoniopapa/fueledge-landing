@@ -6,11 +6,11 @@ import { completedStopCount, isStopBlocked } from '@/pages/driver/driverUtils';
 type RiskTone = 'blocked' | 'conflict' | 'delayed' | 'progress' | 'dispatched';
 
 const riskMeta: Record<RiskTone, { label: string; cls: string; dot: string }> = {
-  blocked: { label: 'Blocked', cls: 'text-red-700 bg-red-100', dot: 'bg-red-500' },
-  conflict: { label: 'Conflict', cls: 'text-red-700 bg-red-100', dot: 'bg-red-500' },
-  delayed: { label: 'Delayed', cls: 'text-amber-700 bg-amber-100', dot: 'bg-amber-500' },
-  progress: { label: 'In progress', cls: 'text-primary-700 bg-primary-100', dot: 'bg-primary-500' },
-  dispatched: { label: 'Dispatched', cls: 'text-secondary-700 bg-secondary-100', dot: 'bg-secondary-500' },
+  blocked: { label: 'Блокиран', cls: 'text-red-700 bg-red-100', dot: 'bg-red-500' },
+  conflict: { label: 'Конфликт', cls: 'text-red-700 bg-red-100', dot: 'bg-red-500' },
+  delayed: { label: 'Закъснява', cls: 'text-amber-700 bg-amber-100', dot: 'bg-amber-500' },
+  progress: { label: 'В ход', cls: 'text-primary-700 bg-primary-100', dot: 'bg-primary-500' },
+  dispatched: { label: 'Изпратен', cls: 'text-secondary-700 bg-secondary-100', dot: 'bg-secondary-500' },
 };
 
 export default function LiveRuns() {
@@ -33,10 +33,10 @@ export default function LiveRuns() {
   return (
     <div className="rounded-lg border border-background-200 bg-background-50 overflow-hidden">
       <div className="flex items-center justify-between px-4 py-2.5 border-b border-background-200 bg-background-100/40">
-        <span className="text-[12px] font-semibold text-foreground-900">Live Runs</span>
+        <span className="text-[12px] font-semibold text-foreground-900">Курсове на живо</span>
         <span className="inline-flex items-center gap-1.5 text-[10px] font-semibold text-primary-700 bg-primary-100 px-2 py-0.5 rounded-full whitespace-nowrap">
           <span className="w-1.5 h-1.5 rounded-full bg-primary-500 animate-pulse" />
-          {active.length} on the road
+          {active.length} на път
         </span>
       </div>
 

@@ -15,7 +15,7 @@ export default function Topbar({ onMenu, onAiToggle, aiOpen }: TopbarProps) {
         type="button"
         onClick={onMenu}
         className="lg:hidden w-9 h-9 flex items-center justify-center rounded-md text-foreground-700 hover:bg-background-200/60 cursor-pointer"
-        aria-label="Open menu"
+        aria-label="Отвори меню"
       >
         <i className="ri-menu-line text-xl leading-none" />
       </button>
@@ -33,7 +33,7 @@ export default function Topbar({ onMenu, onAiToggle, aiOpen }: TopbarProps) {
               ? 'bg-primary-500 text-background-50'
               : 'text-foreground-600 hover:bg-background-200/70 hover:text-foreground-900'
           }`}
-          aria-label={aiOpen ? 'Close AI assistant' : 'Open AI assistant'}
+          aria-label={aiOpen ? 'Затвори AI асистента' : 'Отвори AI асистента'}
           aria-pressed={aiOpen}
         >
           <i className="ri-sparkling-2-line text-lg leading-none" />

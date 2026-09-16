@@ -13,9 +13,9 @@ import RunsTable from './components/RunsTable';
 type OverviewPeriod = 'today' | 'week' | 'month';
 
 const periodOptions: { key: OverviewPeriod; label: string }[] = [
-  { key: 'today', label: 'Today' },
-  { key: 'week', label: 'Week' },
-  { key: 'month', label: 'Month' },
+  { key: 'today', label: 'Днес' },
+  { key: 'week', label: 'Седмица' },
+  { key: 'month', label: 'Месец' },
 ];
 
 export default function OverviewPage() {
@@ -27,14 +27,14 @@ export default function OverviewPage() {
       <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 mb-5">
         <div>
           <div className="flex items-center gap-2 mb-1">
-            <h1 className="font-heading text-2xl font-bold text-foreground-950">Overview</h1>
+            <h1 className="font-heading text-2xl font-bold text-foreground-950">Преглед</h1>
             <span className="inline-flex items-center gap-1.5 text-[10px] font-semibold text-primary-700 bg-primary-100 px-2 py-0.5 rounded-full whitespace-nowrap">
               <span className="w-1.5 h-1.5 rounded-full bg-primary-500" />
-              Live
+              На живо
             </span>
           </div>
           <p className="text-sm text-foreground-500">
-            What needs your attention right now, and what's moving.
+            Какво изисква внимание в момента и какво е в движение.
           </p>
         </div>
         <div className="flex items-center gap-2">

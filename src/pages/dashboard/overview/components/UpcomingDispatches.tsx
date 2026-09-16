@@ -4,9 +4,9 @@ export default function UpcomingDispatches() {
   return (
     <div className="rounded-lg border border-background-200 bg-background-50 overflow-hidden flex flex-col">
       <div className="flex items-center justify-between px-4 py-2.5 border-b border-background-200 bg-background-100/40">
-        <span className="text-[12px] font-semibold text-foreground-900">Upcoming Dispatches</span>
+        <span className="text-[12px] font-semibold text-foreground-900">Предстоящи диспечирания</span>
         <span className="text-[11px] font-medium text-primary-700 cursor-pointer whitespace-nowrap hover:text-primary-800">
-          Dispatch board
+          Диспечерски борд
         </span>
       </div>
 

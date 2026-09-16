@@ -31,12 +31,22 @@ const statusIcon: Record<DeliveryStatus, string> = {
   Completed: 'ri-check-double-line',
 };
 
+const statusLabel: Record<DeliveryStatus, string> = {
+  'Heading to Terminal': 'Към терминал',
+  Waiting: 'Изчаква',
+  Loading: 'Товарене',
+  'In Transit': 'В движение',
+  'At Customer': 'При клиент',
+  Delivering: 'Разтоварване',
+  Completed: 'Завършена',
+};
+
 export default function Deliveries() {
   return (
     <div className="rounded-lg border border-background-200 bg-background-50 overflow-hidden">
       <div className="flex items-center justify-between px-4 py-2.5 border-b border-background-200 bg-background-100/40">
-        <span className="text-[12px] font-semibold text-foreground-900">Active Deliveries</span>
-        <span className="text-[11px] font-medium text-primary-700 cursor-pointer whitespace-nowrap">View all</span>
+        <span className="text-[12px] font-semibold text-foreground-900">Активни доставки</span>
+        <span className="text-[11px] font-medium text-primary-700 cursor-pointer whitespace-nowrap">Виж всички</span>
       </div>
       <div className="divide-y divide-background-200">
         {activeDeliveriesList.map((d) => (
@@ -54,9 +64,9 @@ export default function Deliveries() {
             </div>
             <div className="text-right shrink-0">
               <span className={`inline-block text-[9px] font-semibold px-2 py-0.5 rounded-full whitespace-nowrap ${statusStyle[d.status]}`}>
-                {d.status}
+                {statusLabel[d.status]}
               </span>
-              <p className="mt-1 text-[10px] text-foreground-400 tabular">ETA {d.eta}</p>
+              <p className="mt-1 text-[10px] text-foreground-400 tabular">Очаквано {d.eta}</p>
             </div>
           </div>
         ))}

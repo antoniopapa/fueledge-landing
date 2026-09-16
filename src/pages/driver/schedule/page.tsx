@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import DriverAppShell from '@/pages/driver/components/DriverAppShell';
 import { useDriverApp } from '@/pages/driver/DriverAppContext';
@@ -21,9 +22,22 @@ const DAY_RANK: Record<string, number> = {
   Tuesday: 8,
 };
 
+const DAY_KEYS: Record<string, string> = {
+  Today: 'today',
+  Tomorrow: 'tomorrow',
+  Monday: 'monday',
+  Tuesday: 'tuesday',
+  Wednesday: 'wednesday',
+  Thursday: 'thursday',
+  Friday: 'friday',
+  Saturday: 'saturday',
+  Sunday: 'sunday',
+};
+
 export default function DriverSchedulePage() {
   const { runs } = useDriverApp();
   const navigate = useNavigate();
+  const { t } = useTranslation();
 
   const scheduled = runs.filter((run) => run.status === 'Scheduled');
   const groups = new Map<string, DriverRun[]>();
@@ -45,8 +59,8 @@ export default function DriverSchedulePage() {
       {orderedKeys.length === 0 && (
         <div className="mt-4 rounded-lg border border-dashed border-background-300 bg-background-50 p-10 text-center">
           <i className="ri-calendar-line text-foreground-300 text-3xl leading-none" />
-          <p className="mt-3 text-sm font-medium text-foreground-600">No runs scheduled</p>
-          <p className="mt-1 text-[12px] text-foreground-400">Dispatch hasn't assigned you any upcoming runs.</p>
+          <p className="mt-3 text-sm font-medium text-foreground-600">{t('driver.noRunsScheduled')}</p>
+          <p className="mt-1 text-[12px] text-foreground-400">{t('driver.noRunsScheduledDesc')}</p>
         </div>
       )}
 
@@ -57,9 +71,11 @@ export default function DriverSchedulePage() {
             <section key={key}>
               <div className="mb-3 flex items-baseline gap-2">
                 <i className="ri-calendar-line text-base leading-none text-foreground-400" />
-                <h2 className="font-heading text-lg font-bold text-foreground-600">{key}</h2>
+                <h2 className="font-heading text-lg font-bold text-foreground-600">
+                  {DAY_KEYS[key] ? t(`driver.${DAY_KEYS[key]}`) : key}
+                </h2>
                 <span className="text-sm text-foreground-400 tabular">
-                  {dayRuns.length} run{dayRuns.length !== 1 ? 's' : ''}
+                  {t('driver.runsCount', { count: dayRuns.length })}
                 </span>
               </div>
               <div className="space-y-3">
@@ -79,7 +95,7 @@ export default function DriverSchedulePage() {
                         </p>
                         <p className="mt-2 text-base font-medium text-foreground-600 tabular">
                           {scheduledStart ? `${scheduledStart} · ` : ''}
-                          {total} stop{total !== 1 ? 's' : ''}
+                          {t('driver.stopsCount', { count: total })}
                         </p>
                       </div>
                       <i className="ri-arrow-right-s-line text-3xl leading-none text-foreground-300" />

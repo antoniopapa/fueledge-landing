@@ -1,9 +1,11 @@
+import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import type { DriverRun } from '@/mocks/driver';
 import { getRouteLabel, stopCount, getScheduledStartAt } from '@/pages/driver/driverUtils';
 
 export default function UpNextCard({ run, blocked }: { run: DriverRun; blocked: boolean }) {
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const totalStops = stopCount(run);
   const scheduledStart = getScheduledStartAt(run);
 
@@ -18,13 +20,13 @@ export default function UpNextCard({ run, blocked }: { run: DriverRun; blocked: 
 
         <p className="mt-1.5 text-sm font-medium text-foreground-500 tabular">
           {scheduledStart ? `${scheduledStart} · ` : ''}
-          {totalStops} stop{totalStops !== 1 ? 's' : ''}
+          {t('driver.stopsCount', { count: totalStops })}
         </p>
 
         {blocked && (
           <p className="mt-2.5 flex items-center gap-1.5 text-[13px] font-medium text-foreground-400">
             <i className="ri-lock-line text-[13px] leading-none" />
-            Starts after current run
+            {t('driver.startsAfterCurrentRun')}
           </p>
         )}
       </div>

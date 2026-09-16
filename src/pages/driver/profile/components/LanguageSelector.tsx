@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { LANGUAGES, LANGUAGE_STORAGE_KEY } from '@/i18n/languages';
 
 export default function LanguageSelector() {
-  const { i18n } = useTranslation();
+  const { t, i18n } = useTranslation();
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
 
@@ -34,7 +34,7 @@ export default function LanguageSelector() {
       >
         <span className="flex items-center gap-3 text-sm font-medium text-foreground-800">
           <i className="ri-global-line text-foreground-500 text-base leading-none" />
-          Language
+          {t('driver.language')}
         </span>
         <span className="flex items-center gap-1.5 text-[13px] text-foreground-600">
           <span className="text-base leading-none">{current.flag}</span>

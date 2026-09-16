@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import DriverAppShell from '@/pages/driver/components/DriverAppShell';
 import { useDriverApp } from '@/pages/driver/DriverAppContext';
@@ -28,6 +29,7 @@ function DetailRow({ icon, label, value }: { icon: string; label: string; value:
 export default function DriverProfilePage() {
   const { driver } = useDriverApp();
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const [searchParams, setSearchParams] = useSearchParams();
   const [notifications, setNotifications] = useState(true);
 
@@ -50,7 +52,7 @@ export default function DriverProfilePage() {
 
   if (view === 'shifts') {
     return (
-      <DriverAppShell title="Shifts" onBack={() => openView('main')}>
+      <DriverAppShell title={t('driver.shifts')} onBack={() => openView('main')}>
         <ShiftsScreen />
       </DriverAppShell>
     );
@@ -58,7 +60,7 @@ export default function DriverProfilePage() {
 
   if (view === 'security') {
     return (
-      <DriverAppShell title="Security" onBack={() => openView('main')}>
+      <DriverAppShell title={t('driver.security')} onBack={() => openView('main')}>
         <SecurityScreen />
       </DriverAppShell>
     );
@@ -66,7 +68,7 @@ export default function DriverProfilePage() {
 
   if (view === 'history') {
     return (
-      <DriverAppShell title="Activity History" onBack={() => openView('main')}>
+      <DriverAppShell title={t('driver.activityHistory')} onBack={() => openView('main')}>
         <HistoryScreen />
       </DriverAppShell>
     );
@@ -74,7 +76,7 @@ export default function DriverProfilePage() {
 
   if (view === 'navigation') {
     return (
-      <DriverAppShell title="Navigation" onBack={() => openView('main')}>
+      <DriverAppShell title={t('driver.navigation')} onBack={() => openView('main')}>
         <NavigationScreen />
       </DriverAppShell>
     );
@@ -99,8 +101,8 @@ export default function DriverProfilePage() {
       </div>
 
       <div className="mt-3 divide-y divide-background-200 rounded-lg border border-background-200 bg-background-50">
-        <DetailRow icon="ri-mail-line" label="Email" value={driver.email} />
-        <DetailRow icon="ri-phone-line" label="Phone" value={driver.phone} />
+        <DetailRow icon="ri-mail-line" label={t('driver.email')} value={driver.email} />
+        <DetailRow icon="ri-phone-line" label={t('driver.phone')} value={driver.phone} />
         <a
           href={`tel:${dispatcherPhone}`}
           className="flex w-full items-center justify-between px-4 py-3 cursor-pointer hover:bg-background-100 transition-colors"
@@ -110,7 +112,7 @@ export default function DriverProfilePage() {
             {dispatcherName}
           </span>
           <span className="flex items-center gap-1.5 text-[13px] font-medium text-primary-600">
-            Call
+            {t('driver.call')}
             <i className="ri-phone-line text-base leading-none" />
           </span>
         </a>
@@ -121,10 +123,10 @@ export default function DriverProfilePage() {
         >
           <span className="flex items-center gap-3 text-sm text-foreground-600">
             <i className="ri-calendar-line text-foreground-400 text-base leading-none" />
-            Shifts
+            {t('driver.shifts')}
           </span>
           <span className="flex items-center gap-1.5">
-            <span className="text-[13px] font-medium text-foreground-900">Today · {nextShiftTime}</span>
+            <span className="text-[13px] font-medium text-foreground-900">{t('driver.todayAt', { time: nextShiftTime })}</span>
             <i className="ri-arrow-right-s-line text-foreground-400 text-base leading-none" />
           </span>
         </button>
@@ -138,7 +140,7 @@ export default function DriverProfilePage() {
         >
           <span className="flex items-center gap-3 text-sm font-medium text-foreground-800">
             <i className="ri-notification-3-line text-foreground-500 text-base leading-none" />
-            Notifications
+            {t('driver.notifications')}
           </span>
           <span
             className={`relative h-5 w-9 rounded-full transition-colors ${
@@ -162,7 +164,7 @@ export default function DriverProfilePage() {
         >
           <span className="flex items-center gap-3 text-sm font-medium text-foreground-800">
             <i className="ri-navigation-line text-foreground-500 text-base leading-none" />
-            Navigation
+            {t('driver.navigation')}
           </span>
           <span className="flex items-center gap-1.5">
             <span className="text-[13px] text-foreground-600">{navApp?.label}</span>
@@ -177,7 +179,7 @@ export default function DriverProfilePage() {
         >
           <span className="flex items-center gap-3 text-sm font-medium text-foreground-800">
             <i className="ri-shield-check-line text-foreground-500 text-base leading-none" />
-            Security
+            {t('driver.security')}
           </span>
           <i className="ri-arrow-right-s-line text-foreground-400 text-base leading-none" />
         </button>
@@ -189,7 +191,7 @@ export default function DriverProfilePage() {
         >
           <span className="flex items-center gap-3 text-sm font-medium text-foreground-800">
             <i className="ri-history-line text-foreground-500 text-base leading-none" />
-            Activity History
+            {t('driver.activityHistory')}
           </span>
           <i className="ri-arrow-right-s-line text-foreground-400 text-base leading-none" />
         </button>
@@ -200,7 +202,7 @@ export default function DriverProfilePage() {
         >
           <span className="flex items-center gap-3 text-sm font-medium text-foreground-800">
             <i className="ri-question-line text-foreground-500 text-base leading-none" />
-            Help &amp; support
+            {t('driver.helpSupport')}
           </span>
           <i className="ri-arrow-right-s-line text-foreground-400 text-base leading-none" />
         </button>
@@ -212,7 +214,7 @@ export default function DriverProfilePage() {
         className="mt-5 inline-flex w-full items-center justify-center gap-2 rounded-md border border-foreground-200 bg-background-50 text-foreground-700 text-sm font-semibold px-4 py-3 whitespace-nowrap cursor-pointer transition-colors hover:bg-background-100"
       >
         <i className="ri-logout-box-line text-sm leading-none" />
-        Sign out
+        {t('driver.signOut')}
       </button>
     </DriverAppShell>
   );

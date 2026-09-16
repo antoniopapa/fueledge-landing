@@ -1,15 +1,17 @@
+import { useTranslation } from 'react-i18next';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useDriverApp } from '@/pages/driver/DriverAppContext';
 
 const tabs = [
-  { label: 'Home', icon: 'ri-home-4-line', path: '/driver/home' },
-  { label: 'Schedule', icon: 'ri-calendar-2-line', path: '/driver/schedule' },
-  { label: 'Profile', icon: 'ri-user-3-line', path: '/driver/profile' },
+  { labelKey: 'home', icon: 'ri-home-4-line', path: '/driver/home' },
+  { labelKey: 'schedule', icon: 'ri-calendar-2-line', path: '/driver/schedule' },
+  { labelKey: 'profile', icon: 'ri-user-3-line', path: '/driver/profile' },
 ];
 
 export default function BottomNav() {
   const location = useLocation();
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const { newRunCount } = useDriverApp();
 
   return (
@@ -35,7 +37,7 @@ export default function BottomNav() {
                   </span>
                 )}
               </span>
-              {tab.label}
+              {t(`driver.${tab.labelKey}`)}
             </button>
           );
         })}

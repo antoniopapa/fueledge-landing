@@ -1,4 +1,5 @@
 import type { ReactNode } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import BottomNav from './BottomNav';
 
@@ -11,6 +12,7 @@ type DriverAppShellProps = {
 
 export default function DriverAppShell({ children, title, onBack, showTabs = true }: DriverAppShellProps) {
   const navigate = useNavigate();
+  const { t } = useTranslation();
 
   return (
     <div className="min-h-screen bg-background-100">
@@ -21,7 +23,7 @@ export default function DriverAppShell({ children, title, onBack, showTabs = tru
               type="button"
               onClick={onBack ?? (() => navigate(-1))}
               className="w-9 h-9 flex items-center justify-center rounded-md text-foreground-700 hover:bg-background-200/60 cursor-pointer"
-              aria-label="Back"
+              aria-label={t('driver.back')}
             >
               <i className="ri-arrow-left-line text-xl leading-none" />
             </button>

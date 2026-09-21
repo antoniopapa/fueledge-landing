@@ -1,21 +1,20 @@
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { useLocation } from 'react-router-dom';
 import Button from '@/components/base/Button';
+import { DEFAULT_LANGUAGE_CODE } from '@/i18n/languages';
+import { HOME_MENU_ITEMS, languageFromPath } from '@/i18n/urlLanguage';
 import Logo from './Logo';
 import LanguageSwitcher from './LanguageSwitcher';
 
 const BOOK_DEMO_URL = 'https://calendly.com/bastion-infra/30min';
 
-const linkKeys = [
-  { key: 'navSourcing', href: '#how-it-works' },
-  { key: 'navPlatform', href: '#product' },
-  { key: 'navSavings', href: '#impact' },
-];
-
 export default function Navbar() {
-  const { t } = useTranslation();
+  const { i18n, t } = useTranslation();
+  const location = useLocation();
   const [scrolled, setScrolled] = useState(false);
   const [open, setOpen] = useState(false);
+  const pageLanguage = languageFromPath(location.pathname) ?? i18n.language ?? DEFAULT_LANGUAGE_CODE;
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 12);
@@ -34,20 +33,20 @@ export default function Navbar() {
         <Logo />
 
         <div className="hidden md:flex items-center gap-1">
-          {linkKeys.map((l) => (
+          {HOME_MENU_ITEMS.map((l) => (
             <a
               key={l.href}
               href={l.href}
               className="px-3.5 py-2 text-sm font-medium text-foreground-700 hover:text-foreground-950 rounded-md hover:bg-background-100 transition-colors whitespace-nowrap"
             >
-              {t(`home.${l.key}`)}
+              {t(`home.${l.key}`, { lng: pageLanguage })}
             </a>
           ))}
         </div>
 
         <div className="hidden md:flex items-center gap-3">
           <LanguageSwitcher />
-          <Button href={BOOK_DEMO_URL}>{t('home.bookDemo')}</Button>
+          <Button href={BOOK_DEMO_URL}>{t('home.bookDemo', { lng: pageLanguage })}</Button>
         </div>
 
         <div className="md:hidden flex items-center gap-2">
@@ -65,18 +64,18 @@ export default function Navbar() {
 
       {open && (
         <div className="md:hidden bg-background-50 border-b border-background-200 px-4 py-3 flex flex-col">
-          {linkKeys.map((l) => (
+          {HOME_MENU_ITEMS.map((l) => (
             <a
               key={l.href}
               href={l.href}
               onClick={() => setOpen(false)}
               className="py-3 text-sm font-medium text-foreground-800 hover:text-foreground-950 border-b border-background-100 last:border-0"
             >
-              {t(`home.${l.key}`)}
+              {t(`home.${l.key}`, { lng: pageLanguage })}
             </a>
           ))}
           <Button href={BOOK_DEMO_URL} className="mt-3 w-full">
-            {t('home.bookDemo')}
+            {t('home.bookDemo', { lng: pageLanguage })}
           </Button>
         </div>
       )}

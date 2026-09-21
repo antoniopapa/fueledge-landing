@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import type { ComboPoint } from '@/mocks/analytics';
 
 const W = 720;
@@ -22,6 +23,7 @@ interface ComboChartProps {
 }
 
 export default function ComboChart({ items }: ComboChartProps) {
+  const { t } = useTranslation();
   const [hover, setHover] = useState<number | null>(null);
   const [selected, setSelected] = useState<number | null>(null);
 
@@ -145,7 +147,7 @@ export default function ComboChart({ items }: ComboChartProps) {
               fontWeight={i === active ? 600 : 400}
               fill={i === active ? 'oklch(var(--foreground-700))' : 'oklch(var(--foreground-400))'}
             >
-              {d.label}
+              {t(d.label)}
             </text>
           ))}
 
@@ -170,7 +172,7 @@ export default function ComboChart({ items }: ComboChartProps) {
             className="pointer-events-none absolute z-10 -translate-x-1/2 rounded-lg border border-background-200 bg-background-50 px-3 py-2.5 min-w-[168px]"
             style={{ left: `${tipLeft}%`, top: 4 }}
           >
-            <div className="text-[11px] font-semibold text-foreground-900">{tooltipPoint.label}</div>
+            <div className="text-[11px] font-semibold text-foreground-900">{t(tooltipPoint.label)}</div>
             <div className="mt-1.5 space-y-1 text-[11px]">
               <TooltipRow label="Volume" value={`${tooltipPoint.volume} kL`} />
               <TooltipRow label="Revenue" value={`€${tooltipPoint.revenue}k`} />
@@ -185,7 +187,7 @@ export default function ComboChart({ items }: ComboChartProps) {
       {selectedPoint && (
         <div className="mt-3 rounded-lg border border-background-200 bg-background-100/70 px-3 py-2.5">
           <div className="flex items-center justify-between">
-            <span className="text-[11px] font-semibold text-foreground-700">{selectedPoint.label} · day detail</span>
+            <span className="text-[11px] font-semibold text-foreground-700">{t(selectedPoint.label)} · day detail</span>
             <button
               onClick={() => setSelected(null)}
               className="text-[11px] font-medium text-foreground-400 hover:text-foreground-700 whitespace-nowrap cursor-pointer"

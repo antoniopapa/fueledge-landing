@@ -1,17 +1,16 @@
 import { useTranslation } from 'react-i18next';
+import { useLocation } from 'react-router-dom';
+import { DEFAULT_LANGUAGE_CODE } from '@/i18n/languages';
+import { HOME_MENU_ITEMS, languageFromPath } from '@/i18n/urlLanguage';
 import Logo from './Logo';
 
 const BOOK_DEMO_URL = 'https://calendly.com/bastion-infra/30min';
 const CONTACT_EMAIL = 'mailto:hello@fueledge.eu';
 
-const productLinks = [
-  { key: 'navSourcing', href: '#how-it-works' },
-  { key: 'navPlatform', href: '#product' },
-  { key: 'navSavings', href: '#impact' },
-];
-
 export default function Footer() {
-  const { t } = useTranslation();
+  const { i18n, t } = useTranslation();
+  const location = useLocation();
+  const pageLanguage = languageFromPath(location.pathname) ?? i18n.language ?? DEFAULT_LANGUAGE_CODE;
 
   return (
     <footer className="bg-background-100/60 border-t border-background-200">
@@ -39,10 +38,10 @@ export default function Footer() {
               {t('home.footerProduct')}
             </h3>
             <ul className="mt-4 space-y-2.5">
-              {productLinks.map((l) => (
+              {HOME_MENU_ITEMS.map((l) => (
                 <li key={l.key}>
                   <a href={l.href} className="text-sm text-foreground-700 hover:text-foreground-950 transition-colors">
-                    {t(`home.${l.key}`)}
+                    {t(`home.${l.key}`, { lng: pageLanguage })}
                   </a>
                 </li>
               ))}

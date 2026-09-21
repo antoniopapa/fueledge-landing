@@ -1,4 +1,3 @@
-import GlobalSearch from './GlobalSearch';
 import NotificationsMenu from './NotificationsMenu';
 import LanguageMenu from './LanguageMenu';
 
@@ -19,10 +18,6 @@ export default function Topbar({ onMenu, onAiToggle, aiOpen }: TopbarProps) {
       >
         <i className="ri-menu-line text-xl leading-none" />
       </button>
-
-      <div className="hidden md:block flex-1 min-w-0 max-w-md">
-        <GlobalSearch />
-      </div>
 
       <div className="flex items-center gap-2 ml-auto">
         <button

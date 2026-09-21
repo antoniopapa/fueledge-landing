@@ -11,42 +11,42 @@ export interface DashboardNavGroup {
 
 export const dashboardNavGroups: DashboardNavGroup[] = [
   {
-    label: 'Операции',
+    label: 'dashboard.sidebar.groups.operations',
     items: [
-      { label: 'Преглед', icon: 'ri-dashboard-line', path: '/overview' },
-      { label: 'Диспечиране', icon: 'ri-send-plane-line', path: '/dispatch' },
-      { label: 'Поръчки', icon: 'ri-file-list-3-line', path: '/orders' },
-      { label: 'Доставки', icon: 'ri-truck-line', path: '/deliveries' },
+      { label: 'dashboard.sidebar.items.overview', icon: 'ri-dashboard-line', path: '/overview' },
+      { label: 'dashboard.sidebar.items.dispatch', icon: 'ri-send-plane-line', path: '/dispatch' },
+      { label: 'dashboard.sidebar.items.orders', icon: 'ri-file-list-3-line', path: '/orders' },
+      { label: 'dashboard.sidebar.items.deliveries', icon: 'ri-truck-line', path: '/deliveries' },
     ],
   },
   {
-    label: 'Ресурси',
+    label: 'dashboard.sidebar.groups.resources',
     items: [
-      { label: 'Терминали', icon: 'ri-building-2-line', path: '/terminals' },
-      { label: 'Доставчици', icon: 'ri-store-2-line', path: '/suppliers' },
-      { label: 'Продукти', icon: 'ri-drop-line', path: '/products' },
-      { label: 'Камиони', icon: 'ri-car-line', path: '/trucks' },
-      { label: 'Ремаркета', icon: 'ri-truck-line', path: '/trailers' },
-      { label: 'Шофьори', icon: 'ri-user-star-line', path: '/drivers' },
+      { label: 'dashboard.sidebar.items.terminals', icon: 'ri-building-2-line', path: '/terminals' },
+      { label: 'dashboard.sidebar.items.suppliers', icon: 'ri-store-2-line', path: '/suppliers' },
+      { label: 'dashboard.sidebar.items.products', icon: 'ri-drop-line', path: '/products' },
+      { label: 'dashboard.sidebar.items.trucks', icon: 'ri-car-line', path: '/trucks' },
+      { label: 'dashboard.sidebar.items.trailers', icon: 'ri-truck-line', path: '/trailers' },
+      { label: 'dashboard.sidebar.items.drivers', icon: 'ri-user-star-line', path: '/drivers' },
     ],
   },
   {
-    label: 'Бизнес',
+    label: 'dashboard.sidebar.groups.business',
     items: [
-      { label: 'Клиенти', icon: 'ri-team-line', path: '/customers' },
-      { label: 'Фактуриране', icon: 'ri-wallet-3-line', path: '/billing' },
+      { label: 'dashboard.sidebar.items.customers', icon: 'ri-team-line', path: '/customers' },
+      { label: 'dashboard.sidebar.items.billing', icon: 'ri-wallet-3-line', path: '/billing' },
     ],
   },
   {
-    label: 'Анализи',
+    label: 'dashboard.sidebar.groups.analytics',
     items: [
-      { label: 'Отчети', icon: 'ri-bar-chart-line', path: '/analytics' },
+      { label: 'dashboard.sidebar.items.reports', icon: 'ri-bar-chart-line', path: '/analytics' },
     ],
   },
 ];
 
 export const settingsNav: DashboardNavItem = {
-  label: 'Настройки',
+  label: 'dashboard.sidebar.items.settings',
   icon: 'ri-settings-3-line',
   path: '/settings',
 };

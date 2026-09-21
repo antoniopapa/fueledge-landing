@@ -1,9 +1,13 @@
 import { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { LANGUAGES, LANGUAGE_STORAGE_KEY } from '@/i18n/languages';
+import { pathForLanguage } from '@/i18n/urlLanguage';
 
 export default function LanguageSelector() {
   const { t, i18n } = useTranslation();
+  const location = useLocation();
+  const navigate = useNavigate();
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
 
@@ -22,6 +26,7 @@ export default function LanguageSelector() {
   function select(code: string) {
     i18n.changeLanguage(code);
     localStorage.setItem(LANGUAGE_STORAGE_KEY, code);
+    navigate(`${pathForLanguage(location.pathname, code)}${location.search}${location.hash}`);
     setOpen(false);
   }
 

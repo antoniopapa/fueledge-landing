@@ -5,41 +5,41 @@ export interface SubNavItem {
 }
 
 export const dispatchNav: SubNavItem[] = [
-  { label: 'График', path: '/dispatch', end: true },
-  { label: 'Неназначени', path: '/dispatch/unassigned' },
-  { label: 'Проблеми', path: '/dispatch/issues' },
+  { label: 'dashboard.nav.schedule', path: '/dispatch', end: true },
+  { label: 'dashboard.nav.unassigned', path: '/dispatch/unassigned' },
+  { label: 'dashboard.nav.issues', path: '/dispatch/issues' },
 ];
 
 export const deliveriesNav: SubNavItem[] = [
-  { label: 'Активни', path: '/deliveries', end: true },
-  { label: 'Завършени', path: '/deliveries/completed' },
-  { label: 'Изключения', path: '/deliveries/exceptions' },
+  { label: 'dashboard.nav.active', path: '/deliveries', end: true },
+  { label: 'dashboard.nav.completed', path: '/deliveries/completed' },
+  { label: 'dashboard.nav.exceptions', path: '/deliveries/exceptions' },
 ];
 
 export const customersNav: SubNavItem[] = [
-  { label: 'Клиенти', path: '/customers', end: true },
-  { label: 'Локации', path: '/customers/locations' },
+  { label: 'dashboard.nav.customers', path: '/customers', end: true },
+  { label: 'dashboard.nav.locations', path: '/customers/locations' },
 ];
 
 export const billingNav: SubNavItem[] = [
-  { label: 'Съгласуване', path: '/billing/reconciliation', end: true },
-  { label: 'Готови за фактура', path: '/billing/ready-to-invoice' },
-  { label: 'Фактури', path: '/billing/invoices' },
+  { label: 'dashboard.nav.reconciliation', path: '/billing/reconciliation', end: true },
+  { label: 'dashboard.nav.readyToInvoice', path: '/billing/ready-to-invoice' },
+  { label: 'dashboard.nav.invoices', path: '/billing/invoices' },
 ];
 
 export const analyticsNav: SubNavItem[] = [
-  { label: 'Преглед', path: '/analytics', end: true },
-  { label: 'Снабдяване', path: '/analytics/sourcing' },
-  { label: 'Операции', path: '/analytics/operations' },
-  { label: 'Финанси', path: '/analytics/financial' },
-  { label: 'Терминали', path: '/analytics/terminals' },
+  { label: 'dashboard.nav.overview', path: '/analytics', end: true },
+  { label: 'dashboard.nav.sourcing', path: '/analytics/sourcing' },
+  { label: 'dashboard.nav.operations', path: '/analytics/operations' },
+  { label: 'dashboard.nav.financial', path: '/analytics/financial' },
+  { label: 'dashboard.nav.terminals', path: '/analytics/terminals' },
 ];
 
 export const settingsNav: SubNavItem[] = [
-  { label: 'Компания', path: '/settings', end: true },
-  { label: 'Потребители и роли', path: '/settings/users' },
-  { label: 'Интеграции', path: '/settings/integrations' },
-  { label: 'Продукти', path: '/settings/products' },
-  { label: 'Известия', path: '/settings/notifications' },
-  { label: 'Данни и импорти', path: '/settings/data' },
+  { label: 'dashboard.nav.company', path: '/settings', end: true },
+  { label: 'dashboard.nav.usersAndRoles', path: '/settings/users' },
+  { label: 'dashboard.nav.integrations', path: '/settings/integrations' },
+  { label: 'dashboard.nav.products', path: '/settings/products' },
+  { label: 'dashboard.nav.notifications', path: '/settings/notifications' },
+  { label: 'dashboard.nav.dataAndImports', path: '/settings/data' },
 ];

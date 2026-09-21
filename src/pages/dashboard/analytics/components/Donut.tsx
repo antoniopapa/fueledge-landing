@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import type { DonutSlice } from '@/mocks/analytics';
 
 const toneColor: Record<DonutSlice['tone'], string> = {
@@ -17,6 +18,7 @@ interface DonutProps {
 }
 
 export default function Donut({ segments, centerLabel, centerValue }: DonutProps) {
+  const { t } = useTranslation();
   const total = segments.reduce((sum, s) => sum + s.value, 0) || 1;
   let acc = 0;
   const stops = segments
@@ -43,7 +45,7 @@ export default function Donut({ segments, centerLabel, centerValue }: DonutProps
         {segments.map((s) => (
           <li key={s.label} className="flex items-center gap-2.5">
             <span className="w-2.5 h-2.5 rounded-full shrink-0" style={{ background: toneColor[s.tone] }} />
-            <span className="flex-1 truncate text-[12px] text-foreground-700">{s.label}</span>
+            <span className="flex-1 truncate text-[12px] text-foreground-700">{t(s.label)}</span>
             <span className="text-[12px] font-semibold text-foreground-900 tabular whitespace-nowrap">
               {Math.round((s.value / total) * 100)}%
             </span>

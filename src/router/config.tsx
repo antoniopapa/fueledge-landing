@@ -1,6 +1,9 @@
-import { Navigate, useParams } from 'react-router-dom';
+import { Navigate, Outlet, useParams } from 'react-router-dom';
 import type { RouteObject } from 'react-router-dom';
+import { useEffect } from 'react';
 import NotFound from '@/pages/NotFound';
+import i18n from '@/i18n';
+import { LANGUAGES, LANGUAGE_STORAGE_KEY } from '@/i18n/languages';
 import Home from '@/pages/home/page';
 import OverviewPage from '@/pages/dashboard/overview/page';
 import DriversPage from '@/pages/dashboard/drivers/page';
@@ -60,7 +63,45 @@ function SourcingTerminalRedirect() {
   return <Navigate to={id ? `/terminals/${id}` : '/terminals'} replace />;
 }
 
-const routes: RouteObject[] = [
+function LanguageRoute() {
+  const { lang } = useParams();
+  const isSupportedLanguage = LANGUAGES.some((language) => language.code === lang);
+
+  useEffect(() => {
+    if (lang && isSupportedLanguage) {
+      if (i18n.language !== lang) {
+        i18n.changeLanguage(lang);
+      }
+      localStorage.setItem(LANGUAGE_STORAGE_KEY, lang);
+      document.documentElement.lang = lang;
+    }
+  }, [isSupportedLanguage, lang]);
+
+  if (!isSupportedLanguage) return <NotFound />;
+
+  return <Outlet />;
+}
+
+function localizeRoutes(items: RouteObject[]): RouteObject[] {
+  return items.map((route) => {
+    const localized: RouteObject = { ...route };
+
+    if (route.path === '/') {
+      delete localized.path;
+      localized.index = true;
+    } else if (route.path?.startsWith('/')) {
+      localized.path = route.path.slice(1);
+    }
+
+    if (route.children) {
+      localized.children = localizeRoutes(route.children);
+    }
+
+    return localized;
+  });
+}
+
+const baseRoutes: RouteObject[] = [
   { path: '/', element: <Home /> },
   { path: '/overview', element: <OverviewPage /> },
 
@@ -151,6 +192,15 @@ const routes: RouteObject[] = [
   { path: '/sourcing/suppliers', element: <Navigate to="/suppliers" replace /> },
 
   { path: '*', element: <NotFound /> },
+];
+
+const routes: RouteObject[] = [
+  {
+    path: '/:lang',
+    element: <LanguageRoute />,
+    children: localizeRoutes(baseRoutes),
+  },
+  ...baseRoutes,
 ];
 
 export default routes;

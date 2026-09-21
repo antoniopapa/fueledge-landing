@@ -1,12 +1,14 @@
 import { useState, type FormEvent } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { DEFAULT_LANGUAGE_CODE, LANGUAGES, LANGUAGE_STORAGE_KEY } from '@/i18n/languages';
+import { pathForLanguage } from '@/i18n/urlLanguage';
 import { useDriverApp } from '@/pages/driver/DriverAppContext';
 import DriverLogo from '@/pages/driver/components/DriverLogo';
 
 export default function DriverLoginPage() {
   const navigate = useNavigate();
+  const location = useLocation();
   const { t, i18n } = useTranslation();
   const { driver } = useDriverApp();
   const [email, setEmail] = useState("ivan@fueledge.eu");
@@ -25,6 +27,7 @@ export default function DriverLoginPage() {
   function selectLanguage(code: string) {
     i18n.changeLanguage(code);
     localStorage.setItem(LANGUAGE_STORAGE_KEY, code);
+    navigate(`${pathForLanguage(location.pathname, code)}${location.search}${location.hash}`);
   }
 
   return (

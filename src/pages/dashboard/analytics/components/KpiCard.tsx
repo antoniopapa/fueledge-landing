@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import type { MetricTone } from '@/mocks/analytics';
 
 const toneClass: Record<MetricTone, string> = {
@@ -42,13 +43,15 @@ interface KpiCardProps {
 }
 
 export default function KpiCard({ label, value, delta, icon, tone, emphasized = false }: KpiCardProps) {
+  const { t } = useTranslation();
+
   if (emphasized) {
     return (
       <div className={`relative overflow-hidden rounded-lg border px-4 py-3.5 ${toneClass[tone]}`}>
         <span className={`absolute inset-x-0 top-0 h-0.5 ${toneBar[tone]}`} />
         <div className="flex items-center justify-between">
           <span className="text-[11px] uppercase tracking-wide text-foreground-500 font-medium whitespace-nowrap">
-            {label}
+            {t(label)}
           </span>
           <span className={`w-7 h-7 rounded-md flex items-center justify-center shrink-0 ${toneIcon[tone]}`}>
             <i className={`${icon} text-sm leading-none`} />
@@ -64,7 +67,7 @@ export default function KpiCard({ label, value, delta, icon, tone, emphasized = 
     <div className={`rounded-lg border px-3.5 py-3 ${toneClass[tone]}`}>
       <div className="flex items-center justify-between">
         <span className="text-[11px] uppercase tracking-wide text-foreground-400 font-medium whitespace-nowrap">
-          {label}
+          {t(label)}
         </span>
         <span className="w-5 h-5 flex items-center justify-center shrink-0">
           <i className={`${icon} text-foreground-400 text-sm leading-none`} />

@@ -81,5 +81,22 @@ export default {
     issue: 'Проблем',
     stopPosition: 'Спирка {{position}} от {{total}}',
     undoStart: 'Отмени старта',
+    scheduleToolbar: {
+      today: 'Днес',
+      previous: 'Предишен',
+      next: 'Следващ',
+      searchFilter: 'Търсене / филтриране',
+      searchPlaceholder: 'Търсене на курс, маршрут, шофьор...',
+      allDrivers: 'Всички драйвери',
+      allTrucks: 'Всички камиони',
+      allStatuses: 'Всички състояния',
+      statuses: {
+        scheduled: 'Планиран',
+        dispatched: 'Изпратено',
+        delayed: 'Забавен',
+        conflict: 'Конфликт',
+        completed: 'Завършено',
+      },
+    },
   },
 };

@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import Panel from './Panel';
 import type { ProductMixRow } from '@/mocks/analytics';
 
@@ -16,6 +17,7 @@ interface ProductMixPanelProps {
 }
 
 export default function ProductMixPanel({ items }: ProductMixPanelProps) {
+  const { t } = useTranslation();
   const total = items.reduce((sum, i) => sum + i.value, 0) || 1;
   let acc = 0;
   const stops = items
@@ -63,7 +65,7 @@ export default function ProductMixPanel({ items }: ProductMixPanelProps) {
               <td className="py-1.5 pr-2">
                 <span className="flex items-center gap-2">
                   <span className="w-2 h-2 rounded-full shrink-0" style={{ background: toneColor[i.tone] }} />
-                  <span className="text-foreground-700 whitespace-nowrap">{i.label}</span>
+                  <span className="text-foreground-700 whitespace-nowrap">{t(i.label)}</span>
                 </span>
               </td>
               <td className="py-1.5 text-right tabular text-foreground-700 whitespace-nowrap">{i.value}%</td>

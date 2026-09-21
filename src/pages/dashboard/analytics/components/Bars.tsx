@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import type { NamedAmount } from '@/mocks/analytics';
 
 type BarTone = 'primary' | 'accent' | 'secondary';
@@ -14,6 +15,7 @@ interface BarsProps {
 }
 
 export default function Bars({ items, tone = 'primary' }: BarsProps) {
+  const { t } = useTranslation();
   const max = Math.max(...items.map((i) => i.amount), 1);
 
   return (
@@ -21,7 +23,7 @@ export default function Bars({ items, tone = 'primary' }: BarsProps) {
       {items.map((item) => (
         <div key={item.label} className="flex items-center gap-3">
           <span className="w-40 shrink-0 truncate text-[12px] text-foreground-700 whitespace-nowrap">
-            {item.label}
+            {t(item.label)}
           </span>
           <div className="flex-1 h-3 rounded-full bg-background-100 overflow-hidden">
             <div

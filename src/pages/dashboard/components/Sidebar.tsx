@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { NavLink } from 'react-router-dom';
 import { dashboardNavGroups, settingsNav } from '@/mocks/dashboard';
 
@@ -15,6 +16,8 @@ function navLinkClass({ isActive }: { isActive: boolean }) {
 }
 
 export default function Sidebar({ className = '', onNavigate }: SidebarProps) {
+  const { t } = useTranslation();
+
   return (
     <aside className={`fixed inset-y-0 left-0 z-40 w-60 flex-col bg-foreground-950 ${className}`}>
       {/* brand */}
@@ -30,7 +33,7 @@ export default function Sidebar({ className = '', onNavigate }: SidebarProps) {
         {dashboardNavGroups.map((group) => (
           <div key={group.label} className="mb-5 last:mb-0">
             <p className="px-2.5 mb-1.5 text-[10px] font-semibold uppercase tracking-wider text-foreground-400">
-              {group.label}
+              {t(group.label)}
             </p>
             <ul className="space-y-0.5">
               {group.items.map((item) => (
@@ -39,7 +42,7 @@ export default function Sidebar({ className = '', onNavigate }: SidebarProps) {
                     <span className="w-5 h-5 flex items-center justify-center">
                       <i className={`${item.icon} text-[15px] leading-none`} />
                     </span>
-                    {item.label}
+                    {t(item.label)}
                   </NavLink>
                 </li>
               ))}
@@ -55,7 +58,7 @@ export default function Sidebar({ className = '', onNavigate }: SidebarProps) {
             <span className="w-5 h-5 flex items-center justify-center">
               <i className={`${settingsNav.icon} text-[15px] leading-none`} />
             </span>
-            {settingsNav.label}
+            {t(settingsNav.label)}
           </NavLink>
         </div>
         <div className="p-3 pt-1">
@@ -65,7 +68,7 @@ export default function Sidebar({ className = '', onNavigate }: SidebarProps) {
             </span>
             <div className="min-w-0">
               <p className="text-[12px] font-semibold text-background-50 leading-tight">Markus Keller</p>
-              <p className="text-[10px] text-foreground-400 truncate">Оперативен мениджър</p>
+              <p className="text-[10px] text-foreground-400 truncate">{t('dashboard.sidebar.role.operationsManager')}</p>
             </div>
           </div>
           <button
@@ -75,7 +78,7 @@ export default function Sidebar({ className = '', onNavigate }: SidebarProps) {
             <span className="w-5 h-5 flex items-center justify-center">
               <i className="ri-question-line text-[15px] leading-none" />
             </span>
-            Помощ и поддръжка
+            {t('dashboard.sidebar.items.helpSupport')}
           </button>
         </div>
       </div>

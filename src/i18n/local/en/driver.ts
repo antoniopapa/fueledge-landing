@@ -80,6 +80,23 @@ export default {
     callDispatcher: 'Call your dispatcher for help',
     issue: 'Issue',
     stopPosition: 'Stop {{position}} of {{total}}',
+    scheduleToolbar: {
+      today: 'Today',
+      previous: 'Previous',
+      next: 'Next',
+      searchFilter: 'Search / filter',
+      searchPlaceholder: 'Search run, route, driver...',
+      allDrivers: 'All Drivers',
+      allTrucks: 'All Trucks',
+      allStatuses: 'All Statuses',
+      statuses: {
+        scheduled: 'Scheduled',
+        dispatched: 'Dispatched',
+        delayed: 'Delayed',
+        conflict: 'Conflict',
+        completed: 'Completed',
+      },
+    },
     undoStart: 'Undo Start',
   },
 };

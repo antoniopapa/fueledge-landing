@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import type { SeriesPoint } from '@/mocks/analytics';
 
 interface ColumnsProps {
@@ -6,6 +7,7 @@ interface ColumnsProps {
 }
 
 export default function Columns({ items, unit = '' }: ColumnsProps) {
+  const { t } = useTranslation();
   const max = Math.max(...items.map((i) => i.value), 1);
 
   return (
@@ -31,7 +33,7 @@ export default function Columns({ items, unit = '' }: ColumnsProps) {
             key={item.label}
             className="flex-1 text-center text-[10px] text-foreground-400 whitespace-nowrap overflow-hidden"
           >
-            {item.label}
+            {t(item.label)}
           </span>
         ))}
       </div>

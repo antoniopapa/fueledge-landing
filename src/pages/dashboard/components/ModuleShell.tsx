@@ -1,4 +1,5 @@
 import type { ReactNode } from 'react';
+import { useTranslation } from 'react-i18next';
 import { NavLink } from 'react-router-dom';
 import DashboardShell from './DashboardShell';
 
@@ -23,6 +24,8 @@ export default function ModuleShell({
   subNav,
   children,
 }: ModuleShellProps) {
+  const { t } = useTranslation();
+
   return (
     <DashboardShell>
       <div className="max-w-6xl">
@@ -51,7 +54,7 @@ export default function ModuleShell({
               >
                 {({ isActive }) => (
                   <>
-                    {item.label}
+                    {t(item.label)}
                     {isActive && (
                       <span className="absolute left-3 right-3 bottom-0 h-0.5 rounded-full bg-primary-500" />
                     )}

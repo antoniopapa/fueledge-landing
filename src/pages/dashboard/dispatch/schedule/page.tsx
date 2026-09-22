@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
 import DashboardShell from '@/pages/dashboard/components/DashboardShell';
 import { fetchScheduleRuns } from '@/mocks/schedule';
@@ -15,6 +16,7 @@ import WeekBoard from './components/WeekBoard';
 import RunDetailDrawer from './components/RunDetailDrawer';
 
 export default function SchedulePage() {
+  const { t } = useTranslation();
   const [weekOffset, setWeekOffset] = useState(0);
   const scheduleRuns = useScheduleRuns();
   const [driverFilter, setDriverFilter] = useState('All Drivers');
@@ -34,7 +36,7 @@ export default function SchedulePage() {
       .catch(() => {
         if (active) {
           replaceScheduleRuns([]);
-          setToast('Неуспешно зареждане на планираните курсове');
+          setToast(t('dashboard.dispatch.schedule.loadFailed'));
           window.setTimeout(() => setToast(null), 2600);
         }
       });
@@ -42,7 +44,7 @@ export default function SchedulePage() {
     return () => {
       active = false;
     };
-  }, []);
+  }, [t]);
 
   const days = useMemo(() => buildDays(weekOffset), [weekOffset]);
   const dateLabel = weekRangeLabel(days);
@@ -71,22 +73,22 @@ export default function SchedulePage() {
 
   function handleDropRun(runId: string, driverName: string, truckPlate: string, day: number | null) {
     updateScheduleRun(runId, { driverName, truckPlate, ...(day !== null ? { day } : {}) });
-    showToast(`Курс #${runId} е преназначен към ${driverName}`);
+    showToast(t('dashboard.dispatch.schedule.toasts.reassignedRun', { runId, driverName }));
   }
 
   function handleReassignDriver(runId: string, driverName: string) {
     updateScheduleRun(runId, { driverName });
-    showToast(`Шофьорът на курс #${runId} е сменен на ${driverName}`);
+    showToast(t('dashboard.dispatch.schedule.toasts.changedDriver', { runId, driverName }));
   }
 
   function handleReassignTruck(runId: string, truckPlate: string) {
     updateScheduleRun(runId, { truckPlate });
-    showToast(`Камионът на курс #${runId} е сменен на ${truckPlate}`);
+    showToast(t('dashboard.dispatch.schedule.toasts.changedTruck', { runId, truckPlate }));
   }
 
   function handleChangeTime(runId: string, startTime: string, endTime: string) {
     updateScheduleRun(runId, { startTime, endTime });
-    showToast(`Курс #${runId} е пренасрочен за ${startTime}-${endTime}`);
+    showToast(t('dashboard.dispatch.schedule.toasts.rescheduledRun', { runId, startTime, endTime }));
   }
 
   function handlePrev() {
@@ -110,7 +112,7 @@ export default function SchedulePage() {
             className="inline-flex items-center gap-1.5 rounded-md bg-primary-500 px-4 py-2 text-sm font-semibold text-background-50 transition-colors hover:bg-primary-600"
           >
             <i className="ri-add-line text-sm leading-none" />
-            Нов график
+            {t('dashboard.dispatch.schedule.newSchedule')}
           </Link>
         </div>
 

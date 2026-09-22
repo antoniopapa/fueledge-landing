@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import type { ScheduleRun } from '@/mocks/schedule';
 import { useTruckInventory } from '@/pages/driver/driverStore';
@@ -24,6 +25,7 @@ export default function RunDetailDrawer({
   onReassignTruck,
   onChangeTime,
 }: RunDetailDrawerProps) {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const inventory = useTruckInventory();
   const [visible, setVisible] = useState(false);
@@ -68,12 +70,14 @@ export default function RunDetailDrawer({
         <div className="flex items-start justify-between gap-3 px-5 py-4 border-b border-background-200">
           <div className="min-w-0">
             <div className="flex items-center gap-2 flex-wrap">
-              <h2 className="font-heading text-lg font-bold text-foreground-950">Курс #{run.id}</h2>
+              <h2 className="font-heading text-lg font-bold text-foreground-950">
+                {t('dashboard.dispatch.schedule.run')} #{run.id}
+              </h2>
               <span
                 className={`inline-flex items-center gap-1.5 text-[10px] font-semibold px-2 py-0.5 rounded-full whitespace-nowrap ${meta.bg} ${meta.text}`}
               >
                 <span className={`w-1.5 h-1.5 rounded-full ${meta.dot}`} />
-                {meta.label}
+                {t(meta.labelKey)}
               </span>
             </div>
             <p className="text-sm text-foreground-500 mt-0.5">{run.route}</p>
@@ -81,7 +85,7 @@ export default function RunDetailDrawer({
           <button
             type="button"
             onClick={onClose}
-            aria-label="Затвори"
+            aria-label={t('dashboard.dispatch.schedule.close')}
             className="w-8 h-8 flex items-center justify-center rounded-md text-foreground-500 hover:bg-background-100 cursor-pointer"
           >
             <i className="ri-close-line text-lg leading-none" />
@@ -95,8 +99,12 @@ export default function RunDetailDrawer({
               <i className="ri-alert-fill text-red-500 text-base leading-none" />
             </span>
             <div>
-              <p className="text-[12px] font-semibold text-red-700">Конфликт в графика</p>
-              <p className="text-[11px] text-red-600">{run.conflictNote ?? 'Засечено е припокриващо се назначение.'}</p>
+              <p className="text-[12px] font-semibold text-red-700">
+                {t('dashboard.dispatch.schedule.conflictHeading')}
+              </p>
+              <p className="text-[11px] text-red-600">
+                {run.conflictNote ?? t('dashboard.dispatch.schedule.conflictFallback')}
+              </p>
             </div>
           </div>
         )}
@@ -105,10 +113,10 @@ export default function RunDetailDrawer({
         <div className="px-5 py-4 space-y-4 overflow-y-auto flex-1">
           <div className="space-y-3">
             {[
-              { label: 'Товарене', value: run.pickup },
-              { label: 'Доставка', value: run.delivery },
-              { label: 'Продукт', value: run.product },
-              { label: 'Количество', value: run.volume },
+              { label: t('dashboard.dispatch.schedule.pickup'), value: run.pickup },
+              { label: t('dashboard.dispatch.schedule.delivery'), value: run.delivery },
+              { label: t('dashboard.dispatch.schedule.product'), value: run.product },
+              { label: t('dashboard.dispatch.schedule.quantity'), value: run.volume },
             ].map((row) => (
               <div key={row.label} className="flex items-center justify-between gap-3">
                 <span className="text-[11px] font-medium text-foreground-400 uppercase tracking-wide whitespace-nowrap">
@@ -126,7 +134,7 @@ export default function RunDetailDrawer({
               </span>
               <div className="min-w-0">
                 <p className="text-[10px] font-semibold uppercase tracking-wide text-accent-700">
-                  Налично гориво · {run.truckPlate}
+                  {t('dashboard.dispatch.schedule.onboardFuel')} · {run.truckPlate}
                 </p>
                 <p className="text-[13px] font-semibold text-foreground-900 tabular">
                   {formatLiters(onboard.quantityL)} {onboard.fuelType}
@@ -137,9 +145,13 @@ export default function RunDetailDrawer({
 
           {/* assignment */}
           <div className="rounded-md border border-background-200 bg-background-50 p-3 space-y-3">
-            <p className="text-[11px] font-semibold uppercase tracking-wide text-foreground-400">Назначение</p>
+            <p className="text-[11px] font-semibold uppercase tracking-wide text-foreground-400">
+              {t('dashboard.dispatch.schedule.assignment')}
+            </p>
             <div>
-              <label className="block text-[11px] text-foreground-500 mb-1">Шофьор</label>
+              <label className="block text-[11px] text-foreground-500 mb-1">
+                {t('dashboard.dispatch.schedule.driver')}
+              </label>
               <select
                 value={driver}
                 onChange={(e) => {
@@ -156,7 +168,9 @@ export default function RunDetailDrawer({
               </select>
             </div>
             <div>
-              <label className="block text-[11px] text-foreground-500 mb-1">Камион</label>
+              <label className="block text-[11px] text-foreground-500 mb-1">
+                {t('dashboard.dispatch.schedule.truck')}
+              </label>
               <select
                 value={truck}
                 onChange={(e) => {
@@ -176,10 +190,14 @@ export default function RunDetailDrawer({
 
           {/* reschedule */}
           <div className="rounded-md border border-background-200 bg-background-50 p-3 space-y-3">
-            <p className="text-[11px] font-semibold uppercase tracking-wide text-foreground-400">Пренасрочване</p>
+            <p className="text-[11px] font-semibold uppercase tracking-wide text-foreground-400">
+              {t('dashboard.dispatch.schedule.reschedule')}
+            </p>
             <div className="grid grid-cols-2 gap-3">
               <div>
-                <label className="block text-[11px] text-foreground-500 mb-1">Товарене</label>
+                <label className="block text-[11px] text-foreground-500 mb-1">
+                  {t('dashboard.dispatch.schedule.pickup')}
+                </label>
                 <input
                   type="time"
                   value={startTime}
@@ -191,7 +209,9 @@ export default function RunDetailDrawer({
                 />
               </div>
               <div>
-                <label className="block text-[11px] text-foreground-500 mb-1">Доставка</label>
+                <label className="block text-[11px] text-foreground-500 mb-1">
+                  {t('dashboard.dispatch.schedule.delivery')}
+                </label>
                 <input
                   type="time"
                   value={endTime}
@@ -216,7 +236,7 @@ export default function RunDetailDrawer({
             <span className="w-4 h-4 flex items-center justify-center">
               <i className="ri-route-line text-sm leading-none" />
             </span>
-            Пълен детайл за курса
+            {t('dashboard.dispatch.schedule.fullRunDetail')}
           </button>
           <button
             type="button"
@@ -226,7 +246,7 @@ export default function RunDetailDrawer({
             <span className="w-4 h-4 flex items-center justify-center">
               <i className="ri-external-link-line text-sm leading-none" />
             </span>
-            Отвори поръчка
+            {t('dashboard.dispatch.schedule.openOrder')}
           </button>
           <button
             type="button"
@@ -236,7 +256,7 @@ export default function RunDetailDrawer({
             <span className="w-4 h-4 flex items-center justify-center">
               <i className="ri-map-pin-line text-sm leading-none" />
             </span>
-            Виж на картата
+            {t('dashboard.dispatch.schedule.viewOnMap')}
           </button>
         </div>
       </aside>

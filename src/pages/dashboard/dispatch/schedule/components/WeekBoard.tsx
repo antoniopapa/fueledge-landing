@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import type { ScheduleResource, ScheduleRun } from '@/mocks/schedule';
 import type { DayInfo } from '../scheduleUtils';
 import RunBlock from './RunBlock';
@@ -14,6 +15,8 @@ interface WeekBoardProps {
 const GRID = '210px repeat(7, minmax(148px, 1fr))';
 
 export default function WeekBoard({ days, resources, runs, onRunClick, onDropRun }: WeekBoardProps) {
+  const { t } = useTranslation();
+
   function runsFor(driverName: string, day: number) {
     return runs.filter((l) => l.driverName === driverName && l.day === day);
   }
@@ -25,7 +28,9 @@ export default function WeekBoard({ days, resources, runs, onRunClick, onDropRun
           {/* header */}
           <div className="grid border-b border-background-200" style={{ gridTemplateColumns: GRID }}>
             <div className="sticky left-0 z-10 bg-background-50 px-4 py-3 border-r border-background-200">
-              <span className="text-[10px] font-semibold uppercase tracking-wide text-foreground-400">Шофьор</span>
+              <span className="text-[10px] font-semibold uppercase tracking-wide text-foreground-400">
+                {t('dashboard.dispatch.schedule.driver')}
+              </span>
             </div>
             {days.map((d) => (
               <div

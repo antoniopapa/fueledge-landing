@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import type { ScheduleResource, ScheduleRun } from '@/mocks/schedule';
 import type { DayInfo } from '../scheduleUtils';
 import RunBlock from './RunBlock';
@@ -52,6 +53,7 @@ function assignLanes(runs: ScheduleRun[]): ScheduleRun[][] {
 }
 
 export default function DayBoard({ day, dayIndex, resources, runs, onRunClick, onDropRun }: DayBoardProps) {
+  const { t } = useTranslation();
   const dayRuns = runs.filter((r) => r.day === dayIndex);
 
   return (
@@ -61,7 +63,9 @@ export default function DayBoard({ day, dayIndex, resources, runs, onRunClick, o
           {/* header */}
           <div className="grid border-b border-background-200" style={{ gridTemplateColumns: '210px 1fr' }}>
             <div className="sticky left-0 z-10 bg-background-50 px-4 py-3 border-r border-background-200">
-              <span className="text-[10px] font-semibold uppercase tracking-wide text-foreground-400">Шофьор / камион</span>
+              <span className="text-[10px] font-semibold uppercase tracking-wide text-foreground-400">
+                {t('dashboard.dispatch.schedule.driverTruck')}
+              </span>
             </div>
             <div className={`grid grid-cols-8 ${day.isToday ? 'bg-primary-50' : ''}`}>
               {TIME_COLUMNS.map((t) => (
@@ -123,7 +127,9 @@ export default function DayBoard({ day, dayIndex, resources, runs, onRunClick, o
 
                   {driverRuns.length === 0 && r.availability === 'Available' && (
                     <div className="absolute inset-0 flex items-center justify-center">
-                      <span className="text-[11px] font-medium text-accent-700">Свободен</span>
+                      <span className="text-[11px] font-medium text-accent-700">
+                        {t('dashboard.dispatch.schedule.available')}
+                      </span>
                     </div>
                   )}
                 </div>

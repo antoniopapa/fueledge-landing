@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import type { ScheduleRun } from '@/mocks/schedule';
 import { statusMeta } from './statusMeta';
 
@@ -8,9 +9,10 @@ interface RunBlockProps {
 }
 
 export default function RunBlock({ run, variant = 'week', onClick }: RunBlockProps) {
+  const { t } = useTranslation();
   const meta = statusMeta[run.status];
   const title = run.conflict
-    ? `Конфликт в графика\nПредишният курс приключва 14:20\nСледващото товарене започва 14:00`
+    ? t('dashboard.dispatch.schedule.conflictTitle')
     : `#${run.id} · ${run.route} · ${run.volume} · ${run.product}`;
 
   return (

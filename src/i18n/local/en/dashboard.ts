@@ -52,6 +52,42 @@ export default {
         operationsManager: 'Operations Manager',
       },
     },
+    overview: {
+      operationsMap: {
+        mapTitle: 'FuelEdge European operations map',
+        mapAria: 'Map of European fuel operations with terminals, tankers, and delivery routes',
+        selectDelivery: 'Select delivery {{order}}',
+        scheduledToggle: 'Scheduled',
+        showAll: 'Show all',
+        liveBadge: 'Live · {{count}} active',
+        filters: {
+          all: 'All active',
+          ontime: 'On time',
+          warning: 'Warnings',
+          risk: 'At risk',
+        },
+        health: {
+          ontime: 'On time',
+          warning: 'Warning',
+          risk: 'At risk',
+          scheduled: 'Scheduled',
+        },
+        details: {
+          run: 'Run',
+          driver: 'Driver',
+          truck: 'Truck',
+          eta: 'ETA',
+          status: 'Status',
+        },
+        legend: {
+          terminal: 'Terminal',
+          truck: 'Truck',
+          destination: 'Destination',
+          traveled: 'Traveled',
+          remaining: 'Remaining',
+        },
+      },
+    },
     analytics: {
       labels: {
         revenue: 'Revenue',

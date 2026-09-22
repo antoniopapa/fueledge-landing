@@ -4,7 +4,7 @@ export type LanguageOption = {
   flag: string;
 };
 
-export const DEFAULT_LANGUAGE_CODE = 'bg';
+export const DEFAULT_LANGUAGE_CODE = 'en';
 
 export const LANGUAGES: LanguageOption[] = [
   { code: 'bg', label: 'Български', flag: '🇧🇬' },

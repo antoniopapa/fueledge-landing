@@ -52,6 +52,42 @@ export default {
         operationsManager: 'Оперативен мениджър',
       },
     },
+    overview: {
+      operationsMap: {
+        mapTitle: 'Карта на европейските операции на FuelEdge',
+        mapAria: 'Карта на европейските горивни операции с терминали, цистерни и маршрути за доставка',
+        selectDelivery: 'Избери доставка {{order}}',
+        scheduledToggle: 'Планирани',
+        showAll: 'Покажи всички',
+        liveBadge: 'Live · {{count}} активни',
+        filters: {
+          all: 'Всички активни',
+          ontime: 'Навреме',
+          warning: 'Предупреждения',
+          risk: 'В риск',
+        },
+        health: {
+          ontime: 'Навреме',
+          warning: 'Предупреждение',
+          risk: 'В риск',
+          scheduled: 'Планиран',
+        },
+        details: {
+          run: 'Курс',
+          driver: 'Шофьор',
+          truck: 'Камион',
+          eta: 'Очаквано',
+          status: 'Статус',
+        },
+        legend: {
+          terminal: 'Терминал',
+          truck: 'Камион',
+          destination: 'Дестинация',
+          traveled: 'Изминато',
+          remaining: 'Оставащо',
+        },
+      },
+    },
     analytics: {
       labels: {
         revenue: 'Приходи',

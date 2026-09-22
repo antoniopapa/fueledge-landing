@@ -1,4 +1,5 @@
 import { FormEvent, ReactNode, useMemo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Link, useNavigate } from 'react-router-dom';
 import DashboardShell from '@/pages/dashboard/components/DashboardShell';
 import { addScheduleRun } from '@/pages/dashboard/dispatch/dispatchStore';
@@ -54,11 +55,11 @@ interface Delivery {
 }
 
 const priorities: Priority[] = ['Normal', 'High', 'Critical', 'Low'];
-const priorityLabels: Record<Priority, string> = {
-  Low: 'Нисък',
-  Normal: 'Нормален',
-  High: 'Висок',
-  Critical: 'Критичен',
+const priorityLabelKeys: Record<Priority, string> = {
+  Low: 'dashboard.dispatch.new.priorities.low',
+  Normal: 'dashboard.dispatch.new.priorities.normal',
+  High: 'dashboard.dispatch.new.priorities.high',
+  Critical: 'dashboard.dispatch.new.priorities.critical',
 };
 const productOptions = ['Diesel EN590', 'Gasoil', 'Petrol 95', 'Heating Oil', 'HVO100', 'AdBlue'];
 
@@ -137,6 +138,7 @@ function totalExpectedVolume(pickups: Pickup[]) {
 }
 
 export default function NewSchedulePage() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const driverNames = useMemo(() => driverMocks.map((driver) => driver.name), []);
   const truckPlates = useMemo(() => trucks.map((truck) => truck.plate), []);
@@ -191,18 +193,18 @@ export default function NewSchedulePage() {
 
     addScheduleRun({
       id,
-      driverName: driver || 'Неназначен шофьор',
-      truckPlate: truck || 'Неназначен камион',
-      route: `${firstPickup?.terminal || 'Товарене'} -> ${firstDelivery?.customer || 'Доставка'}`,
-      product: pickupProduct?.productId || deliveryProduct?.product || 'Продукт',
+      driverName: driver || t('dashboard.dispatch.new.defaults.unassignedDriver'),
+      truckPlate: truck || t('dashboard.dispatch.new.defaults.unassignedTruck'),
+      route: `${firstPickup?.terminal || t('dashboard.dispatch.schedule.pickup')} -> ${firstDelivery?.customer || t('dashboard.dispatch.schedule.delivery')}`,
+      product: pickupProduct?.productId || deliveryProduct?.product || t('dashboard.dispatch.schedule.product'),
       volume: totalExpectedVolume(pickups),
       day: 0,
       startTime,
       endTime,
       status: priority === 'Critical' ? 'Conflict' : 'Scheduled',
-      pickup: firstPickup?.terminal || 'Товарене',
-      delivery: firstDelivery?.customer || 'Доставка',
-      ...(priority === 'Critical' ? { conflict: true, conflictNote: 'Критичен курс в графика' } : {}),
+      pickup: firstPickup?.terminal || t('dashboard.dispatch.schedule.pickup'),
+      delivery: firstDelivery?.customer || t('dashboard.dispatch.schedule.delivery'),
+      ...(priority === 'Critical' ? { conflict: true, conflictNote: t('dashboard.dispatch.new.defaults.criticalConflict') } : {}),
     });
 
     navigate('/dispatch');
@@ -213,7 +215,7 @@ export default function NewSchedulePage() {
       <div className="mx-auto max-w-7xl">
         <Link to="/dispatch" className="mb-4 inline-flex items-center gap-1.5 text-[12px] font-medium text-foreground-500 transition-colors hover:text-foreground-900">
           <i className="ri-arrow-left-line text-[13px] leading-none" />
-          Обратно към графика
+          {t('dashboard.dispatch.new.backToSchedule')}
         </Link>
 
         <form onSubmit={handleSubmit} className="space-y-5">
@@ -223,22 +225,24 @@ export default function NewSchedulePage() {
                 <i className="ri-route-line text-lg leading-none" />
               </span>
               <div>
-                <h1 className="font-heading text-xl font-bold text-foreground-950">Нов график за курс</h1>
-                <p className="text-sm text-foreground-500">Назначете техника, часове, товарения и доставки за този курс.</p>
+                <h1 className="font-heading text-xl font-bold text-foreground-950">
+                  {t('dashboard.dispatch.new.title')}
+                </h1>
+                <p className="text-sm text-foreground-500">{t('dashboard.dispatch.new.description')}</p>
               </div>
             </div>
 
             <div className="grid grid-cols-1 gap-4 md:grid-cols-3 xl:grid-cols-6">
-              <Field label="Шофьор"><input className={inputClass()} value={driver} onChange={(e) => setDriver(e.target.value)} list="drivers" required /></Field>
-              <Field label="Камион"><input className={inputClass()} value={truck} onChange={(e) => setTruck(e.target.value)} list="trucks" required /></Field>
-              <Field label="Ремарке"><input className={inputClass()} value={trailer} onChange={(e) => setTrailer(e.target.value)} list="trailers" required /></Field>
-              <Field label="Приоритет">
+              <Field label={t('dashboard.dispatch.schedule.driver')}><input className={inputClass()} value={driver} onChange={(e) => setDriver(e.target.value)} list="drivers" required /></Field>
+              <Field label={t('dashboard.dispatch.schedule.truck')}><input className={inputClass()} value={truck} onChange={(e) => setTruck(e.target.value)} list="trucks" required /></Field>
+              <Field label={t('dashboard.dispatch.new.trailer')}><input className={inputClass()} value={trailer} onChange={(e) => setTrailer(e.target.value)} list="trailers" required /></Field>
+              <Field label={t('dashboard.dispatch.new.priority')}>
                 <select className={inputClass()} value={priority} onChange={(e) => setPriority(e.target.value as Priority)}>
-                  {priorities.map((item) => <option key={item} value={item}>{priorityLabels[item]}</option>)}
+                  {priorities.map((item) => <option key={item} value={item}>{t(priorityLabelKeys[item])}</option>)}
                 </select>
               </Field>
-              <Field label="Начален час"><input className={inputClass()} type="time" value={startTime} onChange={(e) => setStartTime(e.target.value)} required /></Field>
-              <Field label="Краен час"><input className={inputClass()} type="time" value={endTime} onChange={(e) => setEndTime(e.target.value)} required /></Field>
+              <Field label={t('dashboard.dispatch.new.startTime')}><input className={inputClass()} type="time" value={startTime} onChange={(e) => setStartTime(e.target.value)} required /></Field>
+              <Field label={t('dashboard.dispatch.new.endTime')}><input className={inputClass()} type="time" value={endTime} onChange={(e) => setEndTime(e.target.value)} required /></Field>
             </div>
 
             <datalist id="drivers">{driverNames.map((item) => <option key={item} value={item} />)}</datalist>
@@ -250,27 +254,27 @@ export default function NewSchedulePage() {
 
           <div className="grid grid-cols-1 gap-5 xl:grid-cols-2">
             <section className="rounded-lg border border-background-200 bg-background-50 p-5">
-              <SectionHeader title="Товарения" icon="ri-download-2-line" onAdd={() => setPickups((items) => [...items, emptyPickup()])} />
+              <SectionHeader title={t('dashboard.dispatch.new.pickups')} icon="ri-download-2-line" addLabel={t('dashboard.dispatch.new.add')} onAdd={() => setPickups((items) => [...items, emptyPickup()])} />
               <div className="space-y-4">
                 {pickups.map((pickup, index) => (
-                  <StopCard key={pickup.id} title={`Товарене ${index + 1}`} onRemove={pickups.length > 1 ? () => setPickups((items) => items.filter((item) => item.id !== pickup.id)) : undefined}>
+                  <StopCard key={pickup.id} title={t('dashboard.dispatch.new.pickupNumber', { number: index + 1 })} removeLabel={t('dashboard.dispatch.new.remove')} onRemove={pickups.length > 1 ? () => setPickups((items) => items.filter((item) => item.id !== pickup.id)) : undefined}>
                     <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
-                      <Field label="Терминал"><input className={inputClass()} value={pickup.terminal} onChange={(e) => updatePickup(pickup.id, { terminal: e.target.value })} list="terminals" required /></Field>
-                      <Field label="Бележки"><input className={inputClass()} value={pickup.notes} onChange={(e) => updatePickup(pickup.id, { notes: e.target.value })} placeholder="Инструкции за товарене" /></Field>
+                      <Field label={t('dashboard.dispatch.new.terminal')}><input className={inputClass()} value={pickup.terminal} onChange={(e) => updatePickup(pickup.id, { terminal: e.target.value })} list="terminals" required /></Field>
+                      <Field label={t('dashboard.dispatch.new.notes')}><input className={inputClass()} value={pickup.notes} onChange={(e) => updatePickup(pickup.id, { notes: e.target.value })} placeholder={t('dashboard.dispatch.new.loadingInstructions')} /></Field>
                     </div>
 
-                    <NestedHeader title="Продукти за товарене" onAdd={() => updatePickup(pickup.id, { products: [...pickup.products, emptyPickupProduct()] })} />
+                    <NestedHeader title={t('dashboard.dispatch.new.pickupProducts')} addLabel={t('dashboard.dispatch.new.addProduct')} onAdd={() => updatePickup(pickup.id, { products: [...pickup.products, emptyPickupProduct()] })} />
                     {pickup.products.map((product, productIndex) => (
                       <div key={product.id} className="mt-3 rounded-md border border-background-200 p-3">
-                        <ProductHeader title={`Продукт ${productIndex + 1}`} onRemove={pickup.products.length > 1 ? () => updatePickup(pickup.id, { products: pickup.products.filter((item) => item.id !== product.id) }) : undefined} />
+                        <ProductHeader title={t('dashboard.dispatch.new.productNumber', { number: productIndex + 1 })} removeLabel={t('dashboard.dispatch.new.remove')} onRemove={pickup.products.length > 1 ? () => updatePickup(pickup.id, { products: pickup.products.filter((item) => item.id !== product.id) }) : undefined} />
                         <div className="mt-3 grid grid-cols-1 gap-3 md:grid-cols-2 2xl:grid-cols-3">
-                          <Field label="Продукт ID"><select className={inputClass()} value={product.productId} onChange={(e) => updatePickupProduct(pickup.id, product.id, { productId: e.target.value })}>{productOptions.map((item) => <option key={item}>{item}</option>)}</select></Field>
-                          <Field label="Доставчик"><input className={inputClass()} value={product.supplier} onChange={(e) => updatePickupProduct(pickup.id, product.id, { supplier: e.target.value })} list="suppliers" /></Field>
-                          <Field label="Отделение"><input className={inputClass()} value={product.compartment} onChange={(e) => updatePickupProduct(pickup.id, product.id, { compartment: e.target.value })} /></Field>
-                          <QuantityField label="Очаквано брутно количество" value={product.expectedGrossQuantity} onChange={(value) => updatePickupProduct(pickup.id, product.id, { expectedGrossQuantity: value })} />
-                          <QuantityField label="Брутно количество" value={product.grossQuantity} onChange={(value) => updatePickupProduct(pickup.id, product.id, { grossQuantity: value })} />
-                          <QuantityField label="Нетно количество" value={product.netQuantity} onChange={(value) => updatePickupProduct(pickup.id, product.id, { netQuantity: value })} />
-                          <ToggleField label="Смесен продукт" checked={product.blended} onChange={(checked) => updatePickupProduct(pickup.id, product.id, { blended: checked })} />
+                          <Field label={t('dashboard.dispatch.new.productId')}><select className={inputClass()} value={product.productId} onChange={(e) => updatePickupProduct(pickup.id, product.id, { productId: e.target.value })}>{productOptions.map((item) => <option key={item}>{item}</option>)}</select></Field>
+                          <Field label={t('dashboard.dispatch.new.supplier')}><input className={inputClass()} value={product.supplier} onChange={(e) => updatePickupProduct(pickup.id, product.id, { supplier: e.target.value })} list="suppliers" /></Field>
+                          <Field label={t('dashboard.dispatch.new.compartment')}><input className={inputClass()} value={product.compartment} onChange={(e) => updatePickupProduct(pickup.id, product.id, { compartment: e.target.value })} /></Field>
+                          <QuantityField label={t('dashboard.dispatch.new.expectedGrossQuantity')} value={product.expectedGrossQuantity} onChange={(value) => updatePickupProduct(pickup.id, product.id, { expectedGrossQuantity: value })} />
+                          <QuantityField label={t('dashboard.dispatch.new.grossQuantity')} value={product.grossQuantity} onChange={(value) => updatePickupProduct(pickup.id, product.id, { grossQuantity: value })} />
+                          <QuantityField label={t('dashboard.dispatch.new.netQuantity')} value={product.netQuantity} onChange={(value) => updatePickupProduct(pickup.id, product.id, { netQuantity: value })} />
+                          <ToggleField label={t('dashboard.dispatch.new.blendedProduct')} checked={product.blended} onChange={(checked) => updatePickupProduct(pickup.id, product.id, { blended: checked })} />
                         </div>
                       </div>
                     ))}
@@ -280,36 +284,36 @@ export default function NewSchedulePage() {
             </section>
 
             <section className="rounded-lg border border-background-200 bg-background-50 p-5">
-              <SectionHeader title="Доставки" icon="ri-upload-2-line" onAdd={() => setDeliveries((items) => [...items, emptyDelivery()])} />
+              <SectionHeader title={t('dashboard.dispatch.new.deliveries')} icon="ri-upload-2-line" addLabel={t('dashboard.dispatch.new.add')} onAdd={() => setDeliveries((items) => [...items, emptyDelivery()])} />
               <div className="space-y-4">
                 {deliveries.map((delivery, index) => (
-                  <StopCard key={delivery.id} title={`Доставка ${index + 1}`} onRemove={deliveries.length > 1 ? () => setDeliveries((items) => items.filter((item) => item.id !== delivery.id)) : undefined}>
+                  <StopCard key={delivery.id} title={t('dashboard.dispatch.new.deliveryNumber', { number: index + 1 })} removeLabel={t('dashboard.dispatch.new.remove')} onRemove={deliveries.length > 1 ? () => setDeliveries((items) => items.filter((item) => item.id !== delivery.id)) : undefined}>
                     <div className="grid grid-cols-1 gap-3 md:grid-cols-2 2xl:grid-cols-3">
-                      <Field label="Клиент"><input className={inputClass()} value={delivery.customer} onChange={(e) => updateDelivery(delivery.id, { customer: e.target.value })} required /></Field>
-                      <Field label="PO номер"><input className={inputClass()} value={delivery.poNumber} onChange={(e) => updateDelivery(delivery.id, { poNumber: e.target.value })} /></Field>
-                      <Field label="Талон за доставка"><input className={inputClass()} value={delivery.deliveryTicket} onChange={(e) => updateDelivery(delivery.id, { deliveryTicket: e.target.value })} /></Field>
-                      <Field label="Дата вход"><input className={inputClass()} type="date" value={delivery.dateIn} onChange={(e) => updateDelivery(delivery.id, { dateIn: e.target.value })} /></Field>
-                      <Field label="Час вход"><input className={inputClass()} type="time" value={delivery.timeIn} onChange={(e) => updateDelivery(delivery.id, { timeIn: e.target.value })} /></Field>
-                      <Field label="Дата изход"><input className={inputClass()} type="date" value={delivery.dateOut} onChange={(e) => updateDelivery(delivery.id, { dateOut: e.target.value })} /></Field>
-                      <Field label="Час изход"><input className={inputClass()} type="time" value={delivery.timeOut} onChange={(e) => updateDelivery(delivery.id, { timeOut: e.target.value })} /></Field>
-                      <Field label="Допълнителни услуги"><input className={inputClass()} value={delivery.accessorials} onChange={(e) => updateDelivery(delivery.id, { accessorials: e.target.value })} placeholder="Помпа, време за изчакване" /></Field>
-                      <Field label="Бележки"><input className={inputClass()} value={delivery.notes} onChange={(e) => updateDelivery(delivery.id, { notes: e.target.value })} /></Field>
+                      <Field label={t('dashboard.dispatch.new.customer')}><input className={inputClass()} value={delivery.customer} onChange={(e) => updateDelivery(delivery.id, { customer: e.target.value })} required /></Field>
+                      <Field label={t('dashboard.dispatch.new.poNumber')}><input className={inputClass()} value={delivery.poNumber} onChange={(e) => updateDelivery(delivery.id, { poNumber: e.target.value })} /></Field>
+                      <Field label={t('dashboard.dispatch.new.deliveryTicket')}><input className={inputClass()} value={delivery.deliveryTicket} onChange={(e) => updateDelivery(delivery.id, { deliveryTicket: e.target.value })} /></Field>
+                      <Field label={t('dashboard.dispatch.new.dateIn')}><input className={inputClass()} type="date" value={delivery.dateIn} onChange={(e) => updateDelivery(delivery.id, { dateIn: e.target.value })} /></Field>
+                      <Field label={t('dashboard.dispatch.new.timeIn')}><input className={inputClass()} type="time" value={delivery.timeIn} onChange={(e) => updateDelivery(delivery.id, { timeIn: e.target.value })} /></Field>
+                      <Field label={t('dashboard.dispatch.new.dateOut')}><input className={inputClass()} type="date" value={delivery.dateOut} onChange={(e) => updateDelivery(delivery.id, { dateOut: e.target.value })} /></Field>
+                      <Field label={t('dashboard.dispatch.new.timeOut')}><input className={inputClass()} type="time" value={delivery.timeOut} onChange={(e) => updateDelivery(delivery.id, { timeOut: e.target.value })} /></Field>
+                      <Field label={t('dashboard.dispatch.new.accessorials')}><input className={inputClass()} value={delivery.accessorials} onChange={(e) => updateDelivery(delivery.id, { accessorials: e.target.value })} placeholder={t('dashboard.dispatch.new.accessorialsPlaceholder')} /></Field>
+                      <Field label={t('dashboard.dispatch.new.notes')}><input className={inputClass()} value={delivery.notes} onChange={(e) => updateDelivery(delivery.id, { notes: e.target.value })} /></Field>
                     </div>
 
-                    <NestedHeader title="Продукти за доставка" onAdd={() => updateDelivery(delivery.id, { products: [...delivery.products, emptyDeliveryProduct()] })} />
+                    <NestedHeader title={t('dashboard.dispatch.new.deliveryProducts')} addLabel={t('dashboard.dispatch.new.addProduct')} onAdd={() => updateDelivery(delivery.id, { products: [...delivery.products, emptyDeliveryProduct()] })} />
                     {delivery.products.map((product, productIndex) => (
                       <div key={product.id} className="mt-3 rounded-md border border-background-200 p-3">
-                        <ProductHeader title={`Продукт ${productIndex + 1}`} onRemove={delivery.products.length > 1 ? () => updateDelivery(delivery.id, { products: delivery.products.filter((item) => item.id !== product.id) }) : undefined} />
+                        <ProductHeader title={t('dashboard.dispatch.new.productNumber', { number: productIndex + 1 })} removeLabel={t('dashboard.dispatch.new.remove')} onRemove={delivery.products.length > 1 ? () => updateDelivery(delivery.id, { products: delivery.products.filter((item) => item.id !== product.id) }) : undefined} />
                         <div className="mt-3 grid grid-cols-1 gap-3 md:grid-cols-2 2xl:grid-cols-3">
-                          <Field label="Продукт"><select className={inputClass()} value={product.product} onChange={(e) => updateDeliveryProduct(delivery.id, product.id, { product: e.target.value })}>{productOptions.map((item) => <option key={item}>{item}</option>)}</select></Field>
-                          <QuantityField label="Очаквано брутно количество" value={product.expectedGrossQuantity} onChange={(value) => updateDeliveryProduct(delivery.id, product.id, { expectedGrossQuantity: value })} />
-                          <QuantityField label="Брутно количество" value={product.grossQuantity} onChange={(value) => updateDeliveryProduct(delivery.id, product.id, { grossQuantity: value })} />
-                          <QuantityField label="Нетно количество" value={product.netQuantity} onChange={(value) => updateDeliveryProduct(delivery.id, product.id, { netQuantity: value })} />
-                          <QuantityField label="Начален обем в резервоара" value={product.initialTankVolume} onChange={(value) => updateDeliveryProduct(delivery.id, product.id, { initialTankVolume: value })} />
-                          <QuantityField label="Краен обем в резервоара" value={product.finalTankVolume} onChange={(value) => updateDeliveryProduct(delivery.id, product.id, { finalTankVolume: value })} />
-                          <Field label="Сериен номер на резервоар"><input className={inputClass()} value={product.tankSerialNumber} onChange={(e) => updateDeliveryProduct(delivery.id, product.id, { tankSerialNumber: e.target.value })} /></Field>
-                          <Field label="Цена"><input className={inputClass()} value={product.price} onChange={(e) => updateDeliveryProduct(delivery.id, product.id, { price: e.target.value })} placeholder="1.299" /></Field>
-                          <ToggleField label="Вода в резервоара" checked={product.waterInTank} onChange={(checked) => updateDeliveryProduct(delivery.id, product.id, { waterInTank: checked })} />
+                          <Field label={t('dashboard.dispatch.schedule.product')}><select className={inputClass()} value={product.product} onChange={(e) => updateDeliveryProduct(delivery.id, product.id, { product: e.target.value })}>{productOptions.map((item) => <option key={item}>{item}</option>)}</select></Field>
+                          <QuantityField label={t('dashboard.dispatch.new.expectedGrossQuantity')} value={product.expectedGrossQuantity} onChange={(value) => updateDeliveryProduct(delivery.id, product.id, { expectedGrossQuantity: value })} />
+                          <QuantityField label={t('dashboard.dispatch.new.grossQuantity')} value={product.grossQuantity} onChange={(value) => updateDeliveryProduct(delivery.id, product.id, { grossQuantity: value })} />
+                          <QuantityField label={t('dashboard.dispatch.new.netQuantity')} value={product.netQuantity} onChange={(value) => updateDeliveryProduct(delivery.id, product.id, { netQuantity: value })} />
+                          <QuantityField label={t('dashboard.dispatch.new.initialTankVolume')} value={product.initialTankVolume} onChange={(value) => updateDeliveryProduct(delivery.id, product.id, { initialTankVolume: value })} />
+                          <QuantityField label={t('dashboard.dispatch.new.finalTankVolume')} value={product.finalTankVolume} onChange={(value) => updateDeliveryProduct(delivery.id, product.id, { finalTankVolume: value })} />
+                          <Field label={t('dashboard.dispatch.new.tankSerialNumber')}><input className={inputClass()} value={product.tankSerialNumber} onChange={(e) => updateDeliveryProduct(delivery.id, product.id, { tankSerialNumber: e.target.value })} /></Field>
+                          <Field label={t('dashboard.dispatch.new.price')}><input className={inputClass()} value={product.price} onChange={(e) => updateDeliveryProduct(delivery.id, product.id, { price: e.target.value })} placeholder="1.299" /></Field>
+                          <ToggleField label={t('dashboard.dispatch.new.waterInTank')} checked={product.waterInTank} onChange={(checked) => updateDeliveryProduct(delivery.id, product.id, { waterInTank: checked })} />
                         </div>
                       </div>
                     ))}
@@ -321,11 +325,11 @@ export default function NewSchedulePage() {
 
           <div className="sticky bottom-0 flex items-center justify-end gap-2 border-t border-background-200 bg-background-50/95 py-4 backdrop-blur">
             <Link to="/dispatch" className="inline-flex items-center justify-center rounded-md border border-background-200 bg-background-50 px-4 py-2 text-sm font-semibold text-foreground-700 transition-colors hover:bg-background-100">
-              Отказ
+              {t('dashboard.dispatch.new.cancel')}
             </Link>
             <button type="submit" className="inline-flex items-center gap-1.5 rounded-md bg-primary-500 px-4 py-2 text-sm font-semibold text-background-50 transition-colors hover:bg-primary-600">
               <i className="ri-add-line text-sm leading-none" />
-              Създай график за курс
+              {t('dashboard.dispatch.new.createSchedule')}
             </button>
           </div>
         </form>
@@ -362,7 +366,7 @@ function ToggleField({ label, checked, onChange }: { label: string; checked: boo
   );
 }
 
-function SectionHeader({ title, icon, onAdd }: { title: string; icon: string; onAdd: () => void }) {
+function SectionHeader({ title, icon, addLabel, onAdd }: { title: string; icon: string; addLabel: string; onAdd: () => void }) {
   return (
     <div className="mb-4 flex items-center justify-between gap-3">
       <div className="flex items-center gap-2">
@@ -373,31 +377,31 @@ function SectionHeader({ title, icon, onAdd }: { title: string; icon: string; on
       </div>
       <button type="button" onClick={onAdd} className="inline-flex items-center gap-1 rounded-md border border-background-200 px-3 py-1.5 text-xs font-semibold text-foreground-700 transition-colors hover:bg-background-100">
         <i className="ri-add-line text-sm leading-none" />
-        Добави
+        {addLabel}
       </button>
     </div>
   );
 }
 
-function NestedHeader({ title, onAdd }: { title: string; onAdd: () => void }) {
+function NestedHeader({ title, addLabel, onAdd }: { title: string; addLabel: string; onAdd: () => void }) {
   return (
     <div className="mt-4 flex items-center justify-between gap-3 border-t border-background-200 pt-4">
       <h3 className="text-sm font-semibold text-foreground-800">{title}</h3>
       <button type="button" onClick={onAdd} className="inline-flex items-center gap-1 rounded-md px-2 py-1 text-xs font-semibold text-primary-700 transition-colors hover:bg-primary-50">
         <i className="ri-add-line text-sm leading-none" />
-        Добави продукт
+        {addLabel}
       </button>
     </div>
   );
 }
 
-function StopCard({ title, onRemove, children }: { title: string; onRemove?: () => void; children: ReactNode }) {
+function StopCard({ title, removeLabel, onRemove, children }: { title: string; removeLabel: string; onRemove?: () => void; children: ReactNode }) {
   return (
     <div className="rounded-lg border border-background-200 bg-white p-4">
       <div className="mb-4 flex items-center justify-between">
         <h3 className="text-sm font-bold text-foreground-900">{title}</h3>
         {onRemove && (
-          <button type="button" onClick={onRemove} className="inline-flex h-8 w-8 items-center justify-center rounded-md text-foreground-400 transition-colors hover:bg-secondary-50 hover:text-secondary-700" aria-label={`Remove ${title}`}>
+          <button type="button" onClick={onRemove} className="inline-flex h-8 w-8 items-center justify-center rounded-md text-foreground-400 transition-colors hover:bg-secondary-50 hover:text-secondary-700" aria-label={`${removeLabel} ${title}`}>
             <i className="ri-delete-bin-line text-base leading-none" />
           </button>
         )}
@@ -407,12 +411,12 @@ function StopCard({ title, onRemove, children }: { title: string; onRemove?: () 
   );
 }
 
-function ProductHeader({ title, onRemove }: { title: string; onRemove?: () => void }) {
+function ProductHeader({ title, removeLabel, onRemove }: { title: string; removeLabel: string; onRemove?: () => void }) {
   return (
     <div className="flex items-center justify-between">
       <p className="text-xs font-semibold text-foreground-600">{title}</p>
       {onRemove && (
-        <button type="button" onClick={onRemove} className="inline-flex h-7 w-7 items-center justify-center rounded-md text-foreground-400 transition-colors hover:bg-secondary-50 hover:text-secondary-700" aria-label={`Remove ${title}`}>
+        <button type="button" onClick={onRemove} className="inline-flex h-7 w-7 items-center justify-center rounded-md text-foreground-400 transition-colors hover:bg-secondary-50 hover:text-secondary-700" aria-label={`${removeLabel} ${title}`}>
           <i className="ri-close-line text-base leading-none" />
         </button>
       )}

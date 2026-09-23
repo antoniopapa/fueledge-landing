@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { Link, useNavigate } from 'react-router-dom';
 import DashboardShell from '@/pages/dashboard/components/DashboardShell';
 import { addScheduleRun } from '@/pages/dashboard/dispatch/dispatchStore';
+import { customers } from '@/mocks/customers';
 import { drivers as driverMocks } from '@/mocks/drivers';
 import { trailers, trucks } from '@/mocks/fleet';
 import { suppliers, terminals } from '@/mocks/sourcing';
@@ -13,16 +14,15 @@ interface PickupProduct {
   id: string;
   productId: string;
   supplier: string;
-  compartment: string;
   expectedGrossQuantity: string;
-  grossQuantity: string;
-  netQuantity: string;
-  blended: boolean;
 }
 
 interface Pickup {
+  kind: 'pickup';
   id: string;
   terminal: string;
+  expanded: boolean;
+  notesVisible: boolean;
   notes: string;
   products: PickupProduct[];
 }
@@ -31,28 +31,19 @@ interface DeliveryProduct {
   id: string;
   product: string;
   expectedGrossQuantity: string;
-  grossQuantity: string;
-  netQuantity: string;
-  initialTankVolume: string;
-  finalTankVolume: string;
-  tankSerialNumber: string;
-  waterInTank: boolean;
-  price: string;
 }
 
 interface Delivery {
+  kind: 'delivery';
   id: string;
   customer: string;
-  poNumber: string;
-  timeIn: string;
-  timeOut: string;
-  dateIn: string;
-  dateOut: string;
-  accessorials: string;
-  deliveryTicket: string;
+  expanded: boolean;
+  notesVisible: boolean;
   notes: string;
   products: DeliveryProduct[];
 }
+
+type Stop = Pickup | Delivery;
 
 const priorities: Priority[] = ['Normal', 'High', 'Critical', 'Low'];
 const priorityLabelKeys: Record<Priority, string> = {
@@ -80,18 +71,17 @@ function emptyPickupProduct(): PickupProduct {
     id: makeId('pickup-product'),
     productId: 'Diesel EN590',
     supplier: '',
-    compartment: '1',
     expectedGrossQuantity: '',
-    grossQuantity: '',
-    netQuantity: '',
-    blended: false,
   };
 }
 
 function emptyPickup(): Pickup {
   return {
+    kind: 'pickup',
     id: makeId('pickup'),
     terminal: '',
+    expanded: true,
+    notesVisible: false,
     notes: '',
     products: [emptyPickupProduct()],
   };
@@ -102,27 +92,16 @@ function emptyDeliveryProduct(): DeliveryProduct {
     id: makeId('delivery-product'),
     product: 'Diesel EN590',
     expectedGrossQuantity: '',
-    grossQuantity: '',
-    netQuantity: '',
-    initialTankVolume: '',
-    finalTankVolume: '',
-    tankSerialNumber: '',
-    waterInTank: false,
-    price: '',
   };
 }
 
 function emptyDelivery(): Delivery {
   return {
+    kind: 'delivery',
     id: makeId('delivery'),
     customer: '',
-    poNumber: '',
-    timeIn: '',
-    timeOut: '',
-    dateIn: '',
-    dateOut: '',
-    accessorials: '',
-    deliveryTicket: '',
+    expanded: true,
+    notesVisible: false,
     notes: '',
     products: [emptyDeliveryProduct()],
   };
@@ -137,6 +116,14 @@ function totalExpectedVolume(pickups: Pickup[]) {
   return total > 0 ? `${total.toLocaleString()} L` : '0 L';
 }
 
+function moveItem<T>(items: T[], from: number, to: number): T[] {
+  if (to < 0 || to >= items.length) return items;
+  const next = [...items];
+  const [item] = next.splice(from, 1);
+  next.splice(to, 0, item);
+  return next;
+}
+
 export default function NewSchedulePage() {
   const { t } = useTranslation();
   const navigate = useNavigate();
@@ -145,6 +132,7 @@ export default function NewSchedulePage() {
   const trailerPlates = useMemo(() => trailers.map((trailer) => trailer.plate), []);
   const terminalNames = useMemo(() => terminals.map((terminal) => terminal.name), []);
   const supplierNames = useMemo(() => suppliers.map((supplier) => supplier.name), []);
+  const customerNames = useMemo(() => customers.map((customer) => customer.name), []);
 
   const [driver, setDriver] = useState(driverNames[0] ?? '');
   const [truck, setTruck] = useState(truckPlates[0] ?? '');
@@ -152,33 +140,32 @@ export default function NewSchedulePage() {
   const [priority, setPriority] = useState<Priority>('Normal');
   const [startTime, setStartTime] = useState('09:00');
   const [endTime, setEndTime] = useState('11:00');
-  const [pickups, setPickups] = useState<Pickup[]>([emptyPickup()]);
-  const [deliveries, setDeliveries] = useState<Delivery[]>([emptyDelivery()]);
+  const [stops, setStops] = useState<Stop[]>([emptyPickup(), emptyDelivery()]);
 
   function updatePickup(id: string, patch: Partial<Pickup>) {
-    setPickups((items) => items.map((item) => (item.id === id ? { ...item, ...patch } : item)));
+    setStops((items) => items.map((item) => (item.kind === 'pickup' && item.id === id ? { ...item, ...patch } : item)));
   }
 
   function updatePickupProduct(pickupId: string, productId: string, patch: Partial<PickupProduct>) {
-    setPickups((items) =>
-      items.map((pickup) =>
-        pickup.id === pickupId
-          ? { ...pickup, products: pickup.products.map((product) => (product.id === productId ? { ...product, ...patch } : product)) }
-          : pickup,
+    setStops((items) =>
+      items.map((stop) =>
+        stop.kind === 'pickup' && stop.id === pickupId
+          ? { ...stop, products: stop.products.map((product) => (product.id === productId ? { ...product, ...patch } : product)) }
+          : stop,
       ),
     );
   }
 
   function updateDelivery(id: string, patch: Partial<Delivery>) {
-    setDeliveries((items) => items.map((item) => (item.id === id ? { ...item, ...patch } : item)));
+    setStops((items) => items.map((item) => (item.kind === 'delivery' && item.id === id ? { ...item, ...patch } : item)));
   }
 
   function updateDeliveryProduct(deliveryId: string, productId: string, patch: Partial<DeliveryProduct>) {
-    setDeliveries((items) =>
-      items.map((delivery) =>
-        delivery.id === deliveryId
-          ? { ...delivery, products: delivery.products.map((product) => (product.id === productId ? { ...product, ...patch } : product)) }
-          : delivery,
+    setStops((items) =>
+      items.map((stop) =>
+        stop.kind === 'delivery' && stop.id === deliveryId
+          ? { ...stop, products: stop.products.map((product) => (product.id === productId ? { ...product, ...patch } : product)) }
+          : stop,
       ),
     );
   }
@@ -186,8 +173,9 @@ export default function NewSchedulePage() {
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const id = String(Date.now()).slice(-6);
+    const pickups = stops.filter((stop): stop is Pickup => stop.kind === 'pickup');
     const firstPickup = pickups[0];
-    const firstDelivery = deliveries[0];
+    const firstDelivery = stops.find((stop): stop is Delivery => stop.kind === 'delivery');
     const pickupProduct = firstPickup?.products[0];
     const deliveryProduct = firstDelivery?.products[0];
 
@@ -250,77 +238,100 @@ export default function NewSchedulePage() {
             <datalist id="trailers">{trailerPlates.map((item) => <option key={item} value={item} />)}</datalist>
             <datalist id="terminals">{terminalNames.map((item) => <option key={item} value={item} />)}</datalist>
             <datalist id="suppliers">{supplierNames.map((item) => <option key={item} value={item} />)}</datalist>
+            <datalist id="customers">{customerNames.map((item) => <option key={item} value={item} />)}</datalist>
           </section>
 
-          <div className="grid grid-cols-1 gap-5 xl:grid-cols-2">
-            <section className="rounded-lg border border-background-200 bg-background-50 p-5">
-              <SectionHeader title={t('dashboard.dispatch.new.pickups')} icon="ri-download-2-line" addLabel={t('dashboard.dispatch.new.add')} onAdd={() => setPickups((items) => [...items, emptyPickup()])} />
-              <div className="space-y-4">
-                {pickups.map((pickup, index) => (
-                  <StopCard key={pickup.id} title={t('dashboard.dispatch.new.pickupNumber', { number: index + 1 })} removeLabel={t('dashboard.dispatch.new.remove')} onRemove={pickups.length > 1 ? () => setPickups((items) => items.filter((item) => item.id !== pickup.id)) : undefined}>
-                    <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
-                      <Field label={t('dashboard.dispatch.new.terminal')}><input className={inputClass()} value={pickup.terminal} onChange={(e) => updatePickup(pickup.id, { terminal: e.target.value })} list="terminals" required /></Field>
-                      <Field label={t('dashboard.dispatch.new.notes')}><input className={inputClass()} value={pickup.notes} onChange={(e) => updatePickup(pickup.id, { notes: e.target.value })} placeholder={t('dashboard.dispatch.new.loadingInstructions')} /></Field>
+          <div className="space-y-4">
+            <div className="flex flex-wrap justify-end gap-2">
+              <button type="button" onClick={() => setStops((items) => [...items, emptyPickup()])} className="inline-flex items-center gap-1 rounded-md border border-background-200 px-3 py-1.5 text-xs font-semibold text-foreground-700 transition-colors hover:bg-background-100">
+                <i className="ri-download-2-line text-sm leading-none" />
+                {t('dashboard.dispatch.new.add')} {t('dashboard.dispatch.schedule.pickup')}
+              </button>
+              <button type="button" onClick={() => setStops((items) => [...items, emptyDelivery()])} className="inline-flex items-center gap-1 rounded-md border border-background-200 px-3 py-1.5 text-xs font-semibold text-foreground-700 transition-colors hover:bg-background-100">
+                <i className="ri-upload-2-line text-sm leading-none" />
+                {t('dashboard.dispatch.new.add')} {t('dashboard.dispatch.schedule.delivery')}
+              </button>
+            </div>
+            <div className="relative space-y-4 before:absolute before:bottom-4 before:left-1/2 before:top-4 before:w-px before:-translate-x-1/2 before:bg-background-300">
+              {stops.map((stop, index) =>
+                stop.kind === 'pickup' ? (
+                  <StopCard
+                    key={stop.id}
+                    title={t('dashboard.dispatch.new.pickupNumber', { number: index + 1 })}
+                    summary={stop.terminal || t('dashboard.dispatch.new.terminal')}
+                    expanded={stop.expanded}
+                    onToggle={() => updatePickup(stop.id, { expanded: !stop.expanded })}
+                    onMoveUp={index > 0 ? () => setStops((items) => moveItem(items, index, index - 1)) : undefined}
+                    onMoveDown={index < stops.length - 1 ? () => setStops((items) => moveItem(items, index, index + 1)) : undefined}
+                    removeLabel={t('dashboard.dispatch.new.remove')}
+                    onRemove={stops.length > 1 ? () => setStops((items) => items.filter((item) => item.id !== stop.id)) : undefined}
+                  >
+                    <div className="grid grid-cols-1 gap-3">
+                      <Field label={t('dashboard.dispatch.new.terminal')}><input className={inputClass()} value={stop.terminal} onChange={(e) => updatePickup(stop.id, { terminal: e.target.value })} list="terminals" required /></Field>
                     </div>
+                    {stop.notesVisible ? (
+                      <Field label={t('dashboard.dispatch.new.notes')}>
+                        <textarea className={`${inputClass()} min-h-24 resize-y`} value={stop.notes} onChange={(e) => updatePickup(stop.id, { notes: e.target.value })} placeholder={t('dashboard.dispatch.new.loadingInstructions')} />
+                      </Field>
+                    ) : (
+                      <button type="button" onClick={() => updatePickup(stop.id, { notesVisible: true })} className="mt-3 ml-auto flex w-fit items-center gap-1 rounded-md px-2 py-1 text-xs font-semibold text-primary-700 transition-colors hover:bg-primary-50">
+                        <i className="ri-add-line text-sm leading-none" />
+                        {t('dashboard.dispatch.new.addNotes')}
+                      </button>
+                    )}
 
-                    <NestedHeader title={t('dashboard.dispatch.new.pickupProducts')} addLabel={t('dashboard.dispatch.new.addProduct')} onAdd={() => updatePickup(pickup.id, { products: [...pickup.products, emptyPickupProduct()] })} />
-                    {pickup.products.map((product, productIndex) => (
+                    <NestedHeader title={t('dashboard.dispatch.new.pickupProducts')} addLabel={t('dashboard.dispatch.new.addProduct')} onAdd={() => updatePickup(stop.id, { products: [...stop.products, emptyPickupProduct()] })} />
+                    {stop.products.map((product, productIndex) => (
                       <div key={product.id} className="mt-3 rounded-md border border-background-200 p-3">
-                        <ProductHeader title={t('dashboard.dispatch.new.productNumber', { number: productIndex + 1 })} removeLabel={t('dashboard.dispatch.new.remove')} onRemove={pickup.products.length > 1 ? () => updatePickup(pickup.id, { products: pickup.products.filter((item) => item.id !== product.id) }) : undefined} />
+                        <ProductHeader title={t('dashboard.dispatch.new.productNumber', { number: productIndex + 1 })} removeLabel={t('dashboard.dispatch.new.remove')} onRemove={stop.products.length > 1 ? () => updatePickup(stop.id, { products: stop.products.filter((item) => item.id !== product.id) }) : undefined} />
                         <div className="mt-3 grid grid-cols-1 gap-3 md:grid-cols-2 2xl:grid-cols-3">
-                          <Field label={t('dashboard.dispatch.new.productId')}><select className={inputClass()} value={product.productId} onChange={(e) => updatePickupProduct(pickup.id, product.id, { productId: e.target.value })}>{productOptions.map((item) => <option key={item}>{item}</option>)}</select></Field>
-                          <Field label={t('dashboard.dispatch.new.supplier')}><input className={inputClass()} value={product.supplier} onChange={(e) => updatePickupProduct(pickup.id, product.id, { supplier: e.target.value })} list="suppliers" /></Field>
-                          <Field label={t('dashboard.dispatch.new.compartment')}><input className={inputClass()} value={product.compartment} onChange={(e) => updatePickupProduct(pickup.id, product.id, { compartment: e.target.value })} /></Field>
-                          <QuantityField label={t('dashboard.dispatch.new.expectedGrossQuantity')} value={product.expectedGrossQuantity} onChange={(value) => updatePickupProduct(pickup.id, product.id, { expectedGrossQuantity: value })} />
-                          <QuantityField label={t('dashboard.dispatch.new.grossQuantity')} value={product.grossQuantity} onChange={(value) => updatePickupProduct(pickup.id, product.id, { grossQuantity: value })} />
-                          <QuantityField label={t('dashboard.dispatch.new.netQuantity')} value={product.netQuantity} onChange={(value) => updatePickupProduct(pickup.id, product.id, { netQuantity: value })} />
-                          <ToggleField label={t('dashboard.dispatch.new.blendedProduct')} checked={product.blended} onChange={(checked) => updatePickupProduct(pickup.id, product.id, { blended: checked })} />
+                          <Field label={t('dashboard.dispatch.new.productId')}><select className={inputClass()} value={product.productId} onChange={(e) => updatePickupProduct(stop.id, product.id, { productId: e.target.value })}>{productOptions.map((item) => <option key={item}>{item}</option>)}</select></Field>
+                          <Field label={t('dashboard.dispatch.new.supplier')}><input className={inputClass()} value={product.supplier} onChange={(e) => updatePickupProduct(stop.id, product.id, { supplier: e.target.value })} list="suppliers" /></Field>
+                          <QuantityField label={t('dashboard.dispatch.new.expectedGrossQuantity')} value={product.expectedGrossQuantity} onChange={(value) => updatePickupProduct(stop.id, product.id, { expectedGrossQuantity: value })} />
                         </div>
                       </div>
                     ))}
                   </StopCard>
-                ))}
-              </div>
-            </section>
-
-            <section className="rounded-lg border border-background-200 bg-background-50 p-5">
-              <SectionHeader title={t('dashboard.dispatch.new.deliveries')} icon="ri-upload-2-line" addLabel={t('dashboard.dispatch.new.add')} onAdd={() => setDeliveries((items) => [...items, emptyDelivery()])} />
-              <div className="space-y-4">
-                {deliveries.map((delivery, index) => (
-                  <StopCard key={delivery.id} title={t('dashboard.dispatch.new.deliveryNumber', { number: index + 1 })} removeLabel={t('dashboard.dispatch.new.remove')} onRemove={deliveries.length > 1 ? () => setDeliveries((items) => items.filter((item) => item.id !== delivery.id)) : undefined}>
-                    <div className="grid grid-cols-1 gap-3 md:grid-cols-2 2xl:grid-cols-3">
-                      <Field label={t('dashboard.dispatch.new.customer')}><input className={inputClass()} value={delivery.customer} onChange={(e) => updateDelivery(delivery.id, { customer: e.target.value })} required /></Field>
-                      <Field label={t('dashboard.dispatch.new.poNumber')}><input className={inputClass()} value={delivery.poNumber} onChange={(e) => updateDelivery(delivery.id, { poNumber: e.target.value })} /></Field>
-                      <Field label={t('dashboard.dispatch.new.deliveryTicket')}><input className={inputClass()} value={delivery.deliveryTicket} onChange={(e) => updateDelivery(delivery.id, { deliveryTicket: e.target.value })} /></Field>
-                      <Field label={t('dashboard.dispatch.new.dateIn')}><input className={inputClass()} type="date" value={delivery.dateIn} onChange={(e) => updateDelivery(delivery.id, { dateIn: e.target.value })} /></Field>
-                      <Field label={t('dashboard.dispatch.new.timeIn')}><input className={inputClass()} type="time" value={delivery.timeIn} onChange={(e) => updateDelivery(delivery.id, { timeIn: e.target.value })} /></Field>
-                      <Field label={t('dashboard.dispatch.new.dateOut')}><input className={inputClass()} type="date" value={delivery.dateOut} onChange={(e) => updateDelivery(delivery.id, { dateOut: e.target.value })} /></Field>
-                      <Field label={t('dashboard.dispatch.new.timeOut')}><input className={inputClass()} type="time" value={delivery.timeOut} onChange={(e) => updateDelivery(delivery.id, { timeOut: e.target.value })} /></Field>
-                      <Field label={t('dashboard.dispatch.new.accessorials')}><input className={inputClass()} value={delivery.accessorials} onChange={(e) => updateDelivery(delivery.id, { accessorials: e.target.value })} placeholder={t('dashboard.dispatch.new.accessorialsPlaceholder')} /></Field>
-                      <Field label={t('dashboard.dispatch.new.notes')}><input className={inputClass()} value={delivery.notes} onChange={(e) => updateDelivery(delivery.id, { notes: e.target.value })} /></Field>
+                ) : (
+                  <StopCard
+                    key={stop.id}
+                    title={t('dashboard.dispatch.new.deliveryNumber', { number: index + 1 })}
+                    summary={stop.customer || t('dashboard.dispatch.new.customer')}
+                    expanded={stop.expanded}
+                    onToggle={() => updateDelivery(stop.id, { expanded: !stop.expanded })}
+                    onMoveUp={index > 0 ? () => setStops((items) => moveItem(items, index, index - 1)) : undefined}
+                    onMoveDown={index < stops.length - 1 ? () => setStops((items) => moveItem(items, index, index + 1)) : undefined}
+                    removeLabel={t('dashboard.dispatch.new.remove')}
+                    onRemove={stops.length > 1 ? () => setStops((items) => items.filter((item) => item.id !== stop.id)) : undefined}
+                  >
+                    <div className="grid grid-cols-1 gap-3">
+                      <Field label={t('dashboard.dispatch.new.customer')}><input className={inputClass()} value={stop.customer} onChange={(e) => updateDelivery(stop.id, { customer: e.target.value })} list="customers" required /></Field>
                     </div>
+                    {stop.notesVisible ? (
+                      <Field label={t('dashboard.dispatch.new.notes')}>
+                        <textarea className={`${inputClass()} min-h-24 resize-y`} value={stop.notes} onChange={(e) => updateDelivery(stop.id, { notes: e.target.value })} />
+                      </Field>
+                    ) : (
+                      <button type="button" onClick={() => updateDelivery(stop.id, { notesVisible: true })} className="mt-3 ml-auto flex w-fit items-center gap-1 rounded-md px-2 py-1 text-xs font-semibold text-primary-700 transition-colors hover:bg-primary-50">
+                        <i className="ri-add-line text-sm leading-none" />
+                        {t('dashboard.dispatch.new.addNotes')}
+                      </button>
+                    )}
 
-                    <NestedHeader title={t('dashboard.dispatch.new.deliveryProducts')} addLabel={t('dashboard.dispatch.new.addProduct')} onAdd={() => updateDelivery(delivery.id, { products: [...delivery.products, emptyDeliveryProduct()] })} />
-                    {delivery.products.map((product, productIndex) => (
+                    <NestedHeader title={t('dashboard.dispatch.new.deliveryProducts')} addLabel={t('dashboard.dispatch.new.addProduct')} onAdd={() => updateDelivery(stop.id, { products: [...stop.products, emptyDeliveryProduct()] })} />
+                    {stop.products.map((product, productIndex) => (
                       <div key={product.id} className="mt-3 rounded-md border border-background-200 p-3">
-                        <ProductHeader title={t('dashboard.dispatch.new.productNumber', { number: productIndex + 1 })} removeLabel={t('dashboard.dispatch.new.remove')} onRemove={delivery.products.length > 1 ? () => updateDelivery(delivery.id, { products: delivery.products.filter((item) => item.id !== product.id) }) : undefined} />
+                        <ProductHeader title={t('dashboard.dispatch.new.productNumber', { number: productIndex + 1 })} removeLabel={t('dashboard.dispatch.new.remove')} onRemove={stop.products.length > 1 ? () => updateDelivery(stop.id, { products: stop.products.filter((item) => item.id !== product.id) }) : undefined} />
                         <div className="mt-3 grid grid-cols-1 gap-3 md:grid-cols-2 2xl:grid-cols-3">
-                          <Field label={t('dashboard.dispatch.schedule.product')}><select className={inputClass()} value={product.product} onChange={(e) => updateDeliveryProduct(delivery.id, product.id, { product: e.target.value })}>{productOptions.map((item) => <option key={item}>{item}</option>)}</select></Field>
-                          <QuantityField label={t('dashboard.dispatch.new.expectedGrossQuantity')} value={product.expectedGrossQuantity} onChange={(value) => updateDeliveryProduct(delivery.id, product.id, { expectedGrossQuantity: value })} />
-                          <QuantityField label={t('dashboard.dispatch.new.grossQuantity')} value={product.grossQuantity} onChange={(value) => updateDeliveryProduct(delivery.id, product.id, { grossQuantity: value })} />
-                          <QuantityField label={t('dashboard.dispatch.new.netQuantity')} value={product.netQuantity} onChange={(value) => updateDeliveryProduct(delivery.id, product.id, { netQuantity: value })} />
-                          <QuantityField label={t('dashboard.dispatch.new.initialTankVolume')} value={product.initialTankVolume} onChange={(value) => updateDeliveryProduct(delivery.id, product.id, { initialTankVolume: value })} />
-                          <QuantityField label={t('dashboard.dispatch.new.finalTankVolume')} value={product.finalTankVolume} onChange={(value) => updateDeliveryProduct(delivery.id, product.id, { finalTankVolume: value })} />
-                          <Field label={t('dashboard.dispatch.new.tankSerialNumber')}><input className={inputClass()} value={product.tankSerialNumber} onChange={(e) => updateDeliveryProduct(delivery.id, product.id, { tankSerialNumber: e.target.value })} /></Field>
-                          <Field label={t('dashboard.dispatch.new.price')}><input className={inputClass()} value={product.price} onChange={(e) => updateDeliveryProduct(delivery.id, product.id, { price: e.target.value })} placeholder="1.299" /></Field>
-                          <ToggleField label={t('dashboard.dispatch.new.waterInTank')} checked={product.waterInTank} onChange={(checked) => updateDeliveryProduct(delivery.id, product.id, { waterInTank: checked })} />
+                          <Field label={t('dashboard.dispatch.schedule.product')}><select className={inputClass()} value={product.product} onChange={(e) => updateDeliveryProduct(stop.id, product.id, { product: e.target.value })}>{productOptions.map((item) => <option key={item}>{item}</option>)}</select></Field>
+                          <QuantityField label={t('dashboard.dispatch.new.expectedGrossQuantity')} value={product.expectedGrossQuantity} onChange={(value) => updateDeliveryProduct(stop.id, product.id, { expectedGrossQuantity: value })} />
                         </div>
                       </div>
                     ))}
                   </StopCard>
-                ))}
-              </div>
-            </section>
+                ),
+              )}
+            </div>
           </div>
 
           <div className="sticky bottom-0 flex items-center justify-end gap-2 border-t border-background-200 bg-background-50/95 py-4 backdrop-blur">
@@ -355,34 +366,6 @@ function QuantityField({ label, value, onChange }: { label: string; value: strin
   );
 }
 
-function ToggleField({ label, checked, onChange }: { label: string; checked: boolean; onChange: (checked: boolean) => void }) {
-  return (
-    <label className="flex h-full min-h-[66px] items-end">
-      <span className="flex w-full items-center justify-between rounded-md border border-background-200 bg-background-50 px-3 py-2">
-        <span className={labelClass()}>{label}</span>
-        <input className="h-4 w-4 accent-primary-500" type="checkbox" checked={checked} onChange={(event) => onChange(event.target.checked)} />
-      </span>
-    </label>
-  );
-}
-
-function SectionHeader({ title, icon, addLabel, onAdd }: { title: string; icon: string; addLabel: string; onAdd: () => void }) {
-  return (
-    <div className="mb-4 flex items-center justify-between gap-3">
-      <div className="flex items-center gap-2">
-        <span className="flex h-8 w-8 items-center justify-center rounded-md bg-background-100 text-foreground-600">
-          <i className={`${icon} text-base leading-none`} />
-        </span>
-        <h2 className="font-heading text-lg font-bold text-foreground-950">{title}</h2>
-      </div>
-      <button type="button" onClick={onAdd} className="inline-flex items-center gap-1 rounded-md border border-background-200 px-3 py-1.5 text-xs font-semibold text-foreground-700 transition-colors hover:bg-background-100">
-        <i className="ri-add-line text-sm leading-none" />
-        {addLabel}
-      </button>
-    </div>
-  );
-}
-
 function NestedHeader({ title, addLabel, onAdd }: { title: string; addLabel: string; onAdd: () => void }) {
   return (
     <div className="mt-4 flex items-center justify-between gap-3 border-t border-background-200 pt-4">
@@ -395,18 +378,58 @@ function NestedHeader({ title, addLabel, onAdd }: { title: string; addLabel: str
   );
 }
 
-function StopCard({ title, removeLabel, onRemove, children }: { title: string; removeLabel: string; onRemove?: () => void; children: ReactNode }) {
+function StopCard({
+  title,
+  summary,
+  expanded,
+  onToggle,
+  onMoveUp,
+  onMoveDown,
+  removeLabel,
+  onRemove,
+  children,
+}: {
+  title: string;
+  summary: string;
+  expanded: boolean;
+  onToggle: () => void;
+  onMoveUp?: () => void;
+  onMoveDown?: () => void;
+  removeLabel: string;
+  onRemove?: () => void;
+  children: ReactNode;
+}) {
   return (
-    <div className="rounded-lg border border-background-200 bg-white p-4">
-      <div className="mb-4 flex items-center justify-between">
-        <h3 className="text-sm font-bold text-foreground-900">{title}</h3>
-        {onRemove && (
-          <button type="button" onClick={onRemove} className="inline-flex h-8 w-8 items-center justify-center rounded-md text-foreground-400 transition-colors hover:bg-secondary-50 hover:text-secondary-700" aria-label={`${removeLabel} ${title}`}>
-            <i className="ri-delete-bin-line text-base leading-none" />
+    <div className="relative z-10 rounded-lg border border-background-200 bg-white p-4">
+      <div className={expanded ? 'mb-4 flex items-center justify-between gap-3' : 'flex items-center justify-between gap-3'}>
+        <button type="button" onClick={onToggle} className="flex min-w-0 flex-1 items-center gap-2 text-left">
+          <span className="min-w-0">
+            <span className="block text-sm font-bold text-foreground-900">{title}</span>
+            {!expanded && <span className="mt-0.5 block truncate text-xs font-medium text-foreground-500">{summary}</span>}
+          </span>
+        </button>
+        <div className="flex items-center gap-1">
+          {onMoveUp && (
+            <button type="button" onClick={onMoveUp} className="inline-flex h-8 w-8 items-center justify-center rounded-md text-foreground-400 transition-colors hover:bg-background-100 hover:text-foreground-700" aria-label={`Move ${title} up`}>
+              <i className="ri-arrow-up-line text-base leading-none" />
+            </button>
+          )}
+          {onMoveDown && (
+            <button type="button" onClick={onMoveDown} className="inline-flex h-8 w-8 items-center justify-center rounded-md text-foreground-400 transition-colors hover:bg-background-100 hover:text-foreground-700" aria-label={`Move ${title} down`}>
+              <i className="ri-arrow-down-line text-base leading-none" />
+            </button>
+          )}
+          {onRemove && (
+            <button type="button" onClick={onRemove} className="inline-flex h-8 w-8 items-center justify-center rounded-md text-foreground-400 transition-colors hover:bg-secondary-50 hover:text-secondary-700" aria-label={`${removeLabel} ${title}`}>
+              <i className="ri-delete-bin-line text-base leading-none" />
+            </button>
+          )}
+          <button type="button" onClick={onToggle} className="inline-flex h-8 w-8 items-center justify-center rounded-md text-foreground-400 transition-colors hover:bg-background-100 hover:text-foreground-700" aria-label={title}>
+            <i className={`ri-arrow-down-s-line text-base leading-none transition-transform ${expanded ? '' : '-rotate-90'}`} />
           </button>
-        )}
+        </div>
       </div>
-      {children}
+      {expanded && children}
     </div>
   );
 }

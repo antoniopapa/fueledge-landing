@@ -142,6 +142,7 @@ export default {
         pickupNumber: 'Pickup {{number}}',
         terminal: 'Terminal',
         notes: 'Notes',
+        addNotes: 'Add notes',
         loadingInstructions: 'Loading instructions',
         pickupProducts: 'Pickup products',
         productNumber: 'Product {{number}}',

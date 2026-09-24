@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import ModuleShell from '@/pages/dashboard/components/ModuleShell';
-import { products as mockProducts, type Product } from '@/mocks/settings';
-import { suppliers as mockSuppliers, terminals as mockTerminals, type Supplier, type Terminal } from '@/mocks/sourcing';
+import type { Product } from '@/mocks/settings';
+import type { Supplier, Terminal } from '@/mocks/sourcing';
 import { createProduct, deleteProduct, fetchProducts, fetchSuppliers, fetchTerminals, updateProduct } from '@/mocks/schedule';
 
 function terminalCount(productName: string, terminals: Terminal[]) {
@@ -19,9 +19,9 @@ function productStatus(active: boolean) {
 }
 
 export default function ProductsPage() {
-  const [products, setProducts] = useState<Product[]>(mockProducts);
-  const [terminals, setTerminals] = useState<Terminal[]>(mockTerminals);
-  const [suppliers, setSuppliers] = useState<Supplier[]>(mockSuppliers);
+  const [products, setProducts] = useState<Product[]>([]);
+  const [terminals, setTerminals] = useState<Terminal[]>([]);
+  const [suppliers, setSuppliers] = useState<Supplier[]>([]);
 
   useEffect(() => {
     let active = true;

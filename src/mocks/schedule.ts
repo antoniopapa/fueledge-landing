@@ -1,8 +1,9 @@
 import type { Supplier, Terminal, TerminalStatus } from './sourcing';
 import type { Product } from './settings';
 import type { AccountStatus, Customer, CustomerContact, CustomerLocation, Tank } from './customers';
+import type { Driver, DriverStatus } from './drivers';
 
-export type ScheduleStatus = 'Scheduled' | 'Dispatched' | 'Completed' | 'Delayed' | 'Conflict';
+export type ScheduleStatus = 'Scheduled' | 'Dispatched' | 'Completed' | 'Delayed' | 'Conflict' | 'Unassigned';
 
 export type ResourceAvailability = 'Available' | 'On Shift' | 'Break' | 'Unavailable';
 
@@ -20,7 +21,7 @@ export interface ScheduleRun {
   route: string;
   product: string;
   volume: string;
-  day: number; // 0 = Thu .. 6 = Wed within the visible week
+  day: number; // 0 = Thu Sep 24 2026 .. 6 = Wed Sep 30 2026 within the visible week
   startTime: string; // '13:30'
   endTime: string; // '16:00'
   status: ScheduleStatus;
@@ -68,12 +69,32 @@ export interface AssignmentOption {
   checks: AssignmentCheck[];
 }
 
+export interface ApiTrailer {
+  id: string;
+  number: string;
+  plate: string;
+  type: string;
+  compartments: number;
+  capacityLiters: number;
+  status: string;
+  active: boolean;
+}
+
+export interface ApiTruck {
+  id: string;
+  serialNumber: string;
+  tractor: string;
+}
+
 const apiBaseUrl = 'https://fueledge-api.vercel.app/api';
 const scheduleLoadsUrl = `${apiBaseUrl}/loads`;
 const terminalsUrl = `${apiBaseUrl}/terminals`;
 const suppliersUrl = `${apiBaseUrl}/suppliers`;
 const productsUrl = `${apiBaseUrl}/products`;
 const customersUrl = `${apiBaseUrl}/customers`;
+const driversUrl = `${apiBaseUrl}/drivers`;
+const trailersUrl = `${apiBaseUrl}/trailers`;
+const trucksUrl = `${apiBaseUrl}/trucks`;
 
 function recordsFromPayload(payload: unknown, key: string): unknown[] {
   if (Array.isArray(payload)) return payload;
@@ -155,7 +176,7 @@ function slugify(value: string): string {
 }
 
 function isScheduleStatus(status: string): status is ScheduleStatus {
-  return ['Scheduled', 'Dispatched', 'Completed', 'Delayed', 'Conflict'].includes(status);
+  return ['Scheduled', 'Dispatched', 'Completed', 'Delayed', 'Conflict', 'Unassigned'].includes(status);
 }
 
 function isTerminalStatus(status: string): status is TerminalStatus {
@@ -164,6 +185,19 @@ function isTerminalStatus(status: string): status is TerminalStatus {
 
 function isAccountStatus(status: string): status is AccountStatus {
   return ['Active', 'On Hold', 'Credit Warning', 'Inactive'].includes(status);
+}
+
+function isDriverStatus(status: string): status is DriverStatus {
+  return ['Available', 'Assigned', 'Loading', 'In Transit', 'Delivering', 'Break', 'Off Duty'].includes(status);
+}
+
+function initialsFromName(name: string): string {
+  return name
+    .split(' ')
+    .map((part) => part[0])
+    .join('')
+    .slice(0, 2)
+    .toUpperCase();
 }
 
 function normalizeContact(item: unknown, fallbackRole: string): CustomerContact {
@@ -349,46 +383,195 @@ function normalizeProduct(item: unknown): Product | null {
   };
 }
 
-function normalizeScheduleRun(run: Partial<ScheduleRun>): ScheduleRun | null {
+function normalizeDriver(item: unknown): Driver | null {
+  if (!item || typeof item !== 'object') return null;
+
+  const driver = item as Record<string, unknown>;
+  const firstName = stringValue(driver.firstName);
+  const lastName = stringValue(driver.lastName);
+  const name = stringValue(driver.name ?? driver.driverName ?? driver.fullName, `${firstName} ${lastName}`.trim());
+  const id = stringValue(driver.id ?? driver._id ?? driver.slug, name ? slugify(name) : '');
+  if (!id || !name) return null;
+
+  const isActive = booleanValue(driver.active, true);
+  const rawStatus = stringValue(driver.status, isActive ? 'Available' : 'Off Duty');
+  const status = isDriverStatus(rawStatus) ? rawStatus : 'Available';
+  const truck = stringValue(driver.truck ?? driver.truckPlate ?? driver.truckId);
+  const exceptions = Array.isArray(driver.exceptions) ? driver.exceptions : [];
+  const schedule = Array.isArray(driver.schedule) ? driver.schedule : [];
+  const history = Array.isArray(driver.history) ? driver.history : [];
+
+  return {
+    id,
+    name,
+    initials: stringValue(driver.initials, initialsFromName(name)),
+    status,
+    exceptions: exceptions
+      .map((exception) => {
+        const record = exception && typeof exception === 'object' ? (exception as Record<string, unknown>) : {};
+        const kind = stringValue(record.kind);
+        if (!['Delayed', 'Driver Issue', 'Truck Issue', 'Terminal Delay'].includes(kind)) return null;
+        return { kind: kind as Driver['exceptions'][number]['kind'], detail: stringValue(record.detail, 'Needs attention') };
+      })
+      .filter((exception): exception is Driver['exceptions'][number] => exception !== null),
+    truck: truck || null,
+    currentAssignment: stringValue(driver.currentAssignment ?? driver.email) || null,
+    product: stringValue(driver.product, 'Diesel EN590'),
+    volume: stringValue(driver.volume, '—'),
+    route: stringValue(driver.route, '—'),
+    location: stringValue(driver.location ?? driver.email, '—'),
+    shift: stringValue(driver.shift, '—'),
+    todayRuns: stringValue(driver.todayRuns, '0/0'),
+    nextAssignment: stringValue(driver.nextAssignment, '—'),
+    eta: stringValue(driver.eta) || null,
+    phone: stringValue(driver.phone, '—'),
+    schedule: schedule
+      .map((event) => {
+        const record = event && typeof event === 'object' ? (event as Record<string, unknown>) : {};
+        const state = stringValue(record.state, 'upcoming');
+        if (!['completed', 'current', 'upcoming', 'delayed'].includes(state)) return null;
+        return {
+          time: stringValue(record.time, '—'),
+          label: stringValue(record.label, 'Driver event'),
+          state: state as Driver['schedule'][number]['state'],
+        };
+      })
+      .filter((event): event is Driver['schedule'][number] => event !== null),
+    history: history
+      .map((record) => {
+        const delivery = record && typeof record === 'object' ? (record as Record<string, unknown>) : {};
+        const statusValue = stringValue(delivery.status, 'Completed');
+        const pod = stringValue(delivery.pod, 'Pending');
+        if (!['Completed', 'Delayed'].includes(statusValue) || !['Signed', 'Pending', 'Exception'].includes(pod)) return null;
+        return {
+          date: stringValue(delivery.date, '—'),
+          order: stringValue(delivery.order, '—'),
+          route: stringValue(delivery.route, '—'),
+          truck: stringValue(delivery.truck, '—'),
+          product: stringValue(delivery.product, '—'),
+          volume: stringValue(delivery.volume, '—'),
+          deliveryTime: stringValue(delivery.deliveryTime, '—'),
+          status: statusValue as Driver['history'][number]['status'],
+          ...(delivery.statusDetail ? { statusDetail: stringValue(delivery.statusDetail) } : {}),
+          bol: stringValue(delivery.bol, '—'),
+          pod: pod as Driver['history'][number]['pod'],
+          signature: stringValue(delivery.signature, '—'),
+          deliveredQty: stringValue(delivery.deliveredQty, '—'),
+          notes: stringValue(delivery.notes),
+          ...(delivery.exception ? { exception: stringValue(delivery.exception) } : {}),
+        };
+      })
+      .filter((record): record is Driver['history'][number] => record !== null),
+  };
+}
+
+function normalizeTrailer(item: unknown): ApiTrailer | null {
+  if (!item || typeof item !== 'object') return null;
+
+  const trailer = item as Record<string, unknown>;
+  const id = stringValue(trailer.id ?? trailer._id ?? trailer.slug);
+  const number = stringValue(trailer.number ?? trailer.trailerNumber ?? trailer.id);
+  const plate = stringValue(trailer.plate ?? trailer.registrationNumber);
+  if (!id || !number || !plate) return null;
+
+  return {
+    id,
+    number,
+    plate,
+    type: stringValue(trailer.type, 'Fuel Tanker'),
+    compartments: Number(trailer.compartments ?? 0),
+    capacityLiters: Number(trailer.capacityLiters ?? trailer.capacity ?? 0),
+    status: stringValue(trailer.status, 'Available'),
+    active: booleanValue(trailer.active, true),
+  };
+}
+
+function normalizeTruck(item: unknown): ApiTruck | null {
+  if (!item || typeof item !== 'object') return null;
+
+  const truck = item as Record<string, unknown>;
+  const id = stringValue(truck.id ?? truck._id ?? truck.slug);
+  const serialNumber = stringValue(truck.serialNumber ?? truck.vin);
+  const tractor = stringValue(truck.tractor ?? truck.plate ?? truck.registrationNumber);
+  if (!id || !serialNumber || !tractor) return null;
+
+  return {
+    id,
+    serialNumber,
+    tractor,
+  };
+}
+
+function dayIndexFromApiValue(value: unknown): number | null {
+  if (typeof value === 'number') return value;
+  if (typeof value !== 'string') return null;
+
+  const match = value.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+  if (!match) return null;
+
+  const date = new Date(Number(match[1]), Number(match[2]) - 1, Number(match[3]));
+  const weekStart = new Date(2026, 8, 24); // Thursday 24 September 2026
+  const diffMs = date.getTime() - weekStart.getTime();
+  return Math.round(diffMs / 86400000);
+}
+
+function normalizeScheduleRun(item: unknown): ScheduleRun | null {
+  if (!item || typeof item !== 'object') return null;
+
+  const run = item as Record<string, unknown>;
+  const id = stringValue(run.id);
+  const volume = stringValue(run.volume);
+  const startTime = stringValue(run.startTime);
+  const endTime = stringValue(run.endTime);
+  const pickup = stringValue(run.pickup);
+  const delivery = stringValue(run.delivery);
+  const status = stringValue(run.status);
+  const day = dayIndexFromApiValue(run.day);
+  const driverName = stringValue(run.driverName, run.driverId ? `Driver ${stringValue(run.driverId)}` : 'Unassigned driver');
+  const truckPlate = stringValue(run.truckPlate, run.truckId ? `Truck ${stringValue(run.truckId)}` : 'Unassigned truck');
+  const productName = stringValue(run.product, run.productId ? `Product ${stringValue(run.productId)}` : 'Fuel');
+  const route = stringValue(run.route, pickup && delivery ? `${pickup} -> ${delivery}` : '');
+
   if (
-    !run.id ||
-    !run.driverName ||
-    !run.truckPlate ||
-    !run.route ||
-    !run.product ||
-    !run.volume ||
-    typeof run.day !== 'number' ||
-    !run.startTime ||
-    !run.endTime ||
-    !run.status ||
-    !isScheduleStatus(run.status) ||
-    !run.pickup ||
-    !run.delivery
+    !id ||
+    !driverName ||
+    !truckPlate ||
+    !route ||
+    !productName ||
+    !volume ||
+    day === null ||
+    !startTime ||
+    !endTime ||
+    !status ||
+    !isScheduleStatus(status) ||
+    !pickup ||
+    !delivery
   ) {
     return null;
   }
 
   return {
-    id: String(run.id),
-    driverName: run.driverName,
-    truckPlate: run.truckPlate,
-    route: run.route,
-    product: run.product,
-    volume: run.volume,
-    day: run.day,
-    startTime: run.startTime,
-    endTime: run.endTime,
-    status: run.status,
-    pickup: run.pickup,
-    delivery: run.delivery,
-    ...(run.conflict !== undefined ? { conflict: run.conflict } : {}),
-    ...(run.conflictNote ? { conflictNote: run.conflictNote } : {}),
+    id,
+    driverName,
+    truckPlate,
+    route,
+    product: productName,
+    volume,
+    day,
+    startTime,
+    endTime,
+    status,
+    pickup,
+    delivery,
+    ...(run.conflict !== undefined ? { conflict: booleanValue(run.conflict) } : {}),
+    ...(run.conflictNote ? { conflictNote: stringValue(run.conflictNote) } : {}),
   };
 }
 
 export async function fetchScheduleRuns(): Promise<ScheduleRun[]> {
   const response = await fetch(scheduleLoadsUrl);
   if (!response.ok) {
+    if (response.status === 404) return [];
     throw new Error(`Unable to retrieve scheduled runs: ${response.status}`);
   }
 
@@ -405,6 +588,7 @@ export async function fetchScheduleRuns(): Promise<ScheduleRun[]> {
 export async function fetchTerminals(): Promise<Terminal[]> {
   const response = await fetch(terminalsUrl);
   if (!response.ok) {
+    if (response.status === 404) return [];
     throw new Error(`Unable to retrieve terminals: ${response.status}`);
   }
 
@@ -417,6 +601,7 @@ export async function fetchTerminals(): Promise<Terminal[]> {
 export async function fetchSuppliers(): Promise<Supplier[]> {
   const response = await fetch(suppliersUrl);
   if (!response.ok) {
+    if (response.status === 404) return [];
     throw new Error(`Unable to retrieve suppliers: ${response.status}`);
   }
 
@@ -429,6 +614,7 @@ export async function fetchSuppliers(): Promise<Supplier[]> {
 export async function fetchProducts(): Promise<Product[]> {
   const response = await fetch(productsUrl);
   if (!response.ok) {
+    if (response.status === 404) return [];
     throw new Error(`Unable to retrieve products: ${response.status}`);
   }
 
@@ -441,6 +627,7 @@ export async function fetchProducts(): Promise<Product[]> {
 export async function fetchCustomers(): Promise<Customer[]> {
   const response = await fetch(customersUrl);
   if (!response.ok) {
+    if (response.status === 404) return [];
     throw new Error(`Unable to retrieve customers: ${response.status}`);
   }
 
@@ -448,6 +635,45 @@ export async function fetchCustomers(): Promise<Customer[]> {
   return recordsFromPayload(payload, 'customers')
     .map((customer) => normalizeCustomer(customer))
     .filter((customer): customer is Customer => customer !== null);
+}
+
+export async function fetchDrivers(): Promise<Driver[]> {
+  const response = await fetch(driversUrl);
+  if (!response.ok) {
+    if (response.status === 404) return [];
+    throw new Error(`Unable to retrieve drivers: ${response.status}`);
+  }
+
+  const payload = await response.json();
+  return recordsFromPayload(payload, 'drivers')
+    .map((driver) => normalizeDriver(driver))
+    .filter((driver): driver is Driver => driver !== null);
+}
+
+export async function fetchTrailers(): Promise<ApiTrailer[]> {
+  const response = await fetch(trailersUrl);
+  if (!response.ok) {
+    if (response.status === 404) return [];
+    throw new Error(`Unable to retrieve trailers: ${response.status}`);
+  }
+
+  const payload = await response.json();
+  return recordsFromPayload(payload, 'trailers')
+    .map((trailer) => normalizeTrailer(trailer))
+    .filter((trailer): trailer is ApiTrailer => trailer !== null);
+}
+
+export async function fetchTrucks(): Promise<ApiTruck[]> {
+  const response = await fetch(trucksUrl);
+  if (!response.ok) {
+    if (response.status === 404) return [];
+    throw new Error(`Unable to retrieve trucks: ${response.status}`);
+  }
+
+  const payload = await response.json();
+  return recordsFromPayload(payload, 'trucks')
+    .map((truck) => normalizeTruck(truck))
+    .filter((truck): truck is ApiTruck => truck !== null);
 }
 
 export async function createTerminal(payload: Partial<Terminal>): Promise<Terminal> {
@@ -522,140 +748,61 @@ export async function deleteCustomer(id: string): Promise<void> {
   await apiRequest(`/customers/${id}`, { method: 'DELETE' });
 }
 
-export const unassignedRuns: UnscheduledRun[] = [
-  {
-    id: '2865',
-    sourceTerminal: 'Lyon Terminal',
-    destination: 'Marseille',
-    product: 'Diesel EN590',
-    volume: '31,000 L',
-    pickupWindow: '14:00 – 16:00',
-    deliveryWindow: '17:30 – 19:00',
-    recommendedDriver: 'Markus Wagner',
-    recommendedTruck: 'TR-76-BX',
-    reason: 'Truck fault · replacement dispatched',
-  },
-  {
-    id: '2864',
-    sourceTerminal: 'Rotterdam Terminal',
-    destination: 'Mannheim',
-    product: 'Diesel EN590',
-    volume: '30,000 L',
-    pickupWindow: '09:00 – 11:00',
-    deliveryWindow: '15:00 – 17:00',
-    recommendedDriver: 'Pieter Jansen',
-    recommendedTruck: 'NL-34-RT',
-    reason: 'Sourced · awaiting assignment',
-  },
-  {
-    id: '2910',
-    sourceTerminal: '—',
-    destination: 'Frankfurt',
-    product: 'Diesel EN590',
-    volume: '18,000 L',
-    pickupWindow: '—',
-    deliveryWindow: '07:30 – 09:40',
-    recommendedDriver: 'Markus Wagner',
-    recommendedTruck: 'TR-76-BX',
-    reason: 'Delivery-first · onboard inventory covers route',
-    deliveryFirst: true,
-    requiredFuelL: 18000,
-    stops: [
-      { kind: 'delivery', name: 'Frankfurt Retail GmbH', city: 'Frankfurt', fuelType: 'Diesel EN590', quantityL: 6000, window: '07:30' },
-      { kind: 'delivery', name: 'Main Fuel Services', city: 'Frankfurt', fuelType: 'Diesel EN590', quantityL: 7000, window: '08:20' },
-      { kind: 'delivery', name: 'Airport Logistics', city: 'Frankfurt', fuelType: 'Diesel EN590', quantityL: 5000, window: '09:10' },
-    ],
-  },
-  {
-    id: '2912',
-    sourceTerminal: '—',
-    destination: 'Frankfurt',
-    product: 'Diesel EN590',
-    volume: '20,000 L',
-    pickupWindow: '—',
-    deliveryWindow: '08:00 – 10:30',
-    recommendedDriver: 'Markus Wagner',
-    recommendedTruck: 'TR-76-BX',
-    reason: 'Delivery-first · insufficient onboard inventory',
-    deliveryFirst: true,
-    requiredFuelL: 20000,
-    stops: [
-      { kind: 'delivery', name: 'Frankfurt West Depot', city: 'Frankfurt', fuelType: 'Diesel EN590', quantityL: 7000, window: '08:00' },
-      { kind: 'delivery', name: 'Frankfurt Nord Fuels', city: 'Frankfurt', fuelType: 'Diesel EN590', quantityL: 7000, window: '08:50' },
-      { kind: 'delivery', name: 'Frankfurt Ost Fuels', city: 'Frankfurt', fuelType: 'Diesel EN590', quantityL: 6000, window: '09:40' },
-    ],
-  },
-];
+export async function createDriver(payload: Partial<Driver>): Promise<Driver> {
+  const response = await apiRequest('/drivers', { method: 'POST', body: JSON.stringify(payload) });
+  const driver = normalizeDriver(recordFromPayload(response, 'drivers') ?? payload);
+  if (!driver) throw new Error('Created driver response was invalid');
+  return driver;
+}
 
-export const assignmentOptions: Record<string, AssignmentOption[]> = {
-  '2865': [
-    {
-      driverName: 'Markus Wagner',
-      truckPlate: 'TR-76-BX',
-      available: '14:15',
-      distance: '18 km',
-      checks: [
-        { label: 'Capacity', ok: true },
-        { label: 'Shift', ok: true },
-        { label: 'Delivery window', ok: true },
-      ],
-    },
-    {
-      driverName: 'Jan Vos',
-      truckPlate: 'NL-77-KVX',
-      available: '14:40',
-      distance: '26 km',
-      checks: [
-        { label: 'Capacity', ok: true },
-        { label: 'Shift', ok: true },
-        { label: 'Delivery window', ok: false },
-      ],
-    },
-    {
-      driverName: 'Lars Petersen',
-      truckPlate: 'DE-12-HH',
-      available: '15:05',
-      distance: '42 km',
-      checks: [
-        { label: 'Capacity', ok: true },
-        { label: 'Shift', ok: false },
-        { label: 'Delivery window', ok: false },
-      ],
-    },
-  ],
-  '2864': [
-    {
-      driverName: 'Pieter Jansen',
-      truckPlate: 'NL-34-RT',
-      available: '09:30',
-      distance: '8 km',
-      checks: [
-        { label: 'Capacity', ok: true },
-        { label: 'Shift', ok: true },
-        { label: 'Delivery window', ok: true },
-      ],
-    },
-    {
-      driverName: 'Sven de Vries',
-      truckPlate: 'NL-45-KL',
-      available: '10:00',
-      distance: '15 km',
-      checks: [
-        { label: 'Capacity', ok: true },
-        { label: 'Shift', ok: true },
-        { label: 'Delivery window', ok: true },
-      ],
-    },
-    {
-      driverName: 'Jan Vos',
-      truckPlate: 'NL-77-KVX',
-      available: '10:25',
-      distance: '12 km',
-      checks: [
-        { label: 'Capacity', ok: true },
-        { label: 'Shift', ok: true },
-        { label: 'Delivery window', ok: false },
-      ],
-    },
-  ],
-};
+export async function updateDriver(id: string, payload: Partial<Driver>): Promise<Driver> {
+  const response = await apiRequest(`/drivers/${id}`, { method: 'PUT', body: JSON.stringify(payload) });
+  const driver = normalizeDriver(recordFromPayload(response, 'drivers') ?? { ...payload, id });
+  if (!driver) throw new Error('Updated driver response was invalid');
+  return driver;
+}
+
+export async function deleteDriver(id: string): Promise<void> {
+  await apiRequest(`/drivers/${id}`, { method: 'DELETE' });
+}
+
+export async function createTrailer(payload: Partial<ApiTrailer>): Promise<ApiTrailer> {
+  const response = await apiRequest('/trailers', { method: 'POST', body: JSON.stringify(payload) });
+  const trailer = normalizeTrailer(recordFromPayload(response, 'trailers') ?? payload);
+  if (!trailer) throw new Error('Created trailer response was invalid');
+  return trailer;
+}
+
+export async function updateTrailer(id: string, payload: Partial<ApiTrailer>): Promise<ApiTrailer> {
+  const response = await apiRequest(`/trailers/${id}`, { method: 'PUT', body: JSON.stringify(payload) });
+  const trailer = normalizeTrailer(recordFromPayload(response, 'trailers') ?? { ...payload, id });
+  if (!trailer) throw new Error('Updated trailer response was invalid');
+  return trailer;
+}
+
+export async function deleteTrailer(id: string): Promise<void> {
+  await apiRequest(`/trailers/${id}`, { method: 'DELETE' });
+}
+
+export async function createTruck(payload: Partial<ApiTruck>): Promise<ApiTruck> {
+  const response = await apiRequest('/trucks', { method: 'POST', body: JSON.stringify(payload) });
+  const truck = normalizeTruck(recordFromPayload(response, 'trucks') ?? payload);
+  if (!truck) throw new Error('Created truck response was invalid');
+  return truck;
+}
+
+export async function updateTruck(id: string, payload: Partial<ApiTruck>): Promise<ApiTruck> {
+  const response = await apiRequest(`/trucks/${id}`, { method: 'PUT', body: JSON.stringify(payload) });
+  const truck = normalizeTruck(recordFromPayload(response, 'trucks') ?? { ...payload, id });
+  if (!truck) throw new Error('Updated truck response was invalid');
+  return truck;
+}
+
+export async function deleteTruck(id: string): Promise<void> {
+  await apiRequest(`/trucks/${id}`, { method: 'DELETE' });
+}
+
+export const unassignedRuns: UnscheduledRun[] = [];
+
+export const assignmentOptions: Record<string, AssignmentOption[]> = {};
+

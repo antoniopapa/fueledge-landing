@@ -6,8 +6,6 @@ import { replaceScheduleRuns, useScheduleRuns } from '@/pages/dashboard/dispatch
 import { fetchCustomers, fetchProducts, fetchScheduleRuns, fetchSuppliers, fetchTerminals } from '@/mocks/schedule';
 import { customers as mockCustomers } from '@/mocks/customers';
 import { trailers, trucks } from '@/mocks/fleet';
-import { suppliers as mockSuppliers, terminals as mockTerminals } from '@/mocks/sourcing';
-import { products as mockProducts } from '@/mocks/settings';
 
 type Priority = 'Low' | 'Normal' | 'High' | 'Critical';
 
@@ -73,7 +71,7 @@ function labelClass() {
 function emptyPickupProduct(): PickupProduct {
   return {
     id: makeId('pickup-product'),
-    productId: 'Diesel EN590',
+    productId: '',
     supplier: '',
     expectedGrossQuantity: '',
   };
@@ -94,7 +92,7 @@ function emptyPickup(): Pickup {
 function emptyDeliveryProduct(): DeliveryProduct {
   return {
     id: makeId('delivery-product'),
-    product: 'Diesel EN590',
+    product: '',
     expectedGrossQuantity: '',
   };
 }
@@ -137,9 +135,9 @@ export default function NewSchedulePage() {
   const isEditMode = Boolean(editRunId);
   const truckPlates = useMemo(() => trucks.map((truck) => truck.plate), []);
   const trailerPlates = useMemo(() => trailers.map((trailer) => trailer.plate), []);
-  const [terminalNames, setTerminalNames] = useState(() => mockTerminals.map((terminal) => terminal.name));
-  const [supplierNames, setSupplierNames] = useState(() => mockSuppliers.map((supplier) => supplier.name));
-  const [productOptions, setProductOptions] = useState(() => mockProducts.map((product) => product.name));
+  const [terminalNames, setTerminalNames] = useState<string[]>([]);
+  const [supplierNames, setSupplierNames] = useState<string[]>([]);
+  const [productOptions, setProductOptions] = useState<string[]>([]);
   const [customerNames, setCustomerNames] = useState(() => mockCustomers.map((customer) => customer.name));
 
   const [drivers, setDrivers] = useState<ApiDriver[]>([]);

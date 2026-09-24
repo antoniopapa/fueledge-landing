@@ -1,8 +1,7 @@
-import { useState, type FormEvent } from 'react';
+import { useEffect, useState, type FormEvent } from 'react';
 import { drivers } from '@/mocks/drivers';
 import { trucks } from '@/mocks/fleet';
-
-const products = ['Diesel EN590', 'Gasoil', 'Petrol 95', 'Heating Oil'];
+import { fetchProducts } from '@/mocks/schedule';
 
 let nextOrderId = 2871;
 
@@ -15,10 +14,30 @@ export default function NewOrderModal({ onClose, onCreated }: NewOrderModalProps
   const [customer, setCustomer] = useState('');
   const [pickup, setPickup] = useState('');
   const [delivery, setDelivery] = useState('');
-  const [product, setProduct] = useState(products[0]);
+  const [products, setProducts] = useState<string[]>([]);
+  const [product, setProduct] = useState('');
   const [volume, setVolume] = useState('');
   const [driver, setDriver] = useState('');
   const [truck, setTruck] = useState('');
+
+  useEffect(() => {
+    let mounted = true;
+
+    fetchProducts()
+      .then((apiProducts) => {
+        if (!mounted) return;
+        const names = apiProducts.map((item) => item.name);
+        setProducts(names);
+        setProduct((current) => current || names[0] || '');
+      })
+      .catch((error) => {
+        console.error('Failed to load products for order form', error);
+      });
+
+    return () => {
+      mounted = false;
+    };
+  }, []);
 
   function handleSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -91,6 +110,7 @@ export default function NewOrderModal({ onClose, onCreated }: NewOrderModalProps
                 onChange={(e) => setProduct(e.target.value)}
                 className="w-full rounded-md border border-background-200 bg-background-50 px-3 py-2 text-sm text-foreground-900 focus:outline-none focus:ring-2 focus:ring-primary-300 focus:border-primary-300 cursor-pointer"
               >
+                <option value="">Select product</option>
                 {products.map((p) => (
                   <option key={p} value={p}>
                     {p}

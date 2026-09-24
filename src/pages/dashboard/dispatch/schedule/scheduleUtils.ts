@@ -6,7 +6,7 @@ export interface DayInfo {
   isToday: boolean;
 }
 
-const WEEK_START = new Date(2026, 7, 20); // Thursday 20 August 2026
+const WEEK_START = new Date(2026, 8, 24); // Thursday 24 September 2026
 
 export function buildDays(weekOffset: number): DayInfo[] {
   const start = new Date(WEEK_START);

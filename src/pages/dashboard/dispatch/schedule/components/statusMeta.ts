@@ -15,4 +15,5 @@ export const statusMeta: Record<ScheduleStatus, StatusStyle> = {
   Completed: { labelKey: 'dashboard.dispatch.schedule.statuses.completed', bar: 'bg-accent-400', bg: 'bg-accent-50', text: 'text-accent-700', dot: 'bg-accent-500', border: 'border-accent-200' },
   Delayed: { labelKey: 'dashboard.dispatch.schedule.statuses.delayed', bar: 'bg-secondary-400', bg: 'bg-secondary-50', text: 'text-secondary-700', dot: 'bg-secondary-500', border: 'border-secondary-200' },
   Conflict: { labelKey: 'dashboard.dispatch.schedule.statuses.conflict', bar: 'bg-red-400', bg: 'bg-red-50', text: 'text-red-700', dot: 'bg-red-500', border: 'border-red-200' },
+  Unassigned: { labelKey: 'dashboard.dispatch.schedule.statuses.unassigned', bar: 'bg-background-400', bg: 'bg-background-100', text: 'text-foreground-600', dot: 'bg-foreground-400', border: 'border-background-300' },
 };

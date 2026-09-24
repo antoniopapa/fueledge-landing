@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import ModuleShell from '@/pages/dashboard/components/ModuleShell';
-import { terminals as mockTerminals, type Terminal, type TerminalStatus } from '@/mocks/sourcing';
+import type { Terminal, TerminalStatus } from '@/mocks/sourcing';
 import { createTerminal, deleteTerminal, fetchTerminals, updateTerminal } from '@/mocks/schedule';
 import TerminalStatusBadge from '@/pages/dashboard/sourcing/components/TerminalStatusBadge';
 
@@ -9,7 +9,7 @@ const terminalStatuses: TerminalStatus[] = ['Operational', 'Busy', 'Limited', 'I
 
 export default function TerminalsPage() {
   const navigate = useNavigate();
-  const [terminals, setTerminals] = useState<Terminal[]>(mockTerminals);
+  const [terminals, setTerminals] = useState<Terminal[]>([]);
 
   useEffect(() => {
     let active = true;

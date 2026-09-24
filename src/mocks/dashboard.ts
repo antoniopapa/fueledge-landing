@@ -15,8 +15,15 @@ export const dashboardNavGroups: DashboardNavGroup[] = [
     items: [
       { label: 'dashboard.sidebar.items.overview', icon: 'ri-dashboard-line', path: '/overview' },
       { label: 'dashboard.sidebar.items.dispatch', icon: 'ri-send-plane-line', path: '/dispatch' },
-      { label: 'dashboard.sidebar.items.orders', icon: 'ri-file-list-3-line', path: '/orders' },
       { label: 'dashboard.sidebar.items.deliveries', icon: 'ri-truck-line', path: '/deliveries' },
+    ],
+  },
+  {
+    label: 'dashboard.sidebar.groups.documents',
+    items: [
+      { label: 'dashboard.sidebar.items.bols', icon: 'ri-file-paper-2-line', path: '/billing/reconciliation' },
+      { label: 'dashboard.sidebar.items.orders', icon: 'ri-file-list-3-line', path: '/orders' },
+      { label: 'dashboard.sidebar.items.deliveryTickets', icon: 'ri-receipt-line', path: '/deliveries' },
     ],
   },
   {

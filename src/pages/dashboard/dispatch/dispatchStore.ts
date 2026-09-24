@@ -30,7 +30,9 @@ function buildScheduleResources(runs: ScheduleRun[]): ScheduleResource[] {
   const resources = new Map<string, ScheduleResource>();
 
   runs.forEach((run) => {
-    const key = `${run.driverName}-${run.truckPlate}`;
+    if (run.driverName === 'Unassigned driver') return;
+
+    const existing = resources.get(run.driverName);
     const availability: ResourceAvailability =
       run.status === 'Completed'
         ? 'Available'
@@ -38,19 +40,19 @@ function buildScheduleResources(runs: ScheduleRun[]): ScheduleResource[] {
           ? 'Break'
           : 'On Shift';
 
-    if (!resources.has(key)) {
-      resources.set(key, {
-        driverName: run.driverName,
-        driverInitials: run.driverName
+    resources.set(run.driverName, {
+      driverName: run.driverName,
+      driverInitials:
+        existing?.driverInitials ??
+        run.driverName
           .split(' ')
           .map((part) => part[0])
           .join('')
           .slice(0, 2)
           .toUpperCase(),
-        truckPlate: run.truckPlate,
-        availability,
-      });
-    }
+      truckPlate: run.truckPlate,
+      availability,
+    });
   });
 
   return Array.from(resources.values());

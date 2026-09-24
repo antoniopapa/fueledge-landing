@@ -27,6 +27,7 @@
     sidebar: {
       groups: {
         operations: 'ÐžÐ¿ÐµÑ€Ð°Ñ†Ð¸Ð¸',
+        documents: 'Documents',
         resources: 'Ð ÐµÑÑƒÑ€ÑÐ¸',
         business: 'Ð‘Ð¸Ð·Ð½ÐµÑ',
         analytics: 'ÐÐ½Ð°Ð»Ð¸Ð·Ð¸',
@@ -34,7 +35,9 @@
       items: {
         overview: 'ÐŸÑ€ÐµÐ³Ð»ÐµÐ´',
         dispatch: 'Ð”Ð¸ÑÐ¿ÐµÑ‡Ð¸Ñ€Ð°Ð½Ðµ',
+        bols: 'BOLs',
         orders: 'ÐŸÐ¾Ñ€ÑŠÑ‡ÐºÐ¸',
+        deliveryTickets: 'Delivery tickets',
         deliveries: 'Ð”Ð¾ÑÑ‚Ð°Ð²ÐºÐ¸',
         terminals: 'Ð¢ÐµÑ€Ð¼Ð¸Ð½Ð°Ð»Ð¸',
         suppliers: 'Ð”Ð¾ÑÑ‚Ð°Ð²Ñ‡Ð¸Ñ†Ð¸',
@@ -118,6 +121,7 @@
           delayed: 'Ð—Ð°ÐºÑŠÑÐ½ÑÐ²Ð°',
           conflict: 'ÐšÐ¾Ð½Ñ„Ð»Ð¸ÐºÑ‚',
           completed: 'Ð—Ð°Ð²ÑŠÑ€ÑˆÐµÐ½',
+          unassigned: 'Unassigned',
         },
         legend: {
           dispatchedInProgress: 'Ð˜Ð·Ð¿Ñ€Ð°Ñ‚ÐµÐ½ / Ð² Ñ…Ð¾Ð´',

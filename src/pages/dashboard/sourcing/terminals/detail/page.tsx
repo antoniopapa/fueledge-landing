@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import ModuleShell from '@/pages/dashboard/components/ModuleShell';
-import { terminals as mockTerminals, type Terminal } from '@/mocks/sourcing';
+import type { Terminal } from '@/mocks/sourcing';
 import { fetchTerminals } from '@/mocks/schedule';
 import { orders } from '@/mocks/orders';
 import TerminalStatusBadge from '@/pages/dashboard/sourcing/components/TerminalStatusBadge';
@@ -20,7 +20,7 @@ export default function TerminalDetailPage() {
   const { id } = useParams();
   const navigate = useNavigate();
   const [tab, setTab] = useState<TabKey>('overview');
-  const [terminals, setTerminals] = useState<Terminal[]>(mockTerminals);
+  const [terminals, setTerminals] = useState<Terminal[]>([]);
   const terminal = terminals.find((t) => t.id === id);
 
   useEffect(() => {

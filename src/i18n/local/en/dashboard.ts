@@ -27,6 +27,7 @@ export default {
     sidebar: {
       groups: {
         operations: 'Operations',
+        documents: 'Documents',
         resources: 'Resources',
         business: 'Business',
         analytics: 'Analytics',
@@ -34,7 +35,9 @@ export default {
       items: {
         overview: 'Overview',
         dispatch: 'Dispatch',
+        bols: 'BOLs',
         orders: 'Orders',
+        deliveryTickets: 'Delivery tickets',
         deliveries: 'Deliveries',
         terminals: 'Terminals',
         suppliers: 'Suppliers',
@@ -118,6 +121,7 @@ export default {
           delayed: 'Delayed',
           conflict: 'Conflict',
           completed: 'Completed',
+          unassigned: 'Unassigned',
         },
         legend: {
           dispatchedInProgress: 'Dispatched / in progress',

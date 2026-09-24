@@ -1,18 +1,48 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import ModuleShell from '@/pages/dashboard/components/ModuleShell';
 import { settingsNav } from '@/pages/dashboard/nav';
 import Toggle from '@/pages/dashboard/settings/components/Toggle';
-import { products, type Product } from '@/mocks/settings';
+import type { Product } from '@/mocks/settings';
+import { fetchProducts, updateProduct } from '@/mocks/schedule';
 
 export default function SettingsProductsPage() {
-  const [active, setActive] = useState<Record<string, boolean>>(
-    Object.fromEntries(products.map((p) => [p.id, p.active])),
-  );
+  const [products, setProducts] = useState<Product[]>([]);
+  const [active, setActive] = useState<Record<string, boolean>>({});
   const [toast, setToast] = useState<string | null>(null);
+
+  useEffect(() => {
+    let mounted = true;
+
+    fetchProducts()
+      .then((apiProducts) => {
+        if (!mounted) return;
+        setProducts(apiProducts);
+        setActive(Object.fromEntries(apiProducts.map((product) => [product.id, product.active])));
+      })
+      .catch(() => {
+        if (mounted) setToast('Unable to load products.');
+      });
+
+    return () => {
+      mounted = false;
+    };
+  }, []);
 
   function addProduct() {
     setToast('Product added to catalogue');
     window.setTimeout(() => setToast(null), 2400);
+  }
+
+  async function handleToggle(product: Product, value: boolean) {
+    setActive((state) => ({ ...state, [product.id]: value }));
+
+    try {
+      const updated = await updateProduct(product.id, { ...product, active: value });
+      setProducts((items) => items.map((item) => (item.id === product.id ? updated : item)));
+    } catch {
+      setActive((state) => ({ ...state, [product.id]: product.active }));
+      setToast(`Unable to update ${product.name}.`);
+    }
   }
 
   return (
@@ -57,7 +87,7 @@ export default function SettingsProductsPage() {
                   <td className="px-4 py-3 text-[12px] text-foreground-500">{p.description}</td>
                   <td className="px-4 py-3 text-[12px] font-semibold text-foreground-900 tabular whitespace-nowrap">{p.defaultMargin}</td>
                   <td className="px-4 py-3">
-                    <Toggle checked={active[p.id]} onChange={(v) => setActive((s) => ({ ...s, [p.id]: v }))} label={p.name} />
+                    <Toggle checked={Boolean(active[p.id])} onChange={(v) => handleToggle(p, v)} label={p.name} />
                   </td>
                 </tr>
               ))}

@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import ModuleShell from '@/pages/dashboard/components/ModuleShell';
-import { suppliers as mockSuppliers, type Supplier } from '@/mocks/sourcing';
+import type { Supplier } from '@/mocks/sourcing';
 import { createSupplier, deleteSupplier, fetchSuppliers, updateSupplier } from '@/mocks/schedule';
 
 const contractStatusStyle: Record<string, string> = {
@@ -10,7 +10,7 @@ const contractStatusStyle: Record<string, string> = {
 };
 
 export default function SuppliersPage() {
-  const [suppliers, setSuppliers] = useState<Supplier[]>(mockSuppliers);
+  const [suppliers, setSuppliers] = useState<Supplier[]>([]);
 
   useEffect(() => {
     let active = true;

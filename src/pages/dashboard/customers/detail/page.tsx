@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import DashboardShell from '@/pages/dashboard/components/DashboardShell';
 import CustomerHeader from './components/CustomerHeader';
@@ -9,7 +9,8 @@ import CustomerPricingTab from './components/CustomerPricingTab';
 import CustomerDeliveriesTab from './components/CustomerDeliveriesTab';
 import CustomerBillingTab from './components/CustomerBillingTab';
 import CustomerDocumentsTab from './components/CustomerDocumentsTab';
-import { customers } from '@/mocks/customers';
+import { customers as mockCustomers, type Customer } from '@/mocks/customers';
+import { fetchCustomers } from '@/mocks/schedule';
 
 type TabKey = 'overview' | 'locations' | 'orders' | 'pricing' | 'deliveries' | 'billing' | 'documents';
 
@@ -26,7 +27,24 @@ const tabs: { key: TabKey; label: string }[] = [
 export default function CustomerDetailPage() {
   const { id } = useParams();
   const [tab, setTab] = useState<TabKey>('overview');
+  const [customers, setCustomers] = useState<Customer[]>(mockCustomers);
   const customer = customers.find((c) => c.id === id);
+
+  useEffect(() => {
+    let active = true;
+
+    fetchCustomers()
+      .then((apiCustomers) => {
+        if (active) setCustomers(apiCustomers);
+      })
+      .catch((error) => {
+        console.error('Failed to load customer details', error);
+      });
+
+    return () => {
+      active = false;
+    };
+  }, []);
 
   if (!customer) {
     return (

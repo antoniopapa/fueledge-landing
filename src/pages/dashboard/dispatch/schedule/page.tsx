@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import DashboardShell from '@/pages/dashboard/components/DashboardShell';
 import { fetchScheduleRuns } from '@/mocks/schedule';
 import {
@@ -13,17 +13,16 @@ import { buildDays, weekRangeLabel } from './scheduleUtils';
 import ScheduleToolbar from './components/ScheduleToolbar';
 import Legend from './components/Legend';
 import WeekBoard from './components/WeekBoard';
-import RunDetailDrawer from './components/RunDetailDrawer';
 
 export default function SchedulePage() {
   const { t } = useTranslation();
+  const navigate = useNavigate();
   const [weekOffset, setWeekOffset] = useState(0);
   const scheduleRuns = useScheduleRuns();
   const [driverFilter, setDriverFilter] = useState('All Drivers');
   const [truckFilter, setTruckFilter] = useState('All Trucks');
   const [statusFilter, setStatusFilter] = useState('All Statuses');
   const [searchQuery, setSearchQuery] = useState('');
-  const [selectedRunId, setSelectedRunId] = useState<string | null>(null);
   const [toast, setToast] = useState<string | null>(null);
 
   useEffect(() => {
@@ -64,8 +63,6 @@ export default function SchedulePage() {
     [scheduleResources, driverFilter, truckFilter],
   );
 
-  const selectedRun = scheduleRuns.find((l) => l.id === selectedRunId) ?? null;
-
   function showToast(msg: string) {
     setToast(msg);
     window.setTimeout(() => setToast(null), 2600);
@@ -76,19 +73,8 @@ export default function SchedulePage() {
     showToast(t('dashboard.dispatch.schedule.toasts.reassignedRun', { runId, driverName }));
   }
 
-  function handleReassignDriver(runId: string, driverName: string) {
-    updateScheduleRun(runId, { driverName });
-    showToast(t('dashboard.dispatch.schedule.toasts.changedDriver', { runId, driverName }));
-  }
-
-  function handleReassignTruck(runId: string, truckPlate: string) {
-    updateScheduleRun(runId, { truckPlate });
-    showToast(t('dashboard.dispatch.schedule.toasts.changedTruck', { runId, truckPlate }));
-  }
-
-  function handleChangeTime(runId: string, startTime: string, endTime: string) {
-    updateScheduleRun(runId, { startTime, endTime });
-    showToast(t('dashboard.dispatch.schedule.toasts.rescheduledRun', { runId, startTime, endTime }));
+  function handleOpenRun(runId: string) {
+    navigate(`/dispatch/runs/${runId}/edit`);
   }
 
   function handlePrev() {
@@ -140,19 +126,10 @@ export default function SchedulePage() {
           days={days}
           resources={visibleResources}
           runs={scheduleRuns}
-          onRunClick={(l) => setSelectedRunId(l.id)}
+          onRunClick={() => undefined}
+          onRunDoubleClick={(l) => handleOpenRun(l.id)}
           onDropRun={handleDropRun}
         />
-
-      <RunDetailDrawer
-        run={selectedRun}
-        drivers={drivers}
-        trucks={trucks}
-        onClose={() => setSelectedRunId(null)}
-        onReassignDriver={(driverName) => selectedRun && handleReassignDriver(selectedRun.id, driverName)}
-        onReassignTruck={(truckPlate) => selectedRun && handleReassignTruck(selectedRun.id, truckPlate)}
-        onChangeTime={(startTime, endTime) => selectedRun && handleChangeTime(selectedRun.id, startTime, endTime)}
-      />
 
       {toast && (
         <div className="fixed bottom-6 right-6 z-50 flex items-center gap-2 rounded-md border border-accent-300 bg-accent-50 px-4 py-3 text-[13px] font-medium text-accent-800">

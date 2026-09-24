@@ -14,6 +14,7 @@ interface RunDetailDrawerProps {
   onReassignDriver: (driverName: string) => void;
   onReassignTruck: (truckPlate: string) => void;
   onChangeTime: (startTime: string, endTime: string) => void;
+  onDelete: () => void;
 }
 
 export default function RunDetailDrawer({
@@ -24,6 +25,7 @@ export default function RunDetailDrawer({
   onReassignDriver,
   onReassignTruck,
   onChangeTime,
+  onDelete,
 }: RunDetailDrawerProps) {
   const { t } = useTranslation();
   const navigate = useNavigate();
@@ -230,33 +232,23 @@ export default function RunDetailDrawer({
         <div className="px-5 py-4 border-t border-background-200 space-y-2">
           <button
             type="button"
-            onClick={() => navigate(`/dispatch/runs/RN-${run.id}`)}
+            onClick={() => navigate(`/dispatch/runs/${run.id}/edit`)}
             className="w-full inline-flex items-center justify-center gap-2 rounded-md bg-primary-500 hover:bg-primary-600 text-background-50 text-sm font-semibold px-4 py-2.5 whitespace-nowrap cursor-pointer"
           >
             <span className="w-4 h-4 flex items-center justify-center">
-              <i className="ri-route-line text-sm leading-none" />
+              <i className="ri-edit-line text-sm leading-none" />
             </span>
-            {t('dashboard.dispatch.schedule.fullRunDetail')}
+            Edit
           </button>
           <button
             type="button"
-            onClick={() => navigate(`/orders/${run.id}`)}
-            className="w-full inline-flex items-center justify-center gap-2 rounded-md border border-background-200 bg-background-50 hover:bg-background-100 text-foreground-700 text-sm font-semibold px-4 py-2.5 whitespace-nowrap cursor-pointer"
+            onClick={onDelete}
+            className="w-full inline-flex items-center justify-center gap-2 rounded-md border border-red-200 bg-red-50 hover:bg-red-100 text-red-700 text-sm font-semibold px-4 py-2.5 whitespace-nowrap cursor-pointer"
           >
             <span className="w-4 h-4 flex items-center justify-center">
-              <i className="ri-external-link-line text-sm leading-none" />
+              <i className="ri-delete-bin-line text-sm leading-none" />
             </span>
-            {t('dashboard.dispatch.schedule.openOrder')}
-          </button>
-          <button
-            type="button"
-            onClick={() => navigate('/dispatch/map')}
-            className="w-full inline-flex items-center justify-center gap-2 rounded-md border border-background-200 bg-background-50 hover:bg-background-100 text-foreground-700 text-sm font-semibold px-4 py-2.5 whitespace-nowrap cursor-pointer"
-          >
-            <span className="w-4 h-4 flex items-center justify-center">
-              <i className="ri-map-pin-line text-sm leading-none" />
-            </span>
-            {t('dashboard.dispatch.schedule.viewOnMap')}
+            Delete
           </button>
         </div>
       </aside>

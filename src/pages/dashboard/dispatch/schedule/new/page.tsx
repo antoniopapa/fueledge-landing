@@ -1,12 +1,13 @@
-import { FormEvent, ReactNode, useMemo, useState } from 'react';
+import { FormEvent, ReactNode, useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useParams } from 'react-router-dom';
 import DashboardShell from '@/pages/dashboard/components/DashboardShell';
-import { addScheduleRun } from '@/pages/dashboard/dispatch/dispatchStore';
-import { customers } from '@/mocks/customers';
-import { drivers as driverMocks } from '@/mocks/drivers';
+import { replaceScheduleRuns, useScheduleRuns } from '@/pages/dashboard/dispatch/dispatchStore';
+import { fetchCustomers, fetchProducts, fetchScheduleRuns, fetchSuppliers, fetchTerminals } from '@/mocks/schedule';
+import { customers as mockCustomers } from '@/mocks/customers';
 import { trailers, trucks } from '@/mocks/fleet';
-import { suppliers, terminals } from '@/mocks/sourcing';
+import { suppliers as mockSuppliers, terminals as mockTerminals } from '@/mocks/sourcing';
+import { products as mockProducts } from '@/mocks/settings';
 
 type Priority = 'Low' | 'Normal' | 'High' | 'Critical';
 
@@ -45,6 +46,11 @@ interface Delivery {
 
 type Stop = Pickup | Delivery;
 
+interface ApiDriver {
+  id: string;
+  name: string;
+}
+
 const priorities: Priority[] = ['Normal', 'High', 'Critical', 'Low'];
 const priorityLabelKeys: Record<Priority, string> = {
   Low: 'dashboard.dispatch.new.priorities.low',
@@ -52,8 +58,6 @@ const priorityLabelKeys: Record<Priority, string> = {
   High: 'dashboard.dispatch.new.priorities.high',
   Critical: 'dashboard.dispatch.new.priorities.critical',
 };
-const productOptions = ['Diesel EN590', 'Gasoil', 'Petrol 95', 'Heating Oil', 'HVO100', 'AdBlue'];
-
 function makeId(prefix: string) {
   return `${prefix}-${crypto.randomUUID()}`;
 }
@@ -127,20 +131,121 @@ function moveItem<T>(items: T[], from: number, to: number): T[] {
 export default function NewSchedulePage() {
   const { t } = useTranslation();
   const navigate = useNavigate();
-  const driverNames = useMemo(() => driverMocks.map((driver) => driver.name), []);
+  const { id: editRunId } = useParams();
+  const scheduleRuns = useScheduleRuns();
+  const editRun = editRunId ? scheduleRuns.find((run) => run.id === editRunId) ?? null : null;
+  const isEditMode = Boolean(editRunId);
   const truckPlates = useMemo(() => trucks.map((truck) => truck.plate), []);
   const trailerPlates = useMemo(() => trailers.map((trailer) => trailer.plate), []);
-  const terminalNames = useMemo(() => terminals.map((terminal) => terminal.name), []);
-  const supplierNames = useMemo(() => suppliers.map((supplier) => supplier.name), []);
-  const customerNames = useMemo(() => customers.map((customer) => customer.name), []);
+  const [terminalNames, setTerminalNames] = useState(() => mockTerminals.map((terminal) => terminal.name));
+  const [supplierNames, setSupplierNames] = useState(() => mockSuppliers.map((supplier) => supplier.name));
+  const [productOptions, setProductOptions] = useState(() => mockProducts.map((product) => product.name));
+  const [customerNames, setCustomerNames] = useState(() => mockCustomers.map((customer) => customer.name));
 
-  const [driver, setDriver] = useState(driverNames[0] ?? '');
+  const [drivers, setDrivers] = useState<ApiDriver[]>([]);
+  const [driverId, setDriverId] = useState('');
   const [truck, setTruck] = useState(truckPlates[0] ?? '');
   const [trailer, setTrailer] = useState(trailerPlates[0] ?? '');
   const [priority, setPriority] = useState<Priority>('Normal');
   const [startTime, setStartTime] = useState('09:00');
   const [endTime, setEndTime] = useState('11:00');
   const [stops, setStops] = useState<Stop[]>([emptyPickup(), emptyDelivery()]);
+  const selectedDriver = drivers.find((driver) => driver.id === driverId);
+
+  useEffect(() => {
+    if (!editRunId || editRun || scheduleRuns.length > 0) return;
+
+    let active = true;
+
+    fetchScheduleRuns()
+      .then((apiRuns) => {
+        if (active) replaceScheduleRuns(apiRuns);
+      })
+      .catch((error) => {
+        console.error('Failed to load scheduled runs', error);
+      });
+
+    return () => {
+      active = false;
+    };
+  }, [editRun, editRunId, scheduleRuns.length]);
+
+  useEffect(() => {
+    if (!editRun) return;
+
+    setTruck(editRun.truckPlate);
+    setStartTime(editRun.startTime);
+    setEndTime(editRun.endTime);
+    setPriority(editRun.status === 'Conflict' ? 'Critical' : 'Normal');
+    setStops([
+      {
+        ...emptyPickup(),
+        terminal: editRun.pickup,
+        products: [{ ...emptyPickupProduct(), productId: editRun.product, expectedGrossQuantity: editRun.volume }],
+      },
+      {
+        ...emptyDelivery(),
+        customer: editRun.delivery,
+        products: [{ ...emptyDeliveryProduct(), product: editRun.product, expectedGrossQuantity: editRun.volume }],
+      },
+    ]);
+  }, [editRun]);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    async function loadDrivers() {
+      try {
+        const response = await fetch('https://fueledge-api.vercel.app/api/drivers');
+        if (!response.ok) throw new Error(`Failed to load drivers: ${response.status}`);
+        const data = await response.json();
+        const records = Array.isArray(data) ? data : Array.isArray(data?.drivers) ? data.drivers : Array.isArray(data?.data) ? data.data : [];
+        const loadedDrivers = records
+          .map((driver: { id?: string | number; _id?: string | number; name?: string; fullName?: string }) => ({
+            id: String(driver.id ?? driver._id ?? ''),
+            name: driver.name ?? driver.fullName ?? '',
+          }))
+          .filter((driver: ApiDriver) => driver.id && driver.name);
+
+        if (!cancelled) {
+          setDrivers(loadedDrivers);
+          setDriverId((current) => current || loadedDrivers.find((driver) => driver.name === editRun?.driverName)?.id || loadedDrivers[0]?.id || '');
+        }
+      } catch (error) {
+        console.error('Failed to load drivers', error);
+      }
+    }
+
+    loadDrivers();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [editRun?.driverName]);
+
+  useEffect(() => {
+    let active = true;
+
+    Promise.allSettled([fetchTerminals(), fetchSuppliers(), fetchProducts(), fetchCustomers()]).then(([terminalsResult, suppliersResult, productsResult, customersResult]) => {
+      if (!active) return;
+
+      if (terminalsResult.status === 'fulfilled') setTerminalNames(terminalsResult.value.map((terminal) => terminal.name));
+      else console.error('Failed to load terminals for schedule form', terminalsResult.reason);
+
+      if (suppliersResult.status === 'fulfilled') setSupplierNames(suppliersResult.value.map((supplier) => supplier.name));
+      else console.error('Failed to load suppliers for schedule form', suppliersResult.reason);
+
+      if (productsResult.status === 'fulfilled') setProductOptions(productsResult.value.map((product) => product.name));
+      else console.error('Failed to load products for schedule form', productsResult.reason);
+
+      if (customersResult.status === 'fulfilled') setCustomerNames(customersResult.value.map((customer) => customer.name));
+      else console.error('Failed to load customers for schedule form', customersResult.reason);
+    });
+
+    return () => {
+      active = false;
+    };
+  }, []);
 
   function updatePickup(id: string, patch: Partial<Pickup>) {
     setStops((items) => items.map((item) => (item.kind === 'pickup' && item.id === id ? { ...item, ...patch } : item)));
@@ -170,32 +275,55 @@ export default function NewSchedulePage() {
     );
   }
 
-  function handleSubmit(event: FormEvent<HTMLFormElement>) {
+  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    const id = String(Date.now()).slice(-6);
     const pickups = stops.filter((stop): stop is Pickup => stop.kind === 'pickup');
-    const firstPickup = pickups[0];
-    const firstDelivery = stops.find((stop): stop is Delivery => stop.kind === 'delivery');
-    const pickupProduct = firstPickup?.products[0];
-    const deliveryProduct = firstDelivery?.products[0];
 
-    addScheduleRun({
-      id,
-      driverName: driver || t('dashboard.dispatch.new.defaults.unassignedDriver'),
-      truckPlate: truck || t('dashboard.dispatch.new.defaults.unassignedTruck'),
-      route: `${firstPickup?.terminal || t('dashboard.dispatch.schedule.pickup')} -> ${firstDelivery?.customer || t('dashboard.dispatch.schedule.delivery')}`,
-      product: pickupProduct?.productId || deliveryProduct?.product || t('dashboard.dispatch.schedule.product'),
-      volume: totalExpectedVolume(pickups),
-      day: 0,
+    const payload = {
+      id: editRunId,
+      driverId,
+      driverName: selectedDriver?.name ?? editRun?.driverName ?? '',
+      truck,
+      trailer,
+      priority,
       startTime,
       endTime,
-      status: priority === 'Critical' ? 'Conflict' : 'Scheduled',
-      pickup: firstPickup?.terminal || t('dashboard.dispatch.schedule.pickup'),
-      delivery: firstDelivery?.customer || t('dashboard.dispatch.schedule.delivery'),
-      ...(priority === 'Critical' ? { conflict: true, conflictNote: t('dashboard.dispatch.new.defaults.criticalConflict') } : {}),
-    });
+      volume: totalExpectedVolume(pickups),
+      stops: stops.map((stop, index) => ({
+        sequence: index + 1,
+        kind: stop.kind,
+        destination: stop.kind === 'pickup' ? stop.terminal : stop.customer,
+        notes: stop.notes,
+        products: stop.products.map((product) =>
+          stop.kind === 'pickup'
+            ? {
+                productId: product.productId,
+                supplier: product.supplier,
+                expectedGrossQuantity: product.expectedGrossQuantity,
+              }
+            : {
+                product: product.product,
+                expectedGrossQuantity: product.expectedGrossQuantity,
+          },
+        ),
+      })),
+    };
 
-    navigate('/dispatch');
+    try {
+      const response = await fetch(isEditMode ? `https://fueledge-api.vercel.app/api/loads/${editRunId}` : 'https://fueledge-api.vercel.app/api/loads', {
+        method: isEditMode ? 'PUT' : 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(payload),
+      });
+
+      if (!response.ok) throw new Error(`Failed to create load: ${response.status}`);
+
+      navigate('/dispatch');
+    } catch (error) {
+      console.error('Failed to create run schedule', error);
+    }
   }
 
   return (
@@ -214,14 +342,19 @@ export default function NewSchedulePage() {
               </span>
               <div>
                 <h1 className="font-heading text-xl font-bold text-foreground-950">
-                  {t('dashboard.dispatch.new.title')}
+                  {isEditMode ? `Edit run ${editRunId}` : t('dashboard.dispatch.new.title')}
                 </h1>
                 <p className="text-sm text-foreground-500">{t('dashboard.dispatch.new.description')}</p>
               </div>
             </div>
 
             <div className="grid grid-cols-1 gap-4 md:grid-cols-3 xl:grid-cols-6">
-              <Field label={t('dashboard.dispatch.schedule.driver')}><input className={inputClass()} value={driver} onChange={(e) => setDriver(e.target.value)} list="drivers" required /></Field>
+              <Field label={t('dashboard.dispatch.schedule.driver')}>
+                <select className={inputClass()} value={driverId} onChange={(e) => setDriverId(e.target.value)} required>
+                  <option value="">{t('dashboard.dispatch.schedule.driver')}</option>
+                  {drivers.map((driver) => <option key={driver.id} value={driver.id}>{driver.name}</option>)}
+                </select>
+              </Field>
               <Field label={t('dashboard.dispatch.schedule.truck')}><input className={inputClass()} value={truck} onChange={(e) => setTruck(e.target.value)} list="trucks" required /></Field>
               <Field label={t('dashboard.dispatch.new.trailer')}><input className={inputClass()} value={trailer} onChange={(e) => setTrailer(e.target.value)} list="trailers" required /></Field>
               <Field label={t('dashboard.dispatch.new.priority')}>
@@ -233,7 +366,6 @@ export default function NewSchedulePage() {
               <Field label={t('dashboard.dispatch.new.endTime')}><input className={inputClass()} type="time" value={endTime} onChange={(e) => setEndTime(e.target.value)} required /></Field>
             </div>
 
-            <datalist id="drivers">{driverNames.map((item) => <option key={item} value={item} />)}</datalist>
             <datalist id="trucks">{truckPlates.map((item) => <option key={item} value={item} />)}</datalist>
             <datalist id="trailers">{trailerPlates.map((item) => <option key={item} value={item} />)}</datalist>
             <datalist id="terminals">{terminalNames.map((item) => <option key={item} value={item} />)}</datalist>
@@ -339,8 +471,8 @@ export default function NewSchedulePage() {
               {t('dashboard.dispatch.new.cancel')}
             </Link>
             <button type="submit" className="inline-flex items-center gap-1.5 rounded-md bg-primary-500 px-4 py-2 text-sm font-semibold text-background-50 transition-colors hover:bg-primary-600">
-              <i className="ri-add-line text-sm leading-none" />
-              {t('dashboard.dispatch.new.createSchedule')}
+              <i className={`${isEditMode ? 'ri-save-3-line' : 'ri-add-line'} text-sm leading-none`} />
+              {isEditMode ? 'Update load' : t('dashboard.dispatch.new.createSchedule')}
             </button>
           </div>
         </form>

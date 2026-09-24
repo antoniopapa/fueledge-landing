@@ -9,12 +9,13 @@ interface WeekBoardProps {
   resources: ScheduleResource[];
   runs: ScheduleRun[];
   onRunClick: (run: ScheduleRun) => void;
+  onRunDoubleClick: (run: ScheduleRun) => void;
   onDropRun: (runId: string, driverName: string, truckPlate: string, day: number) => void;
 }
 
 const GRID = '210px repeat(7, minmax(148px, 1fr))';
 
-export default function WeekBoard({ days, resources, runs, onRunClick, onDropRun }: WeekBoardProps) {
+export default function WeekBoard({ days, resources, runs, onRunClick, onRunDoubleClick, onDropRun }: WeekBoardProps) {
   const { t } = useTranslation();
 
   function runsFor(driverName: string, day: number) {
@@ -76,7 +77,13 @@ export default function WeekBoard({ days, resources, runs, onRunClick, onDropRun
                       />
                     ) : (
                       runsFor(r.driverName, di).map((l) => (
-                        <RunBlock key={l.id} run={l} variant="week" onClick={() => onRunClick(l)} />
+                        <RunBlock
+                          key={l.id}
+                          run={l}
+                          variant="week"
+                          onClick={() => onRunClick(l)}
+                          onDoubleClick={() => onRunDoubleClick(l)}
+                        />
                       ))
                     )}
                   </div>

@@ -2,7 +2,13 @@ import { useNavigate } from 'react-router-dom';
 import type { Customer } from '@/mocks/customers';
 import CustomerStatusBadge from './CustomerStatusBadge';
 
-export default function CustomersTable({ customers }: { customers: Customer[] }) {
+interface CustomersTableProps {
+  customers: Customer[];
+  onEdit?: (customer: Customer) => void;
+  onDelete?: (customer: Customer) => void;
+}
+
+export default function CustomersTable({ customers, onEdit, onDelete }: CustomersTableProps) {
   const navigate = useNavigate();
 
   return (
@@ -19,6 +25,7 @@ export default function CustomersTable({ customers }: { customers: Customer[] })
               <th className="px-4 py-2.5 text-[10px] font-semibold uppercase tracking-wide text-foreground-400">Open Orders</th>
               <th className="px-4 py-2.5 text-[10px] font-semibold uppercase tracking-wide text-foreground-400">Billing</th>
               <th className="px-4 py-2.5 text-[10px] font-semibold uppercase tracking-wide text-foreground-400">Last Delivery</th>
+              {(onEdit || onDelete) && <th className="px-4 py-2.5 text-[10px] font-semibold uppercase tracking-wide text-foreground-400 text-right">Actions</th>}
             </tr>
           </thead>
           <tbody className="divide-y divide-background-200">
@@ -74,6 +81,39 @@ export default function CustomersTable({ customers }: { customers: Customer[] })
                 </td>
 
                 <td className="px-4 py-3 text-[12px] text-foreground-600 whitespace-nowrap">{c.lastDelivery}</td>
+
+                {(onEdit || onDelete) && (
+                  <td className="px-4 py-3">
+                    <div className="flex justify-end gap-1">
+                      {onEdit && (
+                        <button
+                          type="button"
+                          onClick={(event) => {
+                            event.stopPropagation();
+                            onEdit(c);
+                          }}
+                          className="inline-flex h-8 w-8 items-center justify-center rounded-md text-foreground-500 transition-colors hover:bg-background-100 hover:text-foreground-900"
+                          aria-label={`Edit ${c.name}`}
+                        >
+                          <i className="ri-edit-line text-base leading-none" />
+                        </button>
+                      )}
+                      {onDelete && (
+                        <button
+                          type="button"
+                          onClick={(event) => {
+                            event.stopPropagation();
+                            onDelete(c);
+                          }}
+                          className="inline-flex h-8 w-8 items-center justify-center rounded-md text-foreground-500 transition-colors hover:bg-secondary-50 hover:text-secondary-700"
+                          aria-label={`Delete ${c.name}`}
+                        >
+                          <i className="ri-delete-bin-line text-base leading-none" />
+                        </button>
+                      )}
+                    </div>
+                  </td>
+                )}
               </tr>
             ))}
           </tbody>

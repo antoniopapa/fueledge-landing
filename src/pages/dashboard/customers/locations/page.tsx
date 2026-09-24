@@ -1,18 +1,36 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import ModuleShell from '@/pages/dashboard/components/ModuleShell';
 import LocationsTable, { type LocationRow } from './components/LocationsTable';
-import { customers } from '@/mocks/customers';
+import { customers as mockCustomers, type Customer } from '@/mocks/customers';
+import { fetchCustomers } from '@/mocks/schedule';
 import { customersNav } from '@/pages/dashboard/nav';
 
 export default function LocationsPage() {
+  const [customers, setCustomers] = useState<Customer[]>(mockCustomers);
   const [search, setSearch] = useState('');
+
+  useEffect(() => {
+    let active = true;
+
+    fetchCustomers()
+      .then((apiCustomers) => {
+        if (active) setCustomers(apiCustomers);
+      })
+      .catch((error) => {
+        console.error('Failed to load customer locations', error);
+      });
+
+    return () => {
+      active = false;
+    };
+  }, []);
 
   const allLocations: LocationRow[] = useMemo(
     () =>
       customers.flatMap((c) =>
         c.locations.map((l) => ({ ...l, customer: c.name, customerId: c.id })),
       ),
-    [],
+    [customers],
   );
 
   const filtered = useMemo(

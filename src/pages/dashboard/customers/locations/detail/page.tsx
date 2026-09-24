@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import DashboardShell from '@/pages/dashboard/components/DashboardShell';
 import LocationHeader from './components/LocationHeader';
@@ -7,7 +7,8 @@ import LocationOrdersTab from './components/LocationOrdersTab';
 import LocationDeliveriesTab from './components/LocationDeliveriesTab';
 import LocationTanksTab from './components/LocationTanksTab';
 import LocationInstructionsTab from './components/LocationInstructionsTab';
-import { customers, type Customer, type CustomerLocation } from '@/mocks/customers';
+import { customers as mockCustomers, type Customer, type CustomerLocation } from '@/mocks/customers';
+import { fetchCustomers } from '@/mocks/schedule';
 
 type TabKey = 'overview' | 'orders' | 'deliveries' | 'tanks' | 'instructions';
 
@@ -22,6 +23,23 @@ const tabs: { key: TabKey; label: string }[] = [
 export default function LocationDetailPage() {
   const { id } = useParams();
   const [tab, setTab] = useState<TabKey>('overview');
+  const [customers, setCustomers] = useState<Customer[]>(mockCustomers);
+
+  useEffect(() => {
+    let active = true;
+
+    fetchCustomers()
+      .then((apiCustomers) => {
+        if (active) setCustomers(apiCustomers);
+      })
+      .catch((error) => {
+        console.error('Failed to load customer location details', error);
+      });
+
+    return () => {
+      active = false;
+    };
+  }, []);
 
   let found: { customer: Customer; location: CustomerLocation } | null = null;
   for (const c of customers) {

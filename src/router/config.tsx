@@ -136,6 +136,7 @@ const baseRoutes: RouteObject[] = [
   // Dispatch
   { path: '/dispatch', element: <SchedulePage /> },
   { path: '/dispatch/new', element: <NewSchedulePage /> },
+  { path: '/dispatch/runs/:id/edit', element: <NewSchedulePage /> },
   { path: '/dispatch/schedule', element: <Navigate to="/dispatch" replace /> },
   { path: '/dispatch/unassigned', element: <UnassignedPage /> },
   { path: '/dispatch/map', element: <DispatchMapPage /> },

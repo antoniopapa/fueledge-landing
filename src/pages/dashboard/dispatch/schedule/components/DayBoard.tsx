@@ -10,6 +10,7 @@ interface DayBoardProps {
   resources: ScheduleResource[];
   runs: ScheduleRun[];
   onRunClick: (run: ScheduleRun) => void;
+  onRunDoubleClick: (run: ScheduleRun) => void;
   onDropRun: (runId: string, driverName: string, truckPlate: string) => void;
 }
 
@@ -52,7 +53,7 @@ function assignLanes(runs: ScheduleRun[]): ScheduleRun[][] {
   return lanes;
 }
 
-export default function DayBoard({ day, dayIndex, resources, runs, onRunClick, onDropRun }: DayBoardProps) {
+export default function DayBoard({ day, dayIndex, resources, runs, onRunClick, onRunDoubleClick, onDropRun }: DayBoardProps) {
   const { t } = useTranslation();
   const dayRuns = runs.filter((r) => r.day === dayIndex);
 
@@ -119,7 +120,7 @@ export default function DayBoard({ day, dayIndex, resources, runs, onRunClick, o
                           className="absolute px-1"
                           style={{ left: `${left}%`, width: `${width}%`, top: li * 42 + 6 }}
                         >
-                          <RunBlock run={l} variant="day" onClick={() => onRunClick(l)} />
+                          <RunBlock run={l} variant="day" onClick={() => onRunClick(l)} onDoubleClick={() => onRunDoubleClick(l)} />
                         </div>
                       );
                     }),

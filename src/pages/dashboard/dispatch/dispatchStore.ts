@@ -87,6 +87,11 @@ export function updateScheduleRun(runId: string, patch: Partial<ScheduleRun>): v
   emit();
 }
 
+export function removeScheduleRun(runId: string): void {
+  schedule = schedule.filter((r) => r.id !== runId);
+  emit();
+}
+
 function firstTime(window: string): string {
   const match = window.match(/\d{2}:\d{2}/);
   return match ? match[0] : '09:00';

@@ -1,14 +1,32 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import ModuleShell from '@/pages/dashboard/components/ModuleShell';
 import CustomersTable from './components/CustomersTable';
-import { customers, type AccountStatus } from '@/mocks/customers';
+import { customers as mockCustomers, type AccountStatus, type Customer } from '@/mocks/customers';
+import { createCustomer, deleteCustomer, fetchCustomers, updateCustomer } from '@/mocks/schedule';
 import { customersNav } from '@/pages/dashboard/nav';
 
 const statuses: AccountStatus[] = ['Active', 'Credit Warning', 'On Hold', 'Inactive'];
 
 export default function CustomersPage() {
+  const [customers, setCustomers] = useState<Customer[]>(mockCustomers);
   const [status, setStatus] = useState<AccountStatus | null>(null);
   const [search, setSearch] = useState('');
+
+  useEffect(() => {
+    let active = true;
+
+    fetchCustomers()
+      .then((apiCustomers) => {
+        if (active) setCustomers(apiCustomers);
+      })
+      .catch((error) => {
+        console.error('Failed to load customers', error);
+      });
+
+    return () => {
+      active = false;
+    };
+  }, []);
 
   const filtered = useMemo(
     () =>
@@ -21,13 +39,73 @@ export default function CustomersPage() {
         }
         return true;
       }),
-    [status, search],
+    [customers, status, search],
   );
 
   const active = customers.filter((c) => c.accountStatus === 'Active').length;
   const warnings = customers.filter((c) => c.accountStatus === 'Credit Warning').length;
   const openOrders = customers.reduce((sum, c) => sum + c.openOrders, 0);
   const outstanding = customers.filter((c) => c.billingStatus.toLowerCase().includes('overdue')).length;
+
+  function customerPayload(existing?: Customer): Partial<Customer> | null {
+    const name = window.prompt('Customer name', existing?.name ?? '');
+    if (!name) return null;
+
+    const statusInput = window.prompt('Account status: Active, Credit Warning, On Hold, Inactive', existing?.accountStatus ?? 'Active') ?? existing?.accountStatus ?? 'Active';
+    const accountStatus = statuses.includes(statusInput as AccountStatus) || statusInput === 'On Hold' || statusInput === 'Inactive'
+      ? (statusInput as AccountStatus)
+      : 'Active';
+    const products = (window.prompt('Products, comma separated', existing?.products.join(', ') ?? '') ?? '')
+      .split(',')
+      .map((item) => item.trim())
+      .filter(Boolean);
+
+    return {
+      ...(existing ?? {}),
+      name,
+      type: window.prompt('Customer type', existing?.type ?? 'Customer') ?? existing?.type ?? 'Customer',
+      accountStatus,
+      creditLimit: window.prompt('Credit limit', existing?.creditLimit ?? '—') ?? existing?.creditLimit ?? '—',
+      creditStatus: window.prompt('Credit status', existing?.creditStatus ?? '—') ?? existing?.creditStatus ?? '—',
+      products,
+      pricingAgreement: window.prompt('Pricing agreement', existing?.pricingAgreement ?? '—') ?? existing?.pricingAgreement ?? '—',
+      contract: window.prompt('Contract', existing?.contract ?? '—') ?? existing?.contract ?? '—',
+      openOrders: Number(window.prompt('Open orders', String(existing?.openOrders ?? 0)) ?? existing?.openOrders ?? 0),
+      outstandingBalance: window.prompt('Outstanding balance', existing?.outstandingBalance ?? '—') ?? existing?.outstandingBalance ?? '—',
+      billingStatus: window.prompt('Billing status', existing?.billingStatus ?? '—') ?? existing?.billingStatus ?? '—',
+      lastDelivery: window.prompt('Last delivery', existing?.lastDelivery ?? '—') ?? existing?.lastDelivery ?? '—',
+      totalVolume: existing?.totalVolume ?? '—',
+      revenue: existing?.revenue ?? '—',
+      grossMargin: existing?.grossMargin ?? '—',
+      openInvoices: existing?.openInvoices ?? 0,
+      mainContacts: existing?.mainContacts ?? [],
+      billingContact: existing?.billingContact ?? { name: '—', role: 'Billing', email: '', phone: '' },
+      locations: existing?.locations ?? [],
+    };
+  }
+
+  async function handleCreateCustomer() {
+    const payload = customerPayload();
+    if (!payload) return;
+
+    const customer = await createCustomer(payload);
+    setCustomers((items) => [...items, customer]);
+  }
+
+  async function handleEditCustomer(customer: Customer) {
+    const payload = customerPayload(customer);
+    if (!payload) return;
+
+    const updated = await updateCustomer(customer.id, payload);
+    setCustomers((items) => items.map((item) => (item.id === customer.id ? updated : item)));
+  }
+
+  async function handleDeleteCustomer(customer: Customer) {
+    if (!window.confirm(`Delete ${customer.name}?`)) return;
+
+    await deleteCustomer(customer.id);
+    setCustomers((items) => items.filter((item) => item.id !== customer.id));
+  }
 
   return (
     <ModuleShell
@@ -36,6 +114,17 @@ export default function CustomersPage() {
       icon="ri-team-line"
       subNav={customersNav}
     >
+      <div className="mb-4 flex justify-end">
+        <button
+          type="button"
+          onClick={handleCreateCustomer}
+          className="inline-flex items-center gap-1.5 rounded-md bg-primary-500 px-3 py-2 text-xs font-semibold text-background-50 transition-colors hover:bg-primary-600"
+        >
+          <i className="ri-add-line text-sm leading-none" />
+          Add customer
+        </button>
+      </div>
+
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
         <div className="rounded-lg border border-background-200 bg-background-50 px-3.5 py-3">
           <p className="text-[11px] uppercase tracking-wide text-foreground-400 font-medium whitespace-nowrap">Total Customers</p>
@@ -109,7 +198,7 @@ export default function CustomersPage() {
 
       <div className="mt-4">
         {filtered.length > 0 ? (
-          <CustomersTable customers={filtered} />
+          <CustomersTable customers={filtered} onEdit={handleEditCustomer} onDelete={handleDeleteCustomer} />
         ) : (
           <div className="rounded-lg border border-dashed border-background-300 bg-background-50 p-12 text-center">
             <i className="ri-user-search-line text-foreground-300 text-3xl leading-none" />

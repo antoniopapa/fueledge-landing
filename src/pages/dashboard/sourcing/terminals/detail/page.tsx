@@ -1,7 +1,8 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import ModuleShell from '@/pages/dashboard/components/ModuleShell';
-import { terminals } from '@/mocks/sourcing';
+import { terminals as mockTerminals, type Terminal } from '@/mocks/sourcing';
+import { fetchTerminals } from '@/mocks/schedule';
 import { orders } from '@/mocks/orders';
 import TerminalStatusBadge from '@/pages/dashboard/sourcing/components/TerminalStatusBadge';
 
@@ -19,7 +20,24 @@ export default function TerminalDetailPage() {
   const { id } = useParams();
   const navigate = useNavigate();
   const [tab, setTab] = useState<TabKey>('overview');
+  const [terminals, setTerminals] = useState<Terminal[]>(mockTerminals);
   const terminal = terminals.find((t) => t.id === id);
+
+  useEffect(() => {
+    let active = true;
+
+    fetchTerminals()
+      .then((apiTerminals) => {
+        if (active) setTerminals(apiTerminals);
+      })
+      .catch((error) => {
+        console.error('Failed to load terminal details', error);
+      });
+
+    return () => {
+      active = false;
+    };
+  }, []);
 
   if (!terminal) {
     return (

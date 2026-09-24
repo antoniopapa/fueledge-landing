@@ -6,9 +6,10 @@ interface RunBlockProps {
   run: ScheduleRun;
   variant?: 'week' | 'day';
   onClick?: () => void;
+  onDoubleClick?: () => void;
 }
 
-export default function RunBlock({ run, variant = 'week', onClick }: RunBlockProps) {
+export default function RunBlock({ run, variant = 'week', onClick, onDoubleClick }: RunBlockProps) {
   const { t } = useTranslation();
   const meta = statusMeta[run.status];
   const title = run.conflict
@@ -21,6 +22,7 @@ export default function RunBlock({ run, variant = 'week', onClick }: RunBlockPro
       draggable
       onDragStart={(e) => e.dataTransfer.setData('text/plain', run.id)}
       onClick={onClick}
+      onDoubleClick={onDoubleClick}
       title={title}
       className={`relative block w-full overflow-hidden rounded-md border text-left cursor-pointer transition-colors hover:brightness-95 ${
         run.conflict ? 'border-red-300 ring-1 ring-red-300' : 'border-transparent'
